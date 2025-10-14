@@ -1,11 +1,7 @@
-'use client';
-import { useEffect, useState } from 'react';
-import Sidebar from '../../components/ui/sidebar';
-import Header from '../../components/ui/header';
-import CompanyForm from '../../components/forms/company-form';
-import Table from '../../components/ui/table';
-import { getCompanies } from '../../hooks/useCompanies';
+import React, { useState } from 'react';
+import { Rocket } from 'lucide-react';
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<any[]>([]);
@@ -20,6 +16,14 @@ type ThemeKey = 'original'  | 'whiteblue';
 const themes: Record<ThemeKey, any> = {
   original: { /* ... */ },
 
+=======
+type ThemeKey = 'original' | 'purple' | 'dark' | 'whiteblue';
+
+const themes: Record<ThemeKey, any> = {
+  original: { /* ... */ },
+  purple: { /* ... */ },
+  dark: { /* ... */ },
+>>>>>>> 761e983e54a6abff8633245392de60498ac4e7d9
   whiteblue: {
     name: 'Branco → Azul #0a1a40',
     bg: 'bg-white',
@@ -34,21 +38,23 @@ const themes: Record<ThemeKey, any> = {
     buttonBg: 'bg-white hover:bg-blue-100 text-[#0a1a40]',
   },
 };
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> 761e983e54a6abff8633245392de60498ac4e7d9
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
+const menuItems = [
+  { href: '#', icon: Rocket, title: 'Dashboard', desc: 'Visão geral do sistema' },
+  // ...outros itens...
+];
+
+export default function HomePage() {
+  const [theme] = useState<ThemeKey>('whiteblue');
+  const currentTheme = themes[theme];
 
   return (
-    <div className="flex">
-      <div className="flex-1 p-6">
-        <Header title="Empresas (Tenants)" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <CompanyForm onSuccess={fetchCompanies} />
-        </div>
-        <Table columns={['Nome', 'CNPJ', 'Usuários']} data={companies} />
-      </div>
+    <div>
+      {/* ...seu código... */}
     </div>
   );
 }
