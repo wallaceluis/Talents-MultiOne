@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import React from 'react';
 import { LayoutDashboard, Building2, Users, UserCircle, FileText, Rocket } from 'lucide-react';
 
@@ -89,4 +87,3 @@ export default function HomePage() {
     </div>
   );
 }
->>>>>>> 761e983e54a6abff8633245392de60498ac4e7d9
