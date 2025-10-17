@@ -1,7 +1,7 @@
-import "../styles/globals.css";
+import "../../styles/globals.css;";
 import { ReactNode } from "react";
 
-export default function DashbordLayout({ children }: { children: ReactNode }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <body className="flex min-h-screen bg-gray-100">
