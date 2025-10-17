@@ -9,29 +9,23 @@ export default function AuthPages() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentPage, setCurrentPage] = useState('login');
-  
-  // Estado para controlar o tema 
+
   const [isDarkMode, setIsDarkMode] = useState(false); 
-  
-  // Estados para os campos do formulário de Login
+
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  
-  // Estados para os campos do formulário de Cadastro
+
   const [companyName, setCompanyName] = useState('');
   const [corporateEmail, setCorporateEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState(''); 
 
-  // Função de tratamento de login 
   const handleLogin = () => {
     console.log('Tentativa de Login:', { loginEmail, loginPassword });
     
   };
 
-  // Função de tratamento de registro 
   const handleRegister = () => {
-    //  verifica se as senhas coincidem
     if (registerPassword !== confirmPassword) {
       console.error("Erro: As senhas não coincidem.");
       return;
@@ -40,7 +34,6 @@ export default function AuthPages() {
     
   };
 
-  // Bloco de credenciais administrativas 
   const AdminAccessBlock = () => (
     <div className={`p-10 rounded-lg shadow-md transition-colors ${
         isDarkMode 
@@ -60,38 +53,33 @@ export default function AuthPages() {
     </div>
   );
 
-  // Classes de estilo condicional 
   const themeClasses = {
-    // Fundo da Tela
     screenBg: isDarkMode 
       ? 'bg-gradient-to-br from-black via-slate-900 to-slate-950' 
       : 'bg-gradient-to-br from-gray-100 via-white to-gray-50',
-    // Efeito Blur
+
     blurEffect: isDarkMode 
       ? 'bg-blue-900/30' 
       : 'bg-blue-200/50',
-    // Cartão Principal
+
     cardBg: isDarkMode 
       ? 'bg-slate-900/90 shadow-2xl shadow-slate-950/70 border border-slate-800/50' 
       : 'bg-white/95 shadow-xl shadow-gray-300/50 border border-gray-200',
-    // Títulos e Texto Principal
+
     titleText: isDarkMode ? 'text-white' : 'text-gray-900',
     subtitleText: isDarkMode ? 'text-slate-400' : 'text-gray-500',
-    // Labels dos Campos
+
     labelText: isDarkMode ? 'text-slate-300' : 'text-gray-700',
-    // Input
+
     inputClasses: isDarkMode 
       ? 'bg-slate-800/50 border-slate-700 text-white placeholder-slate-500' 
       : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400',
-    // Ícones no Input
+
     inputIcon: isDarkMode ? 'text-slate-500' : 'text-gray-400',
-    // Alternância de Senha
     passwordToggle: isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-gray-400 hover:text-gray-600',
-    // Separador (Login Links)
     separator: isDarkMode ? 'text-slate-600' : 'text-gray-400',
   };
 
-  // Componente de Botão de Alternância de Tema
   const ThemeToggle = () => (
     <button
       onClick={() => setIsDarkMode(!isDarkMode)}
@@ -106,10 +94,8 @@ export default function AuthPages() {
     </button>
   );
 
-  //  exibe o formulário de CADASTRO
   if (currentPage === 'register') {
     return (
-      // Container principal 
       <div className={`w-screen h-screen ${themeClasses.screenBg} flex items-center justify-center font-['Inter'] transition-colors overflow-x-hidden`}>
         {/* Botão de Alternância de Tema */}
         <ThemeToggle />
@@ -295,7 +281,6 @@ export default function AuthPages() {
 
   
   return (
-    // Container principal 
     <div className={`w-screen h-screen ${themeClasses.screenBg} flex items-center justify-center font-['Inter'] transition-colors overflow-x-hidden`}>
       {/* Botão de Alternância de Tema */}
       <ThemeToggle />
