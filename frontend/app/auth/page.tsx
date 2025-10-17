@@ -277,11 +277,11 @@ export default function AuthPages() {
               </button>
             </div>
           </div>
-          {/* FIM DO CARD PRINCIPAL DE CADASTRO  */}
+          
 
-          {/* Bloco de Credenciais Administrativas - FORA DO CARD */}
-          <div className="mt-6">
-            <AdminAccessBlock />
+          {/* Bloco de Credenciais Administrativas */}
+          <div className="text-center mt-6">
+            
           </div>
 
           {/* Rodapé informativo */}
@@ -293,7 +293,7 @@ export default function AuthPages() {
     );
   }
 
-  // Renderização da página de LOGIN 
+  
   return (
     // Container principal 
     <div className={`w-screen h-screen ${themeClasses.screenBg} flex items-center justify-center font-['Inter'] transition-colors overflow-x-hidden`}>
@@ -323,7 +323,7 @@ export default function AuthPages() {
           {/* Títulos */}
           <div className="text-center mb-8">
             <h1 className={`text-2xl font-bold mb-2 ${themeClasses.titleText}`}>MultiOne Talents</h1>
-            <p className={`text-sm ${themeClasses.subtitleText}`}>Entre na sua conta</p>
+            <p className={`text-sm ${themeClasses.subtitleText}`}>Entre na sua conta </p>
           </div>
           
           {/* Início dos campos do formulário de login */}
