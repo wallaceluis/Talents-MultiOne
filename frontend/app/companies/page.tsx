@@ -1,12 +1,13 @@
+'use client';
 import React, { useState } from 'react';
 import { Rocket } from 'lucide-react';
 
 type ThemeKey = 'original' | 'purple' | 'dark' | 'whiteblue';
 
 const themes: Record<ThemeKey, any> = {
-  original: { /* ... */ },
-  purple: { /* ... */ },
-  dark: { /* ... */ },
+  original: {},
+  purple: {},
+  dark: {},
   whiteblue: {
     name: 'Branco → Azul #0a1a40',
     bg: 'bg-white',
@@ -27,9 +28,21 @@ const menuItems = [
   // ...outros itens...
 ];
 
-export default function HomePage() {
+// If you need to fetch companies, define getCompanies here or import it.
+// Example stub:
+async function getCompanies(): Promise<any[]> {
+  return [];
+}
+
+export default function CompaniesPage() {
   const [theme] = useState<ThemeKey>('whiteblue');
   const currentTheme = themes[theme];
+
+  // Example usage of getCompanies if needed:
+  // const [companies, setCompanies] = useState<any[]>([]);
+  // useEffect(() => {
+  //   getCompanies().then(data => setCompanies(Array.isArray(data) ? data : []));
+  // }, []);
 
   return (
     <div>
