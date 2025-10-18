@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   LayoutDashboard,
   Building2,
@@ -10,9 +10,13 @@ import {
   Menu,
   X,
   Search,
-
+  Sun,
+  Moon,
   Palette,
   LucideIcon,
+  User,
+  LogOut,
+  ChevronDown,
 } from 'lucide-react';
 
 
@@ -239,15 +243,15 @@ const CompaniesPage: React.FC<ThemeProp> = ({ currentTheme }) => {
             type="text"
             placeholder="Buscar empresas..."
             className={`w-full p-3 pl-12 pr-4 rounded-xl border ${currentTheme.name === 'Claro'
-              ? 'border-gray-300 bg-white text-gray-900'
-              : 'bg-gray-800/50 border-gray-700/50 text-white'
+                ? 'border-gray-300 bg-white text-gray-900'
+                : 'bg-gray-800/50 border-gray-700/50 text-white'
               } placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
           />
         </div>
 
         <select className={`w-full lg:w-56 p-3 rounded-xl border cursor-pointer ${currentTheme.name === 'Claro'
-          ? 'border-gray-300 bg-white text-gray-900'
-          : 'bg-gray-800/50 border-gray-700/50 text-white'
+            ? 'border-gray-300 bg-white text-gray-900'
+            : 'bg-gray-800/50 border-gray-700/50 text-white'
           } transition-all`}>
           <option value="">Todos os Setores</option>
           <option>Tecnologia da Informação (TI) / Software </option>
@@ -285,8 +289,8 @@ const CompaniesPage: React.FC<ThemeProp> = ({ currentTheme }) => {
         </select>
 
         <select className={`w-full lg:w-52 p-3 rounded-xl border cursor-pointer ${currentTheme.name === 'Claro'
-          ? 'border-gray-300 bg-white text-gray-900'
-          : 'bg-gray-800/50 border-gray-700/50 text-white'
+            ? 'border-gray-300 bg-white text-gray-900'
+            : 'bg-gray-800/50 border-gray-700/50 text-white'
           } transition-all`}>
           <option value="">Todos os Planos</option>
           <option>Gratuito</option>
@@ -308,17 +312,21 @@ const CompaniesPage: React.FC<ThemeProp> = ({ currentTheme }) => {
 };
 
 export default function DashboardLayout() {
-  const [theme, setTheme] = useState<keyof Themes>('whiteblue');
-  const [activePage, setActivePage] = useState<string>('Dashboard');
-  const [showThemeSelector, setShowThemeSelector] = useState<boolean>(false);
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [theme, setTheme] = React.useState<keyof Themes>('whiteblue');
+  const [activePage, setActivePage] = React.useState<string>('Dashboard');
+  const [sidebarOpen, setSidebarOpen] = React.useState<boolean>(false);
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
+  const [userMenuOpen, setUserMenuOpen] = React.useState<boolean>(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      if (!mobile) setSidebarOpen(true);
+      if (!mobile) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
     };
 
     checkMobile();
@@ -326,23 +334,24 @@ export default function DashboardLayout() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-
   const currentTheme: ThemeStyle = themes[theme];
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'whiteblue' ? 'original' : 'whiteblue');
+  };
+
   return (
     <div className={`min-h-screen ${currentTheme.bg} transition-colors duration-500`}>
-
       {isMobile && sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
 
       <aside
         className={`${currentTheme.sidebar} fixed top-0 left-0 h-full p-4 flex flex-col justify-between transition-all duration-300 z-40
@@ -352,21 +361,16 @@ export default function DashboardLayout() {
         <div>
           <div className={`flex items-center mb-8 ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
             <div className="flex items-center">
-
               {sidebarOpen && <span className={`ml-2 text-xl font-bold ${currentTheme.titleColor}`}>MultiOne</span>}
             </div>
-
             <button onClick={toggleSidebar} className={`${currentTheme.mainText} ${isMobile || sidebarOpen ? '' : 'hidden lg:block'}`}>
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
-
           <nav className="space-y-2">
             {menuItems.map((item, i) => {
-
               const Icon = item.icon;
               const isActive = item.page === activePage;
-
               return (
                 <button
                   key={i}
@@ -385,73 +389,81 @@ export default function DashboardLayout() {
             })}
           </nav>
         </div>
-
-        <button
-          onClick={() => setShowThemeSelector(!showThemeSelector)}
-          className={`flex items-center ${sidebarOpen ? 'justify-start' : 'justify-center'} gap-2 py-3 rounded-lg w-full ${currentTheme.buttonBg} font-bold transition-all duration-300 px-3`}
-        >
-          <Palette size={20} />
-          {sidebarOpen && <span>Tema</span>}
-        </button>
       </aside>
 
-      {/* Botão de menu para mobile */}
-      {isMobile && !sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className={`fixed top-4 left-4 z-20 p-3 rounded-lg ${currentTheme.buttonBg} shadow-lg lg:hidden`}
-        >
-          <Menu size={24} />
-        </button>
-      )}
-
-
-      <div className={`transition-all duration-300 ${sidebarOpen && !isMobile ? 'lg:ml-64' : 'lg:ml-20'} p-4 md:p-6 lg:p-10`}>
-        <div className="max-w-7xl mx-auto">
-          {activePage === 'Dashboard' ? (
-            <DashboardPage currentTheme={currentTheme} />
-          ) : (
-            <CompaniesPage currentTheme={currentTheme} />
-          )}
-        </div>
-      </div>
-
-
-      {showThemeSelector && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className={`${currentTheme.cardBg} backdrop-blur-lg p-6 md:p-8 rounded-2xl border ${currentTheme.cardBorder} shadow-2xl w-full max-w-sm`}>
-            <h3 className={`${currentTheme.mainText} text-lg font-bold mb-4 flex items-center justify-between`}>
-              <div className='flex items-center gap-2'>
-                <Palette size={20} />
-                Escolha o Tema
-              </div>
-              <button onClick={() => setShowThemeSelector(false)} className={`${currentTheme.name === 'Claro' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} transition-colors`}>
-                <X size={20} />
+      <div className={`transition-all duration-300 ${sidebarOpen && !isMobile ? 'lg:ml-64' : 'lg:ml-20'}`}>
+        
+        <header className={`flex items-center justify-between sticky top-0 ${currentTheme.sidebar} ${isMobile ? 'py-3 px-4' : 'py-3 px-10'} border-b ${currentTheme.cardBorder} z-20`}>
+          
+          <div>
+            {isMobile && !sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className={`p-2 rounded-lg ${currentTheme.buttonBg} shadow-lg lg:hidden -ml-1`}
+              >
+                <Menu size={22} />
               </button>
-            </h3>
-            <div className="space-y-3">
-              {Object.keys(themes).map((key) => (
-                <button
-                  key={key}
+            )}
+          </div>
 
-                  onClick={() => {
-                    setTheme(key as keyof Themes);
-                    setShowThemeSelector(false);
-                  }}
-                  className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${theme === key
-                    ? 'bg-blue-600 text-white shadow-lg scale-105'
-                    : currentTheme.name === 'Claro'
-                      ? 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    }`}
-                >
-                  {themes[key].name}
-                </button>
-              ))}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className={`flex items-center gap-2 p-2 rounded-lg ${currentTheme.name === 'Claro' ? 'hover:bg-gray-100' : 'hover:bg-gray-800/50'} transition-colors`}
+              >
+                <User className={`${currentTheme.mainText} opacity-80`} size={24} />
+                <span className={`hidden md:block font-medium ${currentTheme.mainText}`}>Usuário</span>
+                <ChevronDown className={`${currentTheme.mainText} opacity-60`} size={16} />
+              </button>
+
+              {userMenuOpen && (
+                <div className={`absolute right-0 top-10 mt-2 w-56 ${currentTheme.cardBg} border ${currentTheme.cardBorder} rounded-xl shadow-2xl z-50`}>
+                  <div className="p-2">
+                    <div className="px-3 py-2">
+                      <p className={`text-sm font-medium ${currentTheme.titleColor} truncate`}>Nome do Usuário</p>
+                      <p className={`text-xs ${currentTheme.cardText} opacity-70 truncate`}>usuario@email.com</p>
+                    </div>
+                    <div className={`h-px ${currentTheme.name === 'Claro' ? 'bg-gray-200' : 'bg-gray-700/50'} my-1`} />
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        window.location.href = '/auth';
+                      }}
+                      className={`w-full text-left flex items-center gap-3 px-3 py-3 rounded-lg ${currentTheme.name === 'Claro' ? 'hover:bg-gray-100 text-red-600' : 'hover:bg-gray-800 text-red-400'} transition-colors`}
+                    >
+                      <LogOut size={18} />
+                      <span className="font-medium text-sm">Sair</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
+
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg ${currentTheme.name === 'Claro' ? 'hover:bg-gray-100' : 'hover:bg-gray-800/50'} transition-colors`}
+            >
+              {theme === 'whiteblue' ? (
+                <Moon className={`${currentTheme.mainText} opacity-80`} size={22} />
+              ) : (
+                <Sun className={`${currentTheme.mainText} opacity-80`} size={22} />
+              )}
+            </button>
+          </div>
+        </header>
+
+        <div className="p-4 md:p-6 lg:p-10">
+          <div className="max-w-7xl mx-auto">
+            {activePage === 'Dashboard' ? (
+              <DashboardPage currentTheme={currentTheme} />
+            ) : (
+              <CompaniesPage currentTheme={currentTheme} />
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
+
