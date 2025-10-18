@@ -10,9 +10,9 @@ import {
   Menu,
   X,
   Search,
-  
+
   Palette,
-  LucideIcon, 
+  LucideIcon,
 } from 'lucide-react';
 
 
@@ -38,32 +38,32 @@ type Themes = {
 
 
 interface MenuItem {
-    page: string;
-    icon: LucideIcon;
-    title: string;
+  page: string;
+  icon: LucideIcon;
+  title: string;
 }
 
 interface MetricCardData {
-    title: string;
-    value: string;
-    icon: LucideIcon;
-    color: string;
+  title: string;
+  value: string;
+  icon: LucideIcon;
+  color: string;
 }
 
 interface TableRowData {
-    empresa: string;
-    email: string;
-    setor: string;
-    plano: string;
-    status: string;
+  empresa: string;
+  email: string;
+  setor: string;
+  plano: string;
+  status: string;
 }
 
 
 interface ThemeProp {
-    currentTheme: ThemeStyle;
+  currentTheme: ThemeStyle;
 }
 
-interface MetricCardProps extends MetricCardData, ThemeProp {}
+interface MetricCardProps extends MetricCardData, ThemeProp { }
 
 
 
@@ -169,7 +169,7 @@ const CompaniesTable: React.FC<ThemeProp> = ({ currentTheme }) => (
                 <td className={`px-3 md:px-6 py-4 text-xs md:text-sm ${currentTheme.cardText} whitespace-nowrap`}>{row.plano}</td>
                 <td className={`px-3 md:px-6 py-4 text-xs md:text-sm ${currentTheme.cardText}`}>
                   <span className={`inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs font-medium
-                    ${row.status === 'Ativo' 
+                    ${row.status === 'Ativo'
                       ? currentTheme.name === 'Claro' ? 'bg-green-500/20 text-green-600' : 'bg-green-500/20 text-green-300'
                       : currentTheme.name === 'Claro' ? 'bg-yellow-500/20 text-yellow-600' : 'bg-yellow-500/20 text-yellow-300'
                     }`}>
@@ -238,30 +238,56 @@ const CompaniesPage: React.FC<ThemeProp> = ({ currentTheme }) => {
           <input
             type="text"
             placeholder="Buscar empresas..."
-            className={`w-full p-3 pl-12 pr-4 rounded-xl border ${
-              currentTheme.name === 'Claro' 
-                ? 'border-gray-300 bg-white text-gray-900' 
-                : 'bg-gray-800/50 border-gray-700/50 text-white'
-            } placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+            className={`w-full p-3 pl-12 pr-4 rounded-xl border ${currentTheme.name === 'Claro'
+              ? 'border-gray-300 bg-white text-gray-900'
+              : 'bg-gray-800/50 border-gray-700/50 text-white'
+              } placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
           />
         </div>
 
-        <select className={`w-full lg:w-56 p-3 rounded-xl border cursor-pointer ${
-          currentTheme.name === 'Claro'
-            ? 'border-gray-300 bg-white text-gray-900'
-            : 'bg-gray-800/50 border-gray-700/50 text-white'
-        } transition-all`}>
+        <select className={`w-full lg:w-56 p-3 rounded-xl border cursor-pointer ${currentTheme.name === 'Claro'
+          ? 'border-gray-300 bg-white text-gray-900'
+          : 'bg-gray-800/50 border-gray-700/50 text-white'
+          } transition-all`}>
           <option value="">Todos os Setores</option>
-          <option>Tecnologia</option>
-          <option>Saúde</option>
-          <option>Educação</option>
+          <option>Tecnologia da Informação (TI) / Software </option>
+          <option>Educação e Treinamento</option>
+          <option>Saúde e Bem-Estar</option>
+          <option>Vendas e Comércio</option>
+          <option>Marketing e Publicidade</option>
+          <option>Recursos Humanos e Recrutamento</option>
+          <option>Administração e Escritório</option>
+          <option>Finanças e Contabilidade</option>
+          <option>Engenharia e Projetos</option>
+          <option>Logística e Transporte</option>
+          <option>Indústria e Manufatura</option>
+          <option>Construção Civil e Arquitetura</option>
+          <option>Agronegócio e Agricultura</option>
+          <option>Jurídico e Advocacia</option>
+          <option>Hotelaria e Turismo</option>
+          <option>Alimentação e Gastronomia</option>
+          <option>Arte, Cultura e Entretenimento </option>
+          <option>Ciência e Pesquisa</option>
+          <option>Atendimento ao Cliente / Call Center</option>
+          <option>Energia e Meio Ambiente</option>
+          <option>Telecomunicações</option>
+          <option>Seguros</option>
+          <option>Imobiliário e Construção</option>
+          <option>Transporte Aéreo, Marítimo e Ferroviário</option>
+          <option>Setor Público e Governamental</option>
+          <option>Organizações sem Fins Lucrativos / ONG</option>
+          <option>Moda e Design</option>
+          <option>Esportes e Lazer</option>
+          <option>Mineração e Metalurgia</option>
+          <option>Farmacêutico e Biotecnologia  </option>
+          <option>Outros</option>
+
         </select>
 
-        <select className={`w-full lg:w-52 p-3 rounded-xl border cursor-pointer ${
-          currentTheme.name === 'Claro'
-            ? 'border-gray-300 bg-white text-gray-900'
-            : 'bg-gray-800/50 border-gray-700/50 text-white'
-        } transition-all`}>
+        <select className={`w-full lg:w-52 p-3 rounded-xl border cursor-pointer ${currentTheme.name === 'Claro'
+          ? 'border-gray-300 bg-white text-gray-900'
+          : 'bg-gray-800/50 border-gray-700/50 text-white'
+          } transition-all`}>
           <option value="">Todos os Planos</option>
           <option>Gratuito</option>
           <option>Básico</option>
@@ -282,8 +308,8 @@ const CompaniesPage: React.FC<ThemeProp> = ({ currentTheme }) => {
 };
 
 export default function DashboardLayout() {
-  const [theme, setTheme] = useState<keyof Themes>('whiteblue'); 
-  const [activePage, setActivePage] = useState<string>('Dashboard'); 
+  const [theme, setTheme] = useState<keyof Themes>('whiteblue');
+  const [activePage, setActivePage] = useState<string>('Dashboard');
   const [showThemeSelector, setShowThemeSelector] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -309,15 +335,15 @@ export default function DashboardLayout() {
 
   return (
     <div className={`min-h-screen ${currentTheme.bg} transition-colors duration-500`}>
-      
+
       {isMobile && sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      
+
       <aside
         className={`${currentTheme.sidebar} fixed top-0 left-0 h-full p-4 flex flex-col justify-between transition-all duration-300 z-40
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -326,10 +352,10 @@ export default function DashboardLayout() {
         <div>
           <div className={`flex items-center mb-8 ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
             <div className="flex items-center">
-              
+
               {sidebarOpen && <span className={`ml-2 text-xl font-bold ${currentTheme.titleColor}`}>MultiOne</span>}
             </div>
-            
+
             <button onClick={toggleSidebar} className={`${currentTheme.mainText} ${isMobile || sidebarOpen ? '' : 'hidden lg:block'}`}>
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -337,8 +363,8 @@ export default function DashboardLayout() {
 
           <nav className="space-y-2">
             {menuItems.map((item, i) => {
-             
-              const Icon = item.icon; 
+
+              const Icon = item.icon;
               const isActive = item.page === activePage;
 
               return (
@@ -379,7 +405,7 @@ export default function DashboardLayout() {
         </button>
       )}
 
-    
+
       <div className={`transition-all duration-300 ${sidebarOpen && !isMobile ? 'lg:ml-64' : 'lg:ml-20'} p-4 md:p-6 lg:p-10`}>
         <div className="max-w-7xl mx-auto">
           {activePage === 'Dashboard' ? (
@@ -390,7 +416,7 @@ export default function DashboardLayout() {
         </div>
       </div>
 
-     
+
       {showThemeSelector && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className={`${currentTheme.cardBg} backdrop-blur-lg p-6 md:p-8 rounded-2xl border ${currentTheme.cardBorder} shadow-2xl w-full max-w-sm`}>
@@ -407,18 +433,17 @@ export default function DashboardLayout() {
               {Object.keys(themes).map((key) => (
                 <button
                   key={key}
-                 
+
                   onClick={() => {
-                    setTheme(key as keyof Themes); 
+                    setTheme(key as keyof Themes);
                     setShowThemeSelector(false);
                   }}
-                  className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${
-                    theme === key
-                      ? 'bg-blue-600 text-white shadow-lg scale-105'
-                      : currentTheme.name === 'Claro' 
-                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${theme === key
+                    ? 'bg-blue-600 text-white shadow-lg scale-105'
+                    : currentTheme.name === 'Claro'
+                      ? 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
                 >
                   {themes[key].name}
                 </button>
