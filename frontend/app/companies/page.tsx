@@ -1,52 +1,53 @@
 'use client';
-import React, { useState } from 'react';
-import { Rocket } from 'lucide-react';
 
-type ThemeKey = 'original' | 'purple' | 'dark' | 'whiteblue';
-
-const themes: Record<ThemeKey, any> = {
-  original: {},
-  purple: {},
-  dark: {},
-  whiteblue: {
-    name: 'Branco → Azul #0a1a40',
-    bg: 'bg-white',
-    header: 'bg-white/95 backdrop-blur-md border-b border-blue-900 text-[#0a1a40]',
-    sidebar: 'bg-white/95 border-r border-blue-900 text-[#0a1a40]',
-    cardBg: 'bg-gradient-to-br from-[#0a1a40] via-[#243b6b] to-[#3b82f6]',
-    cardBorder: 'border-blue-900/80 hover:border-blue-700',
-    iconColor: 'text-white',
-    titleColor: 'text-white',
-    cardText: 'text-white',
-    mainText: 'text-[#0a1a40]',
-    buttonBg: 'bg-white hover:bg-blue-100 text-[#0a1a40]',
-  },
-};
-
-const menuItems = [
-  { href: '#', icon: Rocket, title: 'Dashboard', desc: 'Visão geral do sistema' },
-  // ...outros itens...
-];
-
-// If you need to fetch companies, define getCompanies here or import it.
-// Example stub:
-async function getCompanies(): Promise<any[]> {
-  return [];
-}
+import { useTheme } from '../dashboard/layout';
+import { MetricCard } from '../../components/ui/card';
+import { CompaniesTable } from '../../components/tables/companies-table';
+import { ListChecks, Users, Briefcase, X, Search } from 'lucide-react';
 
 export default function CompaniesPage() {
-  const [theme] = useState<ThemeKey>('whiteblue');
-  const currentTheme = themes[theme];
+    const { currentTheme } = useTheme();
 
-  // Example usage of getCompanies if needed:
-  // const [companies, setCompanies] = useState<any[]>([]);
-  // useEffect(() => {
-  //   getCompanies().then(data => setCompanies(Array.isArray(data) ? data : []));
-  // }, []);
+    const statusCardsData = [
+        { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
+        { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
+        { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
+        { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
+    ];
 
-  return (
-    <div>
-      {/* ...seu código... */}
-    </div>
-  );
+    return (
+        <main className="space-y-6 md:space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className={`text-2xl md:text-4xl font-bold ${currentTheme.mainText}`}>Gerenciamento de Empresas</h1>
+                    <p className={`mt-2 text-sm md:text-base ${currentTheme.mainText} opacity-70`}>
+                        Empresas cadastradas na plataforma
+                    </p>
+                </div>
+                <button className={`w-full md:w-auto px-5 py-3 rounded-lg ${currentTheme.buttonBg} font-medium whitespace-nowrap`}>
+                    + Cadastrar Empresa
+                </button>
+            </div>
+
+            <div className="flex flex-col lg:flex-row gap-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Buscar empresas..."
+                        className={`w-full p-3 pl-12 pr-4 rounded-xl border ${currentTheme.name === 'Claro' ? 'border-gray-300 bg-white text-gray-900' : 'bg-gray-800/50 border-gray-700/50 text-white'} placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {statusCardsData.map((data, i) => (
+                    <MetricCard key={`status-${i}`} {...data} />
+                ))}
+            </div>
+
+            <CompaniesTable />
+        </main>
+    );
 }
+
