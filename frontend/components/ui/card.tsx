@@ -17,4 +17,3 @@ export const MetricCard: React.FC<MetricCardData> = ({ title, value, icon: Icon,
         </div>
     );
 };
-
