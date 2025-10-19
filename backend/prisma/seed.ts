@@ -3,6 +3,154 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+async function seedCandidates() {
+  console.log('👥 Criando candidatos...');
+
+  // Buscar empresas
+  const companies = await prisma.company.findMany();
+  if (companies.length === 0) {
+    console.log('⚠️  Nenhuma empresa encontrada. Pulando seeds de candidatos.');
+    return;
+  }
+
+  const company1 = companies[0];
+
+  // Criar Skills
+  const skills = await Promise.all([
+    prisma.skill.upsert({
+      where: { name: 'JavaScript' },
+      update: {},
+      create: { name: 'JavaScript', category: 'Frontend' },
+    }),
+    prisma.skill.upsert({
+      where: { name: 'React' },
+      update: {},
+      create: { name: 'React', category: 'Frontend' },
+    }),
+    prisma.skill.upsert({
+      where: { name: 'Node.js' },
+      update: {},
+      create: { name: 'Node.js', category: 'Backend' },
+    }),
+    prisma.skill.upsert({
+      where: { name: 'Python' },
+      update: {},
+      create: { name: 'Python', category: 'Backend' },
+    }),
+    prisma.skill.upsert({
+      where: { name: 'SQL' },
+      update: {},
+      create: { name: 'SQL', category: 'Database' },
+    }),
+  ]);
+
+  // Criar Candidatos
+  const candidate1 = await prisma.candidate.create({
+    data: {
+      name: 'Carlos Eduardo',
+      email: 'carlos@email.com',
+      phone: '+55 11 98765-4321',
+      status: 'ACTIVE',
+      companyId: company1.id,
+      candidateSkills: {
+        create: [
+          {
+            skillId: skills[0].id,
+            level: 'ADVANCED',
+            yearsOfExperience: 5,
+          },
+          {
+            skillId: skills[1].id,
+            level: 'EXPERT',
+            yearsOfExperience: 4,
+          },
+        ],
+      },
+      experiences: {
+        create: [
+          {
+            company: 'Tech Solutions',
+            position: 'Senior Frontend Developer',
+            description: 'Desenvolvimento de aplicações React',
+            startDate: new Date('2020-01-01'),
+            isCurrent: true,
+          },
+          {
+            company: 'StartupXYZ',
+            position: 'Frontend Developer',
+            description: 'Desenvolvimento web',
+            startDate: new Date('2018-01-01'),
+            endDate: new Date('2019-12-31'),
+            isCurrent: false,
+          },
+        ],
+      },
+      educations: {
+        create: [
+          {
+            institution: 'USP',
+            degree: 'Ciência da Computação',
+            fieldOfStudy: 'Engenharia de Software',
+            level: 'BACHELOR',
+            status: 'COMPLETED',
+            startDate: new Date('2014-01-01'),
+            endDate: new Date('2017-12-31'),
+          },
+        ],
+      },
+    },
+  });
+
+  const candidate2 = await prisma.candidate.create({
+    data: {
+      name: 'Ana Paula Silva',
+      email: 'ana.silva@email.com',
+      phone: '+55 11 91234-5678',
+      status: 'IN_PROCESS',
+      companyId: company1.id,
+      candidateSkills: {
+        create: [
+          {
+            skillId: skills[2].id,
+            level: 'INTERMEDIATE',
+            yearsOfExperience: 2,
+          },
+          {
+            skillId: skills[3].id,
+            level: 'ADVANCED',
+            yearsOfExperience: 3,
+          },
+        ],
+      },
+      experiences: {
+        create: [
+          {
+            company: 'Data Corp',
+            position: 'Backend Developer',
+            description: 'Desenvolvimento de APIs',
+            startDate: new Date('2022-01-01'),
+            isCurrent: true,
+          },
+        ],
+      },
+      educations: {
+        create: [
+          {
+            institution: 'UNICAMP',
+            degree: 'Engenharia de Software',
+            level: 'MASTER',
+            status: 'IN_PROGRESS',
+            startDate: new Date('2023-01-01'),
+          },
+        ],
+      },
+    },
+  });
+
+  console.log(`✅ Candidatos criados: ${candidate1.name}, ${candidate2.name}`);
+  return { candidate1, candidate2 };
+}
+
 async function main() {
   console.log('🌱 Iniciando seeds...');
   console.log('');
@@ -14,6 +162,12 @@ async function main() {
 
   // Limpar dados
   console.log('🗑️  Limpando dados antigos...');
+  await prisma.application.deleteMany();
+  await prisma.candidateSkill.deleteMany();
+  await prisma.experience.deleteMany();
+  await prisma.education.deleteMany();
+  await prisma.candidate.deleteMany();
+  await prisma.skill.deleteMany();
   await prisma.user.deleteMany();
   await prisma.company.deleteMany();
   await prisma.plan.deleteMany();
@@ -68,12 +222,9 @@ async function main() {
 
   // Criar Usuários
   console.log('👥 Criando usuários...');
-  
-  // SENHAS PARA DESENVOLVIMENTO (NÃO USAR EM PRODUÇÃO!)
   const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
-  // Admin
-  const admin = await prisma.user.create({
+  await prisma.user.create({
     data: {
       name: 'Admin User',
       email: 'admin@multione.digital',
@@ -84,8 +235,7 @@ async function main() {
     },
   });
 
-  // Master
-  const master = await prisma.user.create({
+  await prisma.user.create({
     data: {
       name: 'Master User',
       email: 'master@multione.digital',
@@ -96,8 +246,7 @@ async function main() {
     },
   });
 
-  // Recruiter
-  const recruiter = await prisma.user.create({
+  await prisma.user.create({
     data: {
       name: 'João Silva',
       email: 'joao@techsolutions.com',
@@ -108,8 +257,7 @@ async function main() {
     },
   });
 
-  // Viewer
-  const viewer = await prisma.user.create({
+  await prisma.user.create({
     data: {
       name: 'Maria Santos',
       email: 'maria@innovationcorp.com',
@@ -120,12 +268,17 @@ async function main() {
     },
   });
 
+  // Criar Candidatos
+  await seedCandidates();
+
   console.log('✅ Seeds concluídos!');
   console.log('');
   console.log('📊 Resumo:');
   console.log(`   • Planos: 2`);
   console.log(`   • Empresas: 2`);
   console.log(`   • Usuários: 4`);
+  console.log(`   • Candidatos: 2`);
+  console.log(`   • Skills: 5`);
   console.log('');
   console.log('🔑 Credenciais de Teste (DESENVOLVIMENTO):');
   console.log(`   Admin: admin@multione.digital / Admin@123`);
