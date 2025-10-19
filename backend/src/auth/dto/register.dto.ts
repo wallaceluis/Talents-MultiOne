@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum, IsOptional, Matches } from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -11,7 +11,10 @@ export class RegisterDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Senha é obrigatória' })
-  @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
+  @MinLength(8, { message: 'Senha deve ter no mínimo 8 caracteres' })
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'Senha deve conter letras maiúsculas, minúsculas e números',
+  })
   password: string;
 
   @IsEnum(['ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER'], {

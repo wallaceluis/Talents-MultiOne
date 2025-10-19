@@ -1,3 +1,60 @@
+#!/bin/bash
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${YELLOW}Corrigindo erros finais...${NC}"
+echo ""
+
+# ========================================
+# ERRO 1: auth.module.ts - tipo expiresIn
+# ========================================
+echo -e "${YELLOW}[1/2] Corrigindo auth.module.ts...${NC}"
+
+cat > src/auth/auth.module.ts << 'AUTHMODULE'
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { UsersModule } from '../users/users.module';
+
+@Module({
+  imports: [
+    UsersModule,
+    PassportModule,
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get('JWT_EXPIRES_IN') || '7d',
+        },
+      }),
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, LocalStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+AUTHMODULE
+
+echo -e "${GREEN}✅ auth.module.ts corrigido!${NC}"
+echo ""
+
+# ========================================
+# ERRO 2: users.service.ts - tipo UserRole
+# ========================================
+echo -e "${YELLOW}[2/2] Corrigindo users.service.ts...${NC}"
+
+cat > src/users/users.service.ts << 'USERSERVICE'
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -138,3 +195,27 @@ export class UsersService {
     return { message: 'Usuário desativado com sucesso' };
   }
 }
+USERSERVICE
+
+echo -e "${GREEN}✅ users.service.ts corrigido!${NC}"
+echo ""
+
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}   ✅ ERROS CORRIGIDOS!${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo ""
+
+echo -e "${YELLOW}Testando compilação...${NC}"
+npm run build
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo -e "${GREEN}✅ Compilação bem-sucedida!${NC}"
+    echo ""
+    echo -e "${YELLOW}🚀 Agora execute:${NC}"
+    echo -e "   ${GREEN}npm run start:dev${NC}"
+else
+    echo ""
+    echo -e "${YELLOW}⚠️  Ainda há erros. Verificando...${NC}"
+fi
+

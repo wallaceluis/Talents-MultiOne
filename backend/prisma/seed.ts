@@ -5,6 +5,12 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Iniciando seeds...');
+  console.log('');
+  console.log('⚠️  =============================================');
+  console.log('⚠️  ATENÇÃO: Usando senhas FRACAS para DESENVOLVIMENTO');
+  console.log('⚠️  NUNCA use essas senhas em PRODUÇÃO!');
+  console.log('⚠️  =============================================');
+  console.log('');
 
   // Limpar dados
   console.log('🗑️  Limpando dados antigos...');
@@ -62,7 +68,9 @@ async function main() {
 
   // Criar Usuários
   console.log('👥 Criando usuários...');
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  
+  // SENHAS PARA DESENVOLVIMENTO (NÃO USAR EM PRODUÇÃO!)
+  const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
   // Admin
   const admin = await prisma.user.create({
@@ -93,7 +101,7 @@ async function main() {
     data: {
       name: 'João Silva',
       email: 'joao@techsolutions.com',
-      password: await bcrypt.hash('senha123', 10),
+      password: await bcrypt.hash('Senha@123', 10),
       role: 'RECRUITER',
       status: 'ACTIVE',
       companyId: company1.id,
@@ -105,7 +113,7 @@ async function main() {
     data: {
       name: 'Maria Santos',
       email: 'maria@innovationcorp.com',
-      password: await bcrypt.hash('senha123', 10),
+      password: await bcrypt.hash('Senha@123', 10),
       role: 'VIEWER',
       status: 'ACTIVE',
       companyId: company2.id,
@@ -119,11 +127,13 @@ async function main() {
   console.log(`   • Empresas: 2`);
   console.log(`   • Usuários: 4`);
   console.log('');
-  console.log('🔑 Credenciais de Teste:');
-  console.log(`   Admin: admin@multione.digital / admin123`);
-  console.log(`   Master: master@multione.digital / admin123`);
-  console.log(`   Recruiter: joao@techsolutions.com / senha123`);
-  console.log(`   Viewer: maria@innovationcorp.com / senha123`);
+  console.log('🔑 Credenciais de Teste (DESENVOLVIMENTO):');
+  console.log(`   Admin: admin@multione.digital / Admin@123`);
+  console.log(`   Master: master@multione.digital / Admin@123`);
+  console.log(`   Recruiter: joao@techsolutions.com / Senha@123`);
+  console.log(`   Viewer: maria@innovationcorp.com / Senha@123`);
+  console.log('');
+  console.log('⚠️  LEMBRE-SE: Altere essas senhas em PRODUÇÃO!');
 }
 
 main()

@@ -1,10 +1,12 @@
-import { Injectable, ExecutionContext } from '@nestjs/common';
+import { Injectable, ExecutionContext, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger(JwtAuthGuard.name);
+
   constructor(private reflector: Reflector) {
     super();
   }
@@ -15,7 +17,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getClass(),
     ]);
 
-    console.log('🔒 Route:', context.switchToHttp().getRequest().url);
+    // Log apenas em desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+      const request = context.switchToHttp().getRequest();
+      this.logger.debug(`Route: ${request.method} ${request.url}`);
+    }
 
     if (isPublic) {
       return true;

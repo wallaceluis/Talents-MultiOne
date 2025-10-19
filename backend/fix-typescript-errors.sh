@@ -1,8 +1,64 @@
+#!/bin/bash
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${YELLOW}Corrigindo erros de TypeScript...${NC}"
+echo ""
+
+# ========================================
+# ERRO 1: auth.module.ts - remover async
+# ========================================
+echo -e "${YELLOW}[1/2] Corrigindo auth.module.ts...${NC}"
+
+cat > src/auth/auth.module.ts << 'AUTHMODULE'
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { UsersModule } from '../users/users.module';
+
+@Module({
+  imports: [
+    UsersModule,
+    PassportModule,
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '7d',
+        },
+      }),
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, LocalStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+AUTHMODULE
+
+echo -e "${GREEN}✅ auth.module.ts corrigido!${NC}"
+echo ""
+
+# ========================================
+# ERRO 2, 3, 4, 5: users.service.ts
+# ========================================
+echo -e "${YELLOW}[2/2] Corrigindo users.service.ts...${NC}"
+
+cat > src/users/users.service.ts << 'USERSERVICE'
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -19,12 +75,11 @@ export class UsersService {
     }
 
     // NÃO fazer hash aqui - já vem hasheado do auth.service
-    const { companyId, role, ...userData } = createUserDto;
+    const { companyId, ...userData } = createUserDto;
     
     const { password, ...user } = await this.prisma.user.create({
       data: {
         ...userData,
-        role: role as UserRole,
         status: 'ACTIVE',
         ...(companyId && { 
           company: { 
@@ -92,18 +147,13 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
 
-    // Separar companyId e role do resto dos dados
-    const { companyId, role, password, ...restData } = updateUserDto;
+    // Separar companyId do resto dos dados
+    const { companyId, password, ...restData } = updateUserDto;
 
     // Preparar dados para atualização
     const dataToUpdate: any = {
       ...restData,
     };
-
-    // Converter role para UserRole se fornecido
-    if (role) {
-      dataToUpdate.role = role as UserRole;
-    }
 
     // Hash da senha se fornecida
     if (password) {
@@ -138,3 +188,16 @@ export class UsersService {
     return { message: 'Usuário desativado com sucesso' };
   }
 }
+USERSERVICE
+
+echo -e "${GREEN}✅ users.service.ts corrigido!${NC}"
+echo ""
+
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}   ✅ ERROS CORRIGIDOS!${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo ""
+
+echo -e "${YELLOW}Testando compilação...${NC}"
+npm run build
+
