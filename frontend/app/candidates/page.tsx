@@ -1,4 +1,4 @@
-export default function HomePage() {
+export default function CandidatesPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
       <h1 className="text-3xl font-bold text-gray-800">🚀 Frontend Next.js Ativo!</h1>

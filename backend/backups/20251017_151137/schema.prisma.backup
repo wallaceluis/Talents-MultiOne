@@ -1,0 +1,355 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  ADMIN
+  RECRUITER
+  MANAGER
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum PlanType {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum CandidateStatus {
+  ACTIVE
+  IN_PROCESS
+  HIRED
+  REJECTED
+  INACTIVE
+}
+
+enum VacancyStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum VacancyType {
+  CLT
+  PJ
+  INTERNSHIP
+  TEMPORARY
+  FREELANCE
+}
+
+enum WorkModel {
+  REMOTE
+  ONSITE
+  HYBRID
+}
+
+enum ApplicationStatus {
+  PENDING
+  IN_REVIEW
+  INTERVIEW_SCHEDULED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum InterviewType {
+  PHONE
+  VIDEO
+  IN_PERSON
+  TECHNICAL
+  HR
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+  NO_SHOW
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum EducationLevel {
+  HIGH_SCHOOL
+  TECHNICAL
+  ASSOCIATE
+  BACHELOR
+  MASTER
+  DOCTORATE
+}
+
+enum EducationStatus {
+  IN_PROGRESS
+  COMPLETED
+  INCOMPLETE
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+// 1. PLANS
+model Plan {
+  id            String    @id @default(uuid())
+  name          String
+  type          PlanType  @default(FREE)
+  maxUsers      Int       @default(5)
+  maxCandidates Int       @default(50)
+  maxVacancies  Int       @default(10)
+  price         Decimal   @db.Decimal(10, 2)
+  features      String[]
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  companies     Company[]
+  
+  @@map("plans")
+}
+
+// 2. COMPANIES
+model Company {
+  id        String        @id @default(uuid())
+  name      String
+  domain    String        @unique
+  status    CompanyStatus @default(ACTIVE)
+  planId    String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  
+  plan       Plan?        @relation(fields: [planId], references: [id])
+  users      User[]
+  candidates Candidate[]
+  vacancies  Vacancy[]
+  
+  @@map("companies")
+}
+
+// 3. USERS
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      UserRole   @default(RECRUITER)
+  status    UserStatus @default(ACTIVE)
+  companyId String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  company    Company     @relation(fields: [companyId], references: [id])
+  interviews Interview[]
+  auditLogs  AuditLog[]
+  
+  @@map("users")
+}
+
+// 4. CANDIDATES
+model Candidate {
+  id        String          @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  resume    String?
+  status    CandidateStatus @default(ACTIVE)
+  companyId String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  
+  company          Company          @relation(fields: [companyId], references: [id])
+  candidateSkills  CandidateSkill[]
+  experiences      Experience[]
+  educations       Education[]
+  applications     Application[]
+  
+  @@map("candidates")
+}
+
+// 5. SKILLS
+model Skill {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  category  String?
+  createdAt DateTime @default(now())
+  
+  candidateSkills CandidateSkill[]
+  vacancySkills   VacancySkill[]
+  
+  @@map("skills")
+}
+
+// 6. CANDIDATE_SKILLS
+model CandidateSkill {
+  id                String     @id @default(uuid())
+  candidateId       String
+  skillId           String
+  level             SkillLevel @default(INTERMEDIATE)
+  yearsOfExperience Int        @default(0)
+  createdAt         DateTime   @default(now())
+  
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  skill     Skill     @relation(fields: [skillId], references: [id])
+  
+  @@unique([candidateId, skillId])
+  @@map("candidate_skills")
+}
+
+// 7. EXPERIENCES
+model Experience {
+  id          String    @id @default(uuid())
+  candidateId String
+  company     String
+  position    String
+  description String?   @db.Text
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@map("experiences")
+}
+
+// 8. EDUCATIONS
+model Education {
+  id           String          @id @default(uuid())
+  candidateId  String
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  level        EducationLevel  @default(BACHELOR)
+  status       EducationStatus @default(COMPLETED)
+  startDate    DateTime
+  endDate      DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@map("educations")
+}
+
+// 9. VACANCIES
+model Vacancy {
+  id          String        @id @default(uuid())
+  title       String
+  description String        @db.Text
+  type        VacancyType   @default(CLT)
+  workModel   WorkModel     @default(HYBRID)
+  status      VacancyStatus @default(DRAFT)
+  salary      Decimal?      @db.Decimal(10, 2)
+  location    String?
+  companyId   String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  closedAt    DateTime?
+  
+  company       Company        @relation(fields: [companyId], references: [id])
+  vacancySkills VacancySkill[]
+  applications  Application[]
+  
+  @@map("vacancies")
+}
+
+// 10. VACANCY_SKILLS
+model VacancySkill {
+  id           String     @id @default(uuid())
+  vacancyId    String
+  skillId      String
+  isRequired   Boolean    @default(false)
+  minimumLevel SkillLevel @default(INTERMEDIATE)
+  createdAt    DateTime   @default(now())
+  
+  vacancy Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id])
+  
+  @@unique([vacancyId, skillId])
+  @@map("vacancy_skills")
+}
+
+// 11. APPLICATIONS
+model Application {
+  id          String            @id @default(uuid())
+  candidateId String
+  vacancyId   String
+  status      ApplicationStatus @default(PENDING)
+  notes       String?           @db.Text
+  appliedAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  candidate  Candidate   @relation(fields: [candidateId], references: [id])
+  vacancy    Vacancy     @relation(fields: [vacancyId], references: [id])
+  interviews Interview[]
+  
+  @@unique([candidateId, vacancyId])
+  @@map("applications")
+}
+
+// 12. INTERVIEWS
+model Interview {
+  id            String          @id @default(uuid())
+  applicationId String
+  interviewerId String
+  type          InterviewType   @default(VIDEO)
+  status        InterviewStatus @default(SCHEDULED)
+  scheduledAt   DateTime
+  duration      Int             @default(60)
+  location      String?
+  notes         String?         @db.Text
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  application Application @relation(fields: [applicationId], references: [id])
+  interviewer User        @relation(fields: [interviewerId], references: [id])
+  
+  @@map("interviews")
+}
+
+// 13. AUDIT_LOGS
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  oldData   String?  @db.Text
+  newData   String?  @db.Text
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@map("audit_logs")
+}
