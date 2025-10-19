@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from './layout';
+import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CompaniesTable } from '../../components/tables/companies-table';
 import { metricCards } from '../../lib/data';

@@ -1,7 +1,7 @@
 'use client';
 
 import { UserCircle } from 'lucide-react';
-import { useTheme } from '../dashboard/layout';
+import { useTheme } from "../../lib/theme";
 import { UsersTable } from '../../components/tables/users-table';
 
 export default function UsersPage() {
