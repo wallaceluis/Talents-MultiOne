@@ -5,11 +5,12 @@ export class Job {
   companyId: string;
   title: string;
   description: string;
-  salary?: number;
-  location?: number;
+  salary?: number | null;
+  location?: string | null;
   type: VacancyType;
   status: VacancyStatus;
   workModel: WorkModel;
   createdAt: Date;
   updatedAt: Date;
+  closedAt?: Date | null;
 }
