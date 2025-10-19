@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../../app/dashboard/layout';
+import { useTheme } from '../../lib/theme';
 import { tableData } from '../../lib/data';
 
 export const CompaniesTable = () => {

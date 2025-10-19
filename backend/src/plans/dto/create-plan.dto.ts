@@ -5,16 +5,23 @@ import {
   IsOptional,
   IsPositive,
   Min,
+  IsEnum,
+  IsArray,
+  ArrayNotEmpty,
+  IsBoolean,
 } from "class-validator";
+
+export enum PlanType {
+  FREE = "FREE",
+  BASIC = "BASIC",
+  PREMIUM = "PREMIUM",
+  ENTERPRISE = "ENTERPRISE",
+}
 
 export class CreatePlanDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
@@ -26,9 +33,26 @@ export class CreatePlanDto {
 
   @IsNumber()
   @Min(1)
-  maxJobs: number;
+  maxUsers: number;
 
   @IsNumber()
-  @Min(0)
-  durationDays: number;
+  @Min(1)
+  maxCandidates: number;
+
+  @IsNumber()
+  @Min(1)
+  maxVacancies: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  features: string[];
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+
+  @IsEnum(PlanType)
+  @IsOptional()
+  type?: PlanType;
 }

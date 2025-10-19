@@ -6,20 +6,32 @@ import {
   IsNotEmpty,
 } from "class-validator";
 
-export enum JobType {
+export enum VacancyType {
   CLT = "CLT",
-  ESTAGIO = "Estagio",
   PJ = "PJ",
-  JOVEM_APRENDIZ = "Jovem Aprendiz",
+  INTERNSHIP = "INTERNSHIP",
+  TEMPORARY = "TEMPORARY",
+  FREELANCE = "FREELANCE",
 }
 
-export enum JobStatus {
-  ATIVA = "Ativa",
-  PAUSADA = "Pausada",
-  FECHADA = "Fechada",
+export enum VacancyStatus {
+  DRAFT = "DRAFT",
+  OPEN = "OPEN",
+  CLOSED = "CLOSED",
+  CANCELLED = "CANCELLED",
+}
+
+export enum WorkModel {
+  REMOTE = "REMOTE",
+  ONSITE = "ONSITE",
+  HYBRID = "HYBRID",
 }
 
 export class CreateJobDto {
+  @IsString()
+  @IsNotEmpty()
+  companyId: string;
+
   @IsString()
   @IsNotEmpty()
   title: string;
@@ -28,21 +40,23 @@ export class CreateJobDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
-  @IsNotEmpty()
-  requirements: string;
-
   @IsNumber()
   @IsOptional()
   salary?: number;
 
   @IsString()
-  @IsNotEmpty()
-  location: string;
+  @IsOptional()
+  location?: string;
 
-  @IsEnum(JobType)
-  type: JobType;
+  @IsEnum(VacancyType)
+  @IsOptional()
+  type?: VacancyType;
 
-  @IsEnum(JobStatus)
-  status: JobStatus;
+  @IsEnum(VacancyStatus)
+  @IsOptional()
+  status?: VacancyStatus;
+
+  @IsEnum(WorkModel)
+  @IsOptional()
+  workModel?: WorkModel;
 }

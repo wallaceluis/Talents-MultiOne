@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../../app/dashboard/layout';
+import { useTheme } from '../../lib/theme';
 import { usersData } from '../../lib/data';
 import { Shield } from 'lucide-react';
 
