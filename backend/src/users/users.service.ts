@@ -17,14 +17,20 @@ export class UsersService {
       throw new ConflictException('Email já cadastrado');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    // NÃO fazer hash aqui - já vem hasheado do auth.service
+    const { companyId, ...userData } = createUserDto;
+    const dataToCreate: any = {
+      ...userData,
+      status: 'ACTIVE',
+    };
+
+    // Só adicionar companyId se existir
+    if (companyId) {
+      dataToCreate.companyId = companyId;
+    }
 
     const { password, ...user } = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-        status: 'ACTIVE',
-      },
+      data: dataToCreate,
     });
 
     return user;
@@ -43,6 +49,7 @@ export class UsersService {
         updatedAt: true,
       },
     });
+
     return users;
   }
 
@@ -88,9 +95,15 @@ export class UsersService {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
+    // Remover companyId se for undefined
+    const dataToUpdate: any = { ...updateUserDto };
+    if (dataToUpdate.companyId === undefined) {
+      delete dataToUpdate.companyId;
+    }
+
     const { password, ...user } = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: dataToUpdate,
     });
 
     return user;

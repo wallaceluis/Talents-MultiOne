@@ -13,7 +13,9 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
+    
     const user = await this.usersService.findByEmail(email);
+    
     
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas');
@@ -59,14 +61,29 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     
     const user = await this.usersService.create({
+      role: registerDto.role || 'RECRUITER',
       ...registerDto,
       password: hashedPassword,
     });
 
-    return this.login({
+    // Gerar token diretamente sem validar senha novamente
+    const payload = {
+      sub: user.id,
       email: user.email,
-      password: registerDto.password,
-    });
+      role: user.role,
+      companyId: user.companyId,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        companyId: user.companyId,
+      },
+    };
   }
 
   async me(userId: string) {
