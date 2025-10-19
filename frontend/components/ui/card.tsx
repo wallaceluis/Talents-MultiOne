@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../../app/dashboard/layout';
+import { useTheme } from '../../lib/theme';
 import { MetricCardData } from '../../lib/data';
 
 export const MetricCard: React.FC<MetricCardData> = ({ title, value, icon: Icon, color }) => {

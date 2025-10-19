@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Palette } from 'lucide-react';
 import { menuItems } from '../../lib/data';
-import { useTheme } from '../../app/dashboard/layout';
+import { useTheme } from '../../lib/theme';
 
 interface SidebarProps {
     sidebarOpen: boolean;

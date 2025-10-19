@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Sun, Moon, User, ChevronDown, LogOut } from 'lucide-react';
-import { useTheme } from '../../app/dashboard/layout';
+import { useTheme } from '../../lib/theme';
 
 export const Header = () => {
     const { currentTheme, toggleTheme } = useTheme();
