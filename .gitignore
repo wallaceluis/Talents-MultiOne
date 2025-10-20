@@ -1,47 +1,34 @@
 # Node
 node_modules/
 package-lock.json
+npm-debug.log*
 yarn.lock
-.pnpm-debug.log
 
-# Build outputs
+# Build
 .next/
 out/
 dist/
 build/
 
 # Logs
-logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+logs/
 
-# Env files
+# IMPORTANTE: Arquivos com senhas
 .env
 .env.local
-.env.*.local
+.env*.local
+backend/.env
+frontend/.env.local
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Prisma
-prisma/migrations/
-prisma/dev.db
-prisma/dev.db-journal
-
-# Editor configs
+# Editor
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
 
-# Coverage
-coverage/
-
-# Docker
-docker-compose.override.yml
-
-# Test artifacts
+# Outros
 *.tsbuildinfo
+.cache/
