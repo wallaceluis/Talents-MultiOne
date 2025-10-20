@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Briefcase, TrendingUp, ListChecks, LucideIcon, X} from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Briefcase, TrendingUp, ListChecks, LucideIcon, X, FileUser} from 'lucide-react';
 
 // Interfaces
 export interface ThemeStyle {
@@ -21,7 +21,9 @@ export const themes: Themes = {
 export const menuItems: MenuItem[] = [
     { page: 'Dashboard', icon: LayoutDashboard, title: 'Dashboard', href: '/dashboard' },
     { page: 'Empresas', icon: Building2, title: 'Empresas', href: '/companies' },
+    { page: 'Candidatos', icon: FileUser, title: 'Candidatos', href: '/candidates' },
     { page: 'Users', icon: Users, title: 'Usuários', href: '/users' },
+    
 ];
 
 export const metricCards: MetricCardData[] = [
@@ -46,3 +48,5 @@ export const statusCardsData = [
         { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
         { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
     ];
+
+
