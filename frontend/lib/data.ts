@@ -23,6 +23,7 @@ export const menuItems: MenuItem[] = [
     { page: 'Empresas', icon: Building2, title: 'Empresas', href: '/companies' },
     { page: 'Candidatos', icon: FileUser, title: 'Candidatos', href: '/candidates' },
     { page: 'Users', icon: Users, title: 'Usuários', href: '/users' },
+    { page: 'vagas', icon: Briefcase, title: 'Vagas', href: '/vacancies' },
     
 ];
 
@@ -50,3 +51,21 @@ export const statusCardsData = [
     ];
 
 
+export interface VacancyRowData { 
+    titulo: string; 
+    empresa: string; 
+    setor: string; 
+    candidaturas: string; 
+    status: string; 
+}
+
+export const vacanciesMetricCards: MetricCardData[] = [
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-green-500' },
+    { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
+    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' },
+];
+
+export const vacanciesTableData: VacancyRowData[] = [
+    { titulo: 'Desenvolvedor Full Stack', empresa: 'Empresa 10', setor: 'Indústria', candidaturas: '5', status: 'Aberta' },
+    { titulo: 'Analista de Logística', empresa: 'Suprenova Telecom', setor: 'Logística', candidaturas: '3', status: 'Aberta' },
+];

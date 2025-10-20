@@ -3,7 +3,7 @@
 import { useTheme } from '../../lib/theme';
 import { MetricCardData } from '../../lib/data';
 
-export const MetricCard: React.FC<MetricCardData> = ({ title, value, icon: Icon, color }) => {
+export function MetricCard({ title, value, icon: Icon, color }: MetricCardData) {
     const { currentTheme } = useTheme();
     return (
         <div className={`p-4 md:p-5 rounded-xl md:rounded-2xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} transition-all duration-300 shadow-lg`}>
@@ -16,4 +16,4 @@ export const MetricCard: React.FC<MetricCardData> = ({ title, value, icon: Icon,
             </div>
         </div>
     );
-};
+}
