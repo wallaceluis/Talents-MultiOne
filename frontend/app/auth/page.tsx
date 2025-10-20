@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Building2, Mail, Lock, Key, Sun, Moon } from 'lucide-react'; 
+import { Eye, EyeOff, Building2, Mail, Lock, Key } from 'lucide-react'; 
 import "../../styles/globals.css";
 
 export default function AuthPages() {
@@ -80,25 +80,12 @@ export default function AuthPages() {
     separator: isDarkMode ? 'text-slate-600' : 'text-gray-400',
   };
 
-  const ThemeToggle = () => (
-    <button
-      onClick={() => setIsDarkMode(!isDarkMode)}
-      className={`absolute top-4 right-4 p-2 rounded-full transition-colors z-50 ${
-          isDarkMode 
-          ? 'bg-slate-700 text-yellow-300 hover:bg-slate-600 shadow-lg' 
-          : 'bg-white text-gray-800 hover:bg-gray-100 shadow-md border border-gray-200'
-      }`}
-      aria-label={isDarkMode ? 'Ativar Modo Claro' : 'Ativar Modo Escuro'}
-    >
-      {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-    </button>
-  );
 
   if (currentPage === 'register') {
     return (
       <div className={`w-screen h-screen ${themeClasses.screenBg} flex items-center justify-center font-['Inter'] transition-colors overflow-x-hidden`}>
         {/* Botão de Alternância de Tema */}
-        <ThemeToggle />
+        
 
         {/* Efeito de fundo sutil (blur) */}
         <div className={`absolute top-0 right-0 w-96 h-96 ${themeClasses.blurEffect} rounded-full blur-3xl opacity-70 animate-pulse-slow transition-colors`}></div>
@@ -283,7 +270,7 @@ export default function AuthPages() {
   return (
     <div className={`w-screen h-screen ${themeClasses.screenBg} flex items-center justify-center font-['Inter'] transition-colors overflow-x-hidden`}>
       {/* Botão de Alternância de Tema */}
-      <ThemeToggle />
+    
 
       {/* Efeito de fundo sutil (blur) */}
       <div className={`absolute top-0 right-0 w-96 h-96 ${themeClasses.blurEffect} rounded-full blur-3xl opacity-70 transition-colors`}></div>
