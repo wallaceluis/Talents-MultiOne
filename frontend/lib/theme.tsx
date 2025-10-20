@@ -28,7 +28,7 @@ export type Themes = Record<string, ThemeStyle>;
 export const themes: Themes = {
   original: {
     name: 'Escuro',
-    bg: 'bg-gradient-to-br from-black via-slate-900 to-black',
+    bg: 'bg-gradient-to-br from-black via-slate-900 to-slate-950',
     sidebar: 'bg-gray-900/95 backdrop-blur-sm border-r border-blue-900/30',
     sidebarActive: 'bg-blue-600/70',
     cardBg: 'bg-gray-800/70',
