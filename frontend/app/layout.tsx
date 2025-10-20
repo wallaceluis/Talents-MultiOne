@@ -7,10 +7,15 @@ import { ThemeProvider, useTheme } from "../lib/theme";
 import { Sidebar } from "../components/ui/sidebar";
 import { Header } from "../components/ui/header";
 
+
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body
+        className="h-screen w-screen overflow-hidden bg-white" 
+        suppressHydrationWarning={true} 
+      >
         <ThemeProvider>
           <LayoutWrapper>{children}</LayoutWrapper>
         </ThemeProvider>

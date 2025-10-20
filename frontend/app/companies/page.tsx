@@ -9,7 +9,7 @@ export default function CompaniesPage() {
     const { currentTheme } = useTheme();
 
     const statusCardsData = [
-        { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
+        { title: 'Total', value: '9', icon: ListChecks, color: 'text-blue-500' },
         { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
         { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
         { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
