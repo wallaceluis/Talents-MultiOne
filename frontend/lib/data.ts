@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Briefcase, TrendingUp, ListChecks, LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Briefcase, TrendingUp, ListChecks, LucideIcon, X} from 'lucide-react';
 
 // Interfaces
 export interface ThemeStyle {
@@ -35,7 +35,14 @@ export const tableData: TableRowData[] = [
 ];
 
 export const usersData: UserData[] = [
-    { name: 'Admin', email: 'admin@multione.com', role: 'Admin', avatar: 'https://i.pravatar.cc/150?u=admin' },
-    { name: 'Colaborador', email: 'colab@multione.com', role: 'Collaborator', avatar: 'https://i.pravatar.cc/150?u=collab' },
+    { name: 'Wallace', email: 'wallace@multione.com', role: 'Admin', avatar: 'https://avatarfiles.alphacoders.com/354/354743.jpeg' },
+    { name: 'Wesley', email: 'wesley@multione.com', role: 'Admin', avatar: 'https://img.freepik.com/vetores-premium/pato-bonito-usando-oculos-de-sol-personagem-de-desenho-animado_1087248-1639.jpg' },
+    { name: 'Felipe', email: 'felipe@multione.com', role: 'Collaborator', avatar: 'https://pt.quizur.com/_image?href=https://img.quizur.com/f/img5e23301dcebb41.04472536.jpg?lastEdited=1579364385&w=1024&h=1024&f=webp' },
 ];
 
+export const statusCardsData = [
+        { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
+        { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
+        { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
+        { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
+    ];

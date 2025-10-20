@@ -3,17 +3,11 @@
 import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CompaniesTable } from '../../components/tables/companies-table';
-import { ListChecks, Users, Briefcase, X, Search } from 'lucide-react';
+import { statusCardsData } from '../../lib/data';
+import { Search } from 'lucide-react';
 
 export default function CompaniesPage() {
     const { currentTheme } = useTheme();
-
-    const statusCardsData = [
-        { title: 'Total', value: '9', icon: ListChecks, color: 'text-blue-500' },
-        { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
-        { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
-        { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
-    ];
 
     return (
         <main className="space-y-6 md:space-y-8">
