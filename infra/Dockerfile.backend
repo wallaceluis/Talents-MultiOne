@@ -1,0 +1,63 @@
+# Nome do arquivo: infra/Dockerfile.backend
+
+# --- ESTÁGIO 1: BUILDER ---
+# Aqui instalamos tudo (incluindo devDependencies) e rodamos o build
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# 1. Copia os package.json de TODOS os workspaces
+COPY package.json package-lock.json* ./
+COPY frontend/package.json ./frontend/
+COPY backend/package.json ./backend/
+COPY shared/package.json ./shared/
+
+# 2. Instala TODAS as dependências do monorepo
+RUN npm install
+
+# 3. Copia TODO o código-fonte
+COPY . .
+
+# 4. Gera o cliente Prisma
+# Navega para a pasta do backend e roda os comandos
+WORKDIR /app/backend
+RUN npx prisma generate
+
+# 5. Roda o build do backend (executa "nest build")
+RUN npm run build
+
+
+# --- ESTÁGIO 2: PRODUÇÃO ---
+# Aqui criamos a imagem final, apenas com o necessário
+FROM node:18-alpine AS production
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# 1. Copia os package.json dos workspaces de PRODUÇÃO
+COPY package.json package-lock.json* ./
+COPY backend/package.json ./backend/
+COPY shared/package.json ./shared/
+
+# 2. Instala APENAS as dependências de produção
+RUN npm install --omit=dev
+
+# 3. Copia os artefatos de build (a pasta 'dist') do 'builder'
+COPY --from=builder /app/backend/dist ./backend/dist
+
+# 4. Copia os arquivos do Prisma (schema e migrações)
+COPY --from=builder /app/backend/prisma ./backend/prisma
+
+# 5. Define o diretório final
+WORKDIR /app/backend
+
+# 6. Expõe a porta da API.
+# O padrão do NestJS é 3000, mas o Railway define a var $PORT.
+# O NestJS (no seu main.ts) deve escutar em process.env.PORT || 3000
+# Esta linha é mais informativa, o Railway injeta a porta correta.
+EXPOSE 3000
+
+# 7. Comando para iniciar a API
+# Roda as migrações E ENTÃO inicia o servidor de produção
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
