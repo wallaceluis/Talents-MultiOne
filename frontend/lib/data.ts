@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Briefcase, TrendingUp, ListChecks, LucideIcon, X, FileUser} from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Briefcase, TrendingUp, ListChecks, LucideIcon, X, FileUser, BarChart3 } from 'lucide-react';
 
 // Interfaces
 export interface ThemeStyle {
@@ -23,8 +23,10 @@ export const menuItems: MenuItem[] = [
     { page: 'Empresas', icon: Building2, title: 'Empresas', href: '/companies' },
     { page: 'Candidatos', icon: FileUser, title: 'Candidatos', href: '/candidates' },
     { page: 'Users', icon: Users, title: 'Usuários', href: '/users' },
-    { page: 'vagas', icon: Briefcase, title: 'Vagas', href: '/vacancies' },
-    
+    { page: 'Vagas', icon: Briefcase, title: 'Vagas', href: '/vacancies' },
+    { page: 'Relatórios', icon: BarChart3, title: 'Relatórios', href: '/reports' },
+
+
 ];
 
 export const metricCards: MetricCardData[] = [
@@ -44,19 +46,19 @@ export const usersData: UserData[] = [
 ];
 
 export const statusCardsData = [
-        { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
-        { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
-        { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
-        { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
-    ];
+    { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
+    { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
+    { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
+    { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
+];
 
 
-export interface VacancyRowData { 
-    titulo: string; 
-    empresa: string; 
-    setor: string; 
-    candidaturas: string; 
-    status: string; 
+export interface VacancyRowData {
+    titulo: string;
+    empresa: string;
+    setor: string;
+    candidaturas: string;
+    status: string;
 }
 
 export interface CandidatesRowData { 
@@ -81,3 +83,120 @@ export const CandidatesTableData: CandidatesRowData[] = [
     { nome: 'Desenvolvedor Full Stack', email: 'dev@empresa.com', status: 'Aberta', candidaturas: '5' },
     { nome: 'Analista de Logística', email: 'analista@empresa.com', status: 'Aberta', candidaturas: '3' },
 ];
+export interface ReportCardData {
+  id: string; 
+  title: string;
+  icon: LucideIcon;
+  color: string;
+  summary: {
+    label: string;
+    value: string | number;
+  }[];
+  detailedInfo: {
+    label: string;
+    value: string | number;
+  }[];
+  downloadFormats: ('pdf' | 'excel' | 'csv')[];
+}
+
+export const reportsData: ReportCardData[] = [
+  {
+    id: 'dashboard',
+    title: 'Dashboard Geral',
+    icon: LayoutDashboard,
+    color: 'text-blue-500',
+    summary: [
+      { label: 'Total de Métricas', value: 4 },
+      { label: 'Período', value: 'Último mês' },
+    ],
+    detailedInfo: [
+      { label: 'Empresas Cadastradas', value: 8 },
+      { label: 'Vagas Abertas', value: 2 },
+      { label: 'Total de Candidatos', value: 3 },
+      { label: 'Candidaturas', value: 0 },
+      { label: 'Taxa de Conversão', value: '0%' },
+      { label: 'Última Atualização', value: 'Hoje' },
+    ],
+    downloadFormats: ['pdf', 'excel'],
+  },
+  {
+    id: 'companies',
+    title: 'Empresas',
+    icon: Building2,
+    color: 'text-green-500',
+    summary: [
+      { label: 'Total', value: 8 },
+      { label: 'Ativas', value: 6 },
+    ],
+    detailedInfo: [
+      { label: 'Total de Empresas', value: 8 },
+      { label: 'Empresas Ativas', value: 6 },
+      { label: 'Em Trial', value: 2 },
+      { label: 'Inativas', value: 0 },
+      { label: 'Plano Enterprise', value: 1 },
+      { label: 'Plano Básico', value: 1 },
+      { label: 'Plano Gratuito', value: 6 },
+    ],
+    downloadFormats: ['pdf', 'excel', 'csv'],
+  },
+  {
+    id: 'candidates',
+    title: 'Candidatos',
+    icon: FileUser,
+    color: 'text-yellow-500',
+    summary: [
+      { label: 'Total', value: 3 },
+      { label: 'Em Processo', value: 2 },
+    ],
+    detailedInfo: [
+      { label: 'Total de Candidatos', value: 3 },
+      { label: 'Candidatos Ativos', value: 3 },
+      { label: 'Em Processo Seletivo', value: 2 },
+      { label: 'Aprovados', value: 0 },
+      { label: 'Reprovados', value: 0 },
+      { label: 'Taxa de Aprovação', value: '0%' },
+    ],
+    downloadFormats: ['pdf', 'excel', 'csv'],
+  },
+  {
+    id: 'users',
+    title: 'Usuários',
+    icon: Users,
+    color: 'text-purple-500',
+    summary: [
+      { label: 'Total', value: 3 },
+      { label: 'Admins', value: 2 },
+    ],
+    detailedInfo: [
+      { label: 'Total de Usuários', value: 3 },
+      { label: 'Administradores', value: 2 },
+      { label: 'Colaboradores', value: 1 },
+      { label: 'Usuários Ativos', value: 3 },
+      { label: 'Último Login', value: 'Hoje' },
+    ],
+    downloadFormats: ['pdf', 'csv'],
+  },
+  {
+    id: 'vacancies',
+    title: 'Vagas',
+    icon: Briefcase,
+    color: 'text-gray-500',
+    summary: [
+      { label: 'Total', value: 2 },
+      { label: 'Abertas', value: 2 },
+    ],
+    detailedInfo: [
+      { label: 'Vagas Abertas', value: 2 },
+      { label: 'Vagas Fechadas', value: 0 },
+      { label: 'Total de Candidaturas', value: 8 },
+      { label: 'Média por Vaga', value: 4 },
+      { label: 'Tempo Médio Aberto', value: '15 dias' },
+      { label: 'Taxa de Preenchimento', value: '0%' },
+    ],
+    downloadFormats: ['pdf', 'excel', 'csv'],
+  },
+];
+
+
+
+
