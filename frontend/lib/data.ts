@@ -59,6 +59,13 @@ export interface VacancyRowData {
     status: string; 
 }
 
+export interface CandidatesRowData { 
+    nome: string; 
+    email: string; 
+    status: string; 
+    candidaturas: string; 
+}
+
 export const vacanciesMetricCards: MetricCardData[] = [
     { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-green-500' },
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
@@ -68,4 +75,9 @@ export const vacanciesMetricCards: MetricCardData[] = [
 export const vacanciesTableData: VacancyRowData[] = [
     { titulo: 'Desenvolvedor Full Stack', empresa: 'Empresa 10', setor: 'Indústria', candidaturas: '5', status: 'Aberta' },
     { titulo: 'Analista de Logística', empresa: 'Suprenova Telecom', setor: 'Logística', candidaturas: '3', status: 'Aberta' },
+];
+
+export const CandidatesTableData: CandidatesRowData[] = [
+    { nome: 'Desenvolvedor Full Stack', email: 'dev@empresa.com', status: 'Aberta', candidaturas: '5' },
+    { nome: 'Analista de Logística', email: 'analista@empresa.com', status: 'Aberta', candidaturas: '3' },
 ];
