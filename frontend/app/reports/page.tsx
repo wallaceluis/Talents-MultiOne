@@ -36,7 +36,7 @@ export default function ReportsPage() {
           💡 Dica
         </h3>
         <p className={`text-sm ${currentTheme.cardText}`}>
-          Passe o mouse sobre os cards para ver informações detalhadas antes de fazer o download.
+          Clique no card para mais detalhes antes de fazer o download.
         </p>
       </div>
     </main>
