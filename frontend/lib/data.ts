@@ -104,7 +104,7 @@ export const reportsData: ReportCardData[] = [
     id: 'dashboard',
     title: 'Dashboard Geral',
     icon: LayoutDashboard,
-    color: 'text-white-500',
+    color: 'text-white',
     summary: [
       { label: 'Total de Métricas', value: 4 },
       { label: 'Período', value: 'Último mês' },
@@ -123,7 +123,7 @@ export const reportsData: ReportCardData[] = [
     id: 'companies',
     title: 'Empresas',
     icon: Building2,
-    color: 'text-white-500',
+    color: 'text-white',
     summary: [
       { label: 'Total', value: 8 },
       { label: 'Ativas', value: 6 },
@@ -143,7 +143,7 @@ export const reportsData: ReportCardData[] = [
     id: 'candidates',
     title: 'Candidatos',
     icon: FileUser,
-    color: 'text-white-500',
+    color: 'text-white',
     summary: [
       { label: 'Total', value: 3 },
       { label: 'Em Processo', value: 2 },
@@ -162,7 +162,7 @@ export const reportsData: ReportCardData[] = [
     id: 'users',
     title: 'Usuários',
     icon: Users,
-    color: 'text-white-500',
+    color: 'text-white',
     summary: [
       { label: 'Total', value: 3 },
       { label: 'Admins', value: 2 },
@@ -180,7 +180,7 @@ export const reportsData: ReportCardData[] = [
     id: 'vacancies',
     title: 'Vagas',
     icon: Briefcase,
-    color: 'text-white-500',
+    color: 'text-white',
     summary: [
       { label: 'Total', value: 2 },
       { label: 'Abertas', value: 2 },
@@ -196,7 +196,4 @@ export const reportsData: ReportCardData[] = [
     downloadFormats: ['pdf', 'excel', 'csv'],
   },
 ];
-
-
-
 

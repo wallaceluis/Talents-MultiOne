@@ -3,111 +3,217 @@
 import { useState } from 'react';
 import { useTheme } from '../../lib/theme';
 import { ReportCardData } from '../../lib/data';
-import { Download, FileText, FileSpreadsheet, File } from 'lucide-react';
+import { FileText, FileSpreadsheet, File, Download, X, ChevronRight } from 'lucide-react';
 
-interface ReportCardProps extends ReportCardData {}
+// Constantes fora do componente para performance
+const FORMAT_ICONS = {
+  pdf: <FileText size={16} />,
+  excel: <FileSpreadsheet size={16} />,
+  csv: <File size={16} />,
+} as const;
 
 export function ReportCard({ 
   id,
   title, 
   icon: Icon, 
   color, 
-  summary, 
+  summary,
   detailedInfo, 
   downloadFormats 
-}: ReportCardProps) {
+}: ReportCardData) {
   const { currentTheme } = useTheme();
-  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleDownload = (format: string) => {
-    console.log(`Baixando relatório de ${title} em formato ${format}`);
-    alert(`Download iniciado: ${title} (${format.toUpperCase()})`);
-  };
-
-  const getFormatIcon = (format: string) => {
-    switch(format) {
-      case 'pdf': return <FileText size={16} />;
-      case 'excel': return <FileSpreadsheet size={16} />;
-      case 'csv': return <File size={16} />;
-      default: return <Download size={16} />;
-    }
+  const handleDownload = (format: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Evita fechar o modal ao clicar no botão
+    console.log(`Baixando relatório: ${id} - ${format}`);
+    alert(`✓ Download iniciado: ${title}\nFormato: ${format.toUpperCase()}`);
   };
 
   return (
-    <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`
-        relative overflow-hidden
-        ${currentTheme.cardBg} 
-        border ${currentTheme.cardBorder}
-        rounded-xl p-6
-        transition-all duration-300 ease-in-out
-        hover:shadow-2xl 
-        ${isHovered ? 'z-20' : 'z-10'}
-        ${isHovered ? 'ring-2 ring-blue-500/50' : ''}
-      `}
-    >
-      {/* Header do Card */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={`p-3 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder}`}>
-            <Icon className={color} size={24} />
-          </div>
-          <div>
-            <h3 className={`text-lg font-bold ${currentTheme.titleColor}`}>
-              {title}
-            </h3>
-            <p className={`text-xs ${currentTheme.cardText} opacity-60`}>
-              Relatório completo
-            </p>
+    <>
+      {/* CARD COMPACTO (sempre visível) */}
+      <article
+        onClick={() => setIsExpanded(true)}
+        className={`
+          ${currentTheme.cardBg} 
+          border ${currentTheme.cardBorder}
+          rounded-xl p-4 md:p-6
+          transition-all duration-300
+          hover:shadow-xl hover:scale-[1.02]
+          cursor-pointer
+          relative
+          group
+        `}
+      >
+        {/* Indicador "Ver mais" */}
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
+            <span>Ver detalhes</span>
+            <ChevronRight size={14} />
           </div>
         </div>
-      </div>
 
-      {/* Conteúdo: Summary ou Detailed */}
-      <div className={`space-y-2 mb-4 transition-all duration-300 ${
-        isHovered ? 'max-h-96' : 'max-h-24'
-      }`}>
-        {(isHovered ? detailedInfo : summary).map((item, index) => (
-          <div 
-            key={index}
-            className={`flex justify-between items-center py-2 border-b ${currentTheme.cardBorder} last:border-0`}
-          >
-            <span className={`text-sm ${currentTheme.cardText}`}>
-              {item.label}
-            </span>
-            <span className={`text-sm font-semibold ${currentTheme.titleColor}`}>
-              {item.value}
-            </span>
+        {/* Header do Card */}
+        <header className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 md:p-3 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder}`}>
+              <Icon className={color} size={24} aria-hidden="true" />
+            </div>
+            <div>
+              <h3 className={`text-base md:text-lg font-bold ${currentTheme.titleColor}`}>
+                {title}
+              </h3>
+              <p className={`text-xs ${currentTheme.cardText} opacity-60`}>
+                Clique para ver mais
+              </p>
+            </div>
           </div>
-        ))}
-      </div>
+        </header>
 
-      {/* Botões de Download */}
-      <div className="flex gap-2 flex-wrap">
-        {downloadFormats.map((format) => (
-          <button
-            key={format}
-            onClick={() => handleDownload(format)}
+        {/* RESUMO (summary) - Sempre visível */}
+        <div className="space-y-2">
+          {summary && summary.map((item, index) => (
+            <div 
+              key={`${id}-summary-${index}`}
+              className={`flex justify-between items-center py-2 border-b ${currentTheme.cardBorder} last:border-0`}
+            >
+              <span className={`text-xs md:text-sm ${currentTheme.cardText}`}>
+                {item.label}
+              </span>
+              <span className={`text-xs md:text-sm font-semibold ${currentTheme.titleColor}`}>
+                {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </article>
+
+      {/* OVERLAY + MODAL EXPANDIDO */}
+      {isExpanded && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+        >
+          {/* Fundo desfocado escuro (não fecha ao clicar) */}
+          <div 
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            aria-hidden="true"
+          />
+
+          {/* CARD EXPANDIDO - Centralizado na tela */}
+          <article
+            onClick={(e) => e.stopPropagation()}
             className={`
-              flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium
-              ${currentTheme.buttonBg} text-white
-              hover:opacity-90 transition-all
+              relative
+              ${currentTheme.cardBg} 
+              border-2 ${currentTheme.cardBorder}
+              rounded-xl md:rounded-2xl 
+              p-6 md:p-8
+              max-w-sm md:max-w-2xl w-full 
+              max-h-[85vh] md:max-h-[90vh] 
+              overflow-y-auto
+              shadow-2xl
+              animate-in zoom-in-95 slide-in-from-bottom-4 duration-300
             `}
           >
-            {getFormatIcon(format)}
-            <span className="uppercase">{format}</span>
-          </button>
-        ))}
-      </div>
+            {/* Header Expandido com Botão Fechar */}
+            <header className="flex items-start justify-between mb-6 sticky top-0 bg-inherit pb-4 z-10 border-b border-gray-700/50">
+              <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                <div className={`p-3 md:p-4 rounded-xl ${currentTheme.cardBg} border ${currentTheme.cardBorder} flex-shrink-0`}>
+                  <Icon className={color} size={32} aria-hidden="true" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className={`text-lg md:text-2xl font-bold ${currentTheme.titleColor} mb-1`}>
+                    {title}
+                  </h3>
+                  <p className={`text-xs md:text-sm ${currentTheme.cardText} opacity-70`}>
+                    Relatório completo de atividades
+                  </p>
+                </div>
+              </div>
 
-      {/* Indicador de Hover */}
-      {isHovered && (
-        <div className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full bg-blue-500 text-white`}>
-          Detalhes
+              {/* Botão fechar - ÚNICA FORMA DE FECHAR */}
+              <button
+                onClick={() => setIsExpanded(false)}
+                className={`
+                  p-2 md:p-3 rounded-xl 
+                  ${currentTheme.buttonBg} text-white
+                  hover:opacity-90 active:scale-95
+                  transition-all flex-shrink-0 ml-2
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                `}
+                aria-label="Fechar detalhes"
+              >
+                <X size={20} />
+              </button>
+            </header>
+
+            {/* INFORMAÇÕES DETALHADAS */}
+            <div className="space-y-2 md:space-y-3 mb-6">
+              <h4 className={`text-xs md:text-sm font-semibold ${currentTheme.titleColor} uppercase tracking-wide mb-4 flex items-center gap-2`}>
+                <div className="h-1 w-1 rounded-full bg-blue-500"></div>
+                Informações Detalhadas
+              </h4>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                {detailedInfo.map((item, index) => (
+                  <div 
+                    key={`${id}-detail-${index}`}
+                    className={`
+                      flex flex-col
+                      py-3 md:py-4 px-3 md:px-4 rounded-lg
+                      ${currentTheme.cardBg} border ${currentTheme.cardBorder}
+                      hover:border-blue-500/50 transition-all
+                      hover:scale-[1.02]
+                    `}
+                  >
+                    <span className={`text-xs ${currentTheme.cardText} opacity-70 mb-1`}>
+                      {item.label}
+                    </span>
+                    <span className={`text-base md:text-lg font-bold ${currentTheme.titleColor}`}>
+                      {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* BOTÕES DE DOWNLOAD */}
+            <footer className={`border-t ${currentTheme.cardBorder} pt-6`}>
+              <h4 className={`text-xs md:text-sm font-semibold ${currentTheme.titleColor} uppercase tracking-wide mb-4 flex items-center gap-2`}>
+                <div className="h-1 w-1 rounded-full bg-green-500"></div>
+                Exportar Relatório
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
+                {downloadFormats.map((format) => (
+                  <button
+                    key={format}
+                    onClick={(e) => handleDownload(format, e)}
+                    aria-label={`Baixar relatório de ${title} em formato ${format}`}
+                    className={`
+                      flex items-center justify-center gap-2 
+                      px-4 py-3 md:py-4 rounded-lg text-sm font-medium
+                      ${currentTheme.buttonBg} text-white
+                      hover:opacity-90 hover:scale-[1.02] active:scale-95 
+                      transition-all
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                      shadow-lg
+                    `}
+                  >
+                    {FORMAT_ICONS[format as keyof typeof FORMAT_ICONS] || <Download size={16} />}
+                    <span className="uppercase font-bold">{format}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Dica de fechamento */}
+              <p className={`text-xs ${currentTheme.cardText} opacity-50 text-center mt-4`}>
+                Clique no botão ✕ acima para fechar
+              </p>
+            </footer>
+          </article>
         </div>
       )}
-    </div>
+    </>
   );
 }
