@@ -3,7 +3,7 @@
 import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CandidatesTable } from '../../components/tables/candidates-table';
-import { statusCardsData } from '../../lib/data';
+import { candidatesMetricCards } from '../../lib/data';
 import { Search } from 'lucide-react';
 
 export default function CandidatesPage() {
@@ -25,15 +25,19 @@ export default function CandidatesPage() {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                     <input
                         type="text"
-                        placeholder="Buscar empresas..."
-                        className={`w-full p-3 pl-12 pr-4 rounded-xl border ${currentTheme.name === 'Claro' ? 'border-gray-300 bg-white text-gray-900' : 'bg-gray-800/50 border-gray-700/50 text-white'} placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                        placeholder="Buscar candidatos..."
+                        className={`w-full p-3 pl-12 pr-4 rounded-xl border ${currentTheme.name === 'Claro'
+                            ? 'border-gray-300 bg-white text-gray-900'
+                            : 'bg-gray-800/50 border-gray-700/50 text-white'
+                            } placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
                     />
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {statusCardsData.map((data, i) => (
-                    <MetricCard key={`status-${i}`} {...data} />
+            {/* Cards de métricas */}
+            <div className="grid-row-2 grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                {candidatesMetricCards.map((data, i) => (
+                    <MetricCard key={`candidate-${i}`} {...data} />
                 ))}
             </div>
 
@@ -41,4 +45,3 @@ export default function CandidatesPage() {
         </main>
     );
 }
-

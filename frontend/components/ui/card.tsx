@@ -1,7 +1,7 @@
 'use client';
 
 import { useTheme } from '../../lib/theme';
-import { CandidatesRowData, MetricCardData } from '../../lib/data';
+import { MetricCardData } from '../../lib/data';
 
 export function MetricCard({ title, value, icon: Icon, color }: MetricCardData) {
     const { currentTheme } = useTheme();
@@ -13,21 +13,6 @@ export function MetricCard({ title, value, icon: Icon, color }: MetricCardData) 
                     <p className={`text-2xl md:text-3xl font-bold ${currentTheme.titleColor} mt-1`}>{value}</p>
                 </div>
                 <Icon className={`${color} opacity-80 flex-shrink-0 ml-2`} size={28} />
-            </div>
-        </div>
-    );
-}
-
-export function CandidatesCard({ candidaturas }: CandidatesRowData) {
-    const { currentTheme } = useTheme();
-    return (
-        <div className={`p-4 md:p-5 rounded-xl md:rounded-2xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} transition-all duration-300 shadow-lg`}>
-            <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0">
-                </div>
-                <div className="flex-shrink-0 ml-2">
-                    <p className={`text-xs md:text-sm font-medium ${currentTheme.cardText} opacity-70 truncate`}>{candidaturas}</p>
-                </div>
             </div>
         </div>
     );

@@ -49,7 +49,7 @@ export const statusCardsData = [
     { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
     { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
     { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
-    { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
+    { title: 'Inativo', value: '0', icon: X, color: 'text-blue-500' },
 ];
 
 
@@ -74,14 +74,24 @@ export const vacanciesMetricCards: MetricCardData[] = [
     { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' },
 ];
 
+export const candidatesMetricCards: MetricCardData[] = [
+  { title: 'Totais', value: '100', icon: Users, color: 'text-blue-500' },
+  { title: 'Online', value: '5', icon: ListChecks, color: 'text-green-500' },
+  { title: 'Ativos (180 dias)', value: '60', icon: TrendingUp, color: 'text-yellow-500' },
+  { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-purple-500' },
+  { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-red-500' },
+];
+
+
 export const vacanciesTableData: VacancyRowData[] = [
     { titulo: 'Desenvolvedor Full Stack', empresa: 'Empresa 10', setor: 'Indústria', candidaturas: '5', status: 'Aberta' },
     { titulo: 'Analista de Logística', empresa: 'Suprenova Telecom', setor: 'Logística', candidaturas: '3', status: 'Aberta' },
 ];
 
 export const CandidatesTableData: CandidatesRowData[] = [
-    { nome: 'Desenvolvedor Full Stack', email: 'dev@empresa.com', status: 'Aberta', candidaturas: '5' },
-    { nome: 'Analista de Logística', email: 'analista@empresa.com', status: 'Aberta', candidaturas: '3' },
+    { nome: 'Wallace Luis Santos da Silva', email: 'wallace@empresa.com', status: 'Ativo', candidaturas: '5' },
+    { nome: 'Wesley Costa', email: 'wesley@empresa.com', status: 'Ativo', candidaturas: '3' },
+    { nome: 'Felipe Fernandes', email: 'felipe@empresa.com', status: 'Ativo', candidaturas: '3' },
 ];
 export interface ReportCardData {
   id: string; 

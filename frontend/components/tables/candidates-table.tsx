@@ -51,7 +51,7 @@ export const CandidatesTable = () => {
                                     {/* COLUNA 2: STATUS - Alinhado ao CENTRO */}
                                     <td className={`px-3 md:px-6 py-4 text-sm ${currentTheme.cardText} text-center`}>
                                         <span
-                                            className={`inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs font-medium ${currentTheme.name === 'Claro' ? 'bg-blue-500/20 text-blue-600' : 'bg-blue-500/20 text-blue-300'}`}
+                                            className={`inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs font-medium ${currentTheme.name === 'Claro' ? 'bg-green-500/20 text-green-600' : 'bg-blue-500/20 text-blue-300'}`}
                                         >
                                             {row.status}
                                         </span>
