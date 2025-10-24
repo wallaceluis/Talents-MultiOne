@@ -54,8 +54,8 @@ export const menuItems: MenuItem[] = [
 
 export const metricCards: MetricCardData[] = [
     { title: 'Empresas Cadastradas', value: '8', icon: Building2, color: 'text-blue-500' }, 
-    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-blue-500' },
-    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' }, 
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-yellow-500' },
+    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-green-500' }, 
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
 ];
 
@@ -103,11 +103,11 @@ export const vacanciesMetricCards: MetricCardData[] = [
 ];
 
 export const candidatesMetricCards: MetricCardData[] = [
-  { title: 'Totais', value: '100', icon: Users, color: 'text-yellow-500' },
+  { title: 'Totais', value: '100', icon: Users, color: 'text-green-500' },
   { title: 'Online', value: '5', icon: ListChecks, color: 'text-blue-500' },
   { title: 'Ativos (180 dias)', value: '60', icon: TrendingUp, color: 'text-red-500' },
-  { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-purple-500' },
-  { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-red-500' },
+  { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-yellow-500' },
+  { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-purple-700' },
 ];
 
 
@@ -181,7 +181,7 @@ export const reportsData: ReportCardData[] = [
     id: 'candidates',
     title: 'Candidatos',
     icon: FileUser,
-    color: 'text-green-700',
+    color: 'text-red-500',
     summary: [
       { label: 'Total', value: 3 },
       { label: 'Em Processo', value: 2 },
@@ -200,7 +200,7 @@ export const reportsData: ReportCardData[] = [
     id: 'users',
     title: 'Usuários',
     icon: Users,
-    color: 'text-yellow-500',
+    color: 'text-green-500',
     summary: [
       { label: 'Total', value: 3 },
       { label: 'Admins', value: 2 },
@@ -218,7 +218,7 @@ export const reportsData: ReportCardData[] = [
     id: 'vacancies',
     title: 'Vagas',
     icon: Briefcase,
-    color: 'text-purple-700',
+    color: 'text-yellow-500',
     summary: [
       { label: 'Total', value: 2 },
       { label: 'Abertas', value: 2 },
