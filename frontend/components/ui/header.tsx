@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { Sun, Moon, User, ChevronDown, LogOut, Settings, Bell } from 'lucide-react';
+import { Sun, Moon, User, ChevronDown, LogOut, Bell } from 'lucide-react';
 import { useTheme } from '../../lib/theme';
 
 // Componente Header com menus de usuário e notificações

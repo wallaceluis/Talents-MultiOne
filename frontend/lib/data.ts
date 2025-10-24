@@ -53,13 +53,17 @@ export const menuItems: MenuItem[] = [
 ];
 
 export const metricCards: MetricCardData[] = [
-    { title: 'Empresas Cadastradas', value: '8', icon: Building2, color: 'text-blue-500' }, { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-blue-500' },
-    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' }, { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
+    { title: 'Empresas Cadastradas', value: '8', icon: Building2, color: 'text-blue-500' }, 
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-blue-500' },
+    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' }, 
+    { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
 ];
 
 export const tableData: TableRowData[] = [
-    { empresa: 'Empresa 10', email: 'teste@empresa.com', setor: 'Indústria', plano: 'Gratuito', status: 'Trial' }, { empresa: 'Suprenova Telecom', email: 'filmar@gmail.com', setor: 'Logística', plano: 'Gratuito', status: 'Trial' },
-    { empresa: 'MedCare Saúde', email: 'rh@medcare.com.br', setor: 'Saúde', plano: 'Enterprise', status: 'Ativo' }, { empresa: 'EduTech Ensino', email: 'contato@edutech.edu.br', setor: 'Educação', plano: 'Básico', status: 'Ativo' },
+    { empresa: 'Empresa 10', email: 'teste@empresa.com', setor: 'Indústria', plano: 'Gratuito', status: 'Trial' }, 
+    { empresa: 'Suprenova Telecom', email: 'filmar@gmail.com', setor: 'Logística', plano: 'Gratuito', status: 'Trial' },
+    { empresa: 'MedCare Saúde', email: 'rh@medcare.com.br', setor: 'Saúde', plano: 'Enterprise', status: 'Ativo' }, 
+    { empresa: 'EduTech Ensino', email: 'contato@edutech.edu.br', setor: 'Educação', plano: 'Básico', status: 'Ativo' },
 ];
 
 export const usersData: UserData[] = [
@@ -72,7 +76,7 @@ export const statusCardsData = [
     { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
     { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
     { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
-    { title: 'Inativo', value: '0', icon: X, color: 'text-blue-500' },
+    { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
 ];
 
 
@@ -82,6 +86,7 @@ export interface VacancyRowData {
     setor: string;
     candidaturas: string;
     status: string;
+    
 }
 
 export interface CandidatesRowData { 
@@ -92,15 +97,15 @@ export interface CandidatesRowData {
 }
 
 export const vacanciesMetricCards: MetricCardData[] = [
-    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-green-500' },
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-purple-600' },
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
     { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' },
 ];
 
 export const candidatesMetricCards: MetricCardData[] = [
-  { title: 'Totais', value: '100', icon: Users, color: 'text-blue-500' },
-  { title: 'Online', value: '5', icon: ListChecks, color: 'text-green-500' },
-  { title: 'Ativos (180 dias)', value: '60', icon: TrendingUp, color: 'text-yellow-500' },
+  { title: 'Totais', value: '100', icon: Users, color: 'text-yellow-500' },
+  { title: 'Online', value: '5', icon: ListChecks, color: 'text-blue-500' },
+  { title: 'Ativos (180 dias)', value: '60', icon: TrendingUp, color: 'text-red-500' },
   { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-purple-500' },
   { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-red-500' },
 ];
@@ -137,7 +142,7 @@ export const reportsData: ReportCardData[] = [
     id: 'dashboard',
     title: 'Dashboard Geral',
     icon: LayoutDashboard,
-    color: 'text-white',
+    color: 'text-blue-700',
     summary: [
       { label: 'Total de Métricas', value: 4 },
       { label: 'Período', value: 'Último mês' },
@@ -156,7 +161,7 @@ export const reportsData: ReportCardData[] = [
     id: 'companies',
     title: 'Empresas',
     icon: Building2,
-    color: 'text-prurple-700',
+    color: 'text-purple-700',
     summary: [
       { label: 'Total', value: 8 },
       { label: 'Ativas', value: 6 },
@@ -176,7 +181,7 @@ export const reportsData: ReportCardData[] = [
     id: 'candidates',
     title: 'Candidatos',
     icon: FileUser,
-    color: 'text-white',
+    color: 'text-green-700',
     summary: [
       { label: 'Total', value: 3 },
       { label: 'Em Processo', value: 2 },
@@ -195,7 +200,7 @@ export const reportsData: ReportCardData[] = [
     id: 'users',
     title: 'Usuários',
     icon: Users,
-    color: 'text-white',
+    color: 'text-yellow-500',
     summary: [
       { label: 'Total', value: 3 },
       { label: 'Admins', value: 2 },
@@ -213,7 +218,7 @@ export const reportsData: ReportCardData[] = [
     id: 'vacancies',
     title: 'Vagas',
     icon: Briefcase,
-    color: 'text-white',
+    color: 'text-purple-700',
     summary: [
       { label: 'Total', value: 2 },
       { label: 'Abertas', value: 2 },

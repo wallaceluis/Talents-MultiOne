@@ -1,23 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTheme } from '../../lib/theme';
 import { ReportCardData } from '../../lib/data';
 import { FileText, FileSpreadsheet, File, Download, X, ChevronRight } from 'lucide-react';
 
-// Constantes fora do componente para performance
+// Ícones por formato
 const FORMAT_ICONS = {
   pdf: <FileText size={16} />,
   excel: <FileSpreadsheet size={16} />,
   csv: <File size={16} />,
 } as const;
 
-// Componente ReportCard
+// Componente principal
 export function ReportCard({ 
   id,
   title, 
   icon: Icon, 
-  
+  color, 
   summary,
   detailedInfo, 
   downloadFormats 
@@ -25,73 +25,40 @@ export function ReportCard({
   const { currentTheme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
 
-   useEffect(() => {
-    if (isExpanded){
-        document.body.classList.add('modal-open');
-    } else {
-        document.body.classList.remove('modal-open')
-    }
-
-    return () => {
-        document.body.classList.remove('modal-open');
-    }
-   }, [isExpanded])
-
-  
-  // Função para simular download
   const handleDownload = (format: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); 
     console.log(`Baixando relatório: ${id} - ${format}`);
     alert(`✓ Download iniciado: ${title}\nFormato: ${format.toUpperCase()}`);
   };
 
-  // Determinar se é tema claro
-  const isLightTheme = currentTheme.name === 'Claro';
-
   return (
     <>
-      {/* CARD COMPACTO (sempre visível) */}
+      {/* CARD PRINCIPAL */}
       <article
         onClick={() => setIsExpanded(true)}
         className={`
           ${currentTheme.cardBg} 
           border ${currentTheme.cardBorder}
           rounded-xl p-4 md:p-6
-          transition-all duration-300
-          hover:shadow-xl hover:scale-[1.02]
-          cursor-pointer
-          relative
-          group
+          cursor-pointer relative group
+          transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+          hover:shadow-2xl hover:scale-[1.03] hover:brightness-105
+          will-change-transform
         `}
       >
-        {/* Botão "Ver detalhes" */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className={`
-            flex items-center gap-1 text-xs px-2 py-1 rounded-full
-            ${isLightTheme ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}
-          `}>
+        {/* Ícone "Ver detalhes" */}
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
+          <div className="flex items-center gap-1 text-xs bg-blue-500 text-white px-2 py-1 rounded-full shadow-md hover:shadow-lg transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
             <span>Ver detalhes</span>
             <ChevronRight size={14} />
           </div>
         </div>
 
-        {/* Header do Card */}
+        {/* Header */}
         <header className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`
-              p-2 md:p-3 rounded-lg border
-              ${isLightTheme 
-                ? 'bg-blue-50 border-blue-200' 
-                : `${currentTheme.cardBg} ${currentTheme.cardBorder}`
-              }
-            `}>
-              {/* Cor do ícone baseada no tema */}
-              <Icon 
-                className={isLightTheme ? 'text-black' : 'text-white'} 
-                size={24} 
-                strokeWidth={2}
-                aria-hidden="true" 
-              />
+            <div className={`p-2 md:p-3 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder}`}>
+              <Icon className={color} size={24} aria-hidden="true" />
             </div>
             <div>
               <h3 className={`text-base md:text-lg font-bold ${currentTheme.titleColor}`}>
@@ -104,7 +71,7 @@ export function ReportCard({
           </div>
         </header>
 
-        {/*summary sempre visível */}
+        {/* Resumo */}
         <div className="space-y-2">
           {summary && summary.map((item, index) => (
             <div 
@@ -122,61 +89,38 @@ export function ReportCard({
         </div>
       </article>
 
-      {/* OVERLAY + MODAL EXPANDIDO */}
+      {/* MODAL DETALHADO */}
       {isExpanded && (
         <div 
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 md:p-8 animate-in fade-in duration-200 overflow-y-auto max-h-screen"
-          
-          onClick={() => setIsExpanded(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
         >
-          {/* Fundo desfocado escuro*/}
+          {/* Fundo escuro com blur */}
           <div 
-            className={`
-              fixed inset-0 -z-10
-              ${isLightTheme ? 'bg-black/40' : 'bg-black/80'}
-              backdrop-blur-sm
-            `}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]"
             aria-hidden="true"
+            onClick={() => setIsExpanded(false)}
           />
 
           {/* CARD EXPANDIDO */}
           <article
             onClick={(e) => e.stopPropagation()}
             className={`
-              relative 
-              ${currentTheme.cardBg} 
+              relative ${currentTheme.cardBg} 
               border-2 ${currentTheme.cardBorder}
               rounded-xl md:rounded-2xl 
-              p-6 md:p-8
-              max-w-sm md:max-w-2xl w-full 
-              max-h-full
+              p-6 md:p-8 max-w-sm md:max-w-2xl w-full 
+              max-h-[85vh] md:max-h-[90vh] overflow-y-auto
               shadow-2xl
               animate-in zoom-in-95 slide-in-from-bottom-4 duration-300
+              transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+              will-change-transform
             `}
           >
-            {/* Header Expandido - STICKY */}
-            <header className={`
-              flex items-start justify-between mb-6 
-              sticky top-0 z-10
-              pb-4 -mx-6 md:-mx-8 px-6 md:px-8
-              ${currentTheme.cardBg}
-              border-b ${currentTheme.cardBorder}
-            `}>
+            {/* Header Expandido */}
+            <header className="flex items-start justify-between mb-6 sticky top-0 bg-inherit pb-4 z-10 border-b border-gray-700/50">
               <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                <div className={`
-                  p-3 md:p-4 rounded-xl border flex-shrink-0
-                  ${isLightTheme 
-                    ? 'bg-blue-50 border-blue-200' 
-                    : `${currentTheme.cardBg} ${currentTheme.cardBorder}`
-                  }
-                `}>
-                  {/* Cor do ícone no modal */}
-                  <Icon 
-                    className={isLightTheme ? 'text-blue-600' : 'text-white'} 
-                    size={32} 
-                    strokeWidth={2}
-                    aria-hidden="true" 
-                  />
+                <div className={`p-3 md:p-4 rounded-xl ${currentTheme.cardBg} border ${currentTheme.cardBorder} flex-shrink-0`}>
+                  <Icon className={color} size={32} aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className={`text-lg md:text-2xl font-bold ${currentTheme.titleColor} mb-1`}>
@@ -193,15 +137,10 @@ export function ReportCard({
                 onClick={() => setIsExpanded(false)}
                 className={`
                   p-2 md:p-3 rounded-xl 
-                  ${currentTheme.buttonBg} 
-                  text-white
-                  hover:opacity-90 
-                  active:scale-95
-                  transition-all 
-                  flex-shrink-0 ml-2
-                  focus:outline-none 
-                  focus:ring-2 
-                  focus:ring-blue-500
+                  ${currentTheme.buttonBg} text-white
+                  transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+                  hover:opacity-90 hover:scale-105 active:scale-95
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
                 `}
                 aria-label="Fechar detalhes"
               >
@@ -209,16 +148,10 @@ export function ReportCard({
               </button>
             </header>
 
-            {/* INFORMAÇÕES DETALHADAS */}
+            {/* Informações detalhadas */}
             <div className="space-y-2 md:space-y-3 mb-6">
-              <h4 className={`
-                text-xs md:text-sm font-semibold ${currentTheme.titleColor} 
-                uppercase tracking-wide mb-4 flex items-center gap-2
-              `}>
-                <div className={`
-                  h-1 w-1 rounded-full 
-                  ${isLightTheme ? 'bg-blue-600' : 'bg-blue-500'}
-                `}></div>
+              <h4 className={`text-xs md:text-sm font-semibold ${currentTheme.titleColor} uppercase tracking-wide mb-4 flex items-center gap-2`}>
+                <div className="h-1 w-1 rounded-full bg-blue-500"></div>
                 Informações Detalhadas
               </h4>
               
@@ -227,14 +160,11 @@ export function ReportCard({
                   <div 
                     key={`${id}-detail-${index}`}
                     className={`
-                      flex flex-col
-                      py-3 md:py-4 px-3 md:px-4 rounded-lg
-                      border transition-all
-                      hover:scale-[1.02]
-                      ${isLightTheme 
-                        ? 'bg-gray-50 border-gray-200 hover:border-blue-400' 
-                        : `${currentTheme.cardBg} ${currentTheme.cardBorder} hover:border-blue-500/50`
-                      }
+                      flex flex-col py-3 md:py-4 px-3 md:px-4 rounded-lg
+                      ${currentTheme.cardBg} border ${currentTheme.cardBorder}
+                      transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+                      hover:border-blue-500/60 hover:shadow-lg hover:scale-[1.02] hover:brightness-105
+                      will-change-transform
                     `}
                   >
                     <span className={`text-xs ${currentTheme.cardText} opacity-70 mb-1`}>
@@ -248,16 +178,10 @@ export function ReportCard({
               </div>
             </div>
 
-            {/* BOTÕES DE DOWNLOAD */}
+            {/* Botões de download */}
             <footer className={`border-t ${currentTheme.cardBorder} pt-6`}>
-              <h4 className={`
-                text-xs md:text-sm font-semibold ${currentTheme.titleColor} 
-                uppercase tracking-wide mb-4 flex items-center gap-2
-              `}>
-                <div className={`
-                  h-1 w-1 rounded-full 
-                  ${isLightTheme ? 'bg-green-600' : 'bg-green-500'}
-                `}></div>
+              <h4 className={`text-xs md:text-sm font-semibold ${currentTheme.titleColor} uppercase tracking-wide mb-4 flex items-center gap-2`}>
+                <div className="h-1 w-1 rounded-full bg-green-500"></div>
                 Exportar Relatório
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
@@ -270,10 +194,11 @@ export function ReportCard({
                       flex items-center justify-center gap-2 
                       px-4 py-3 md:py-4 rounded-lg text-sm font-medium
                       ${currentTheme.buttonBg} text-white
-                      hover:opacity-90 hover:scale-[1.02] active:scale-95 
-                      transition-all
+                      transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+                      hover:opacity-95 hover:scale-[1.03] active:scale-95 hover:brightness-105
                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                      shadow-lg
+                      shadow-lg hover:shadow-xl
+                      will-change-transform
                     `}
                   >
                     {FORMAT_ICONS[format as keyof typeof FORMAT_ICONS] || <Download size={16} />}
@@ -282,9 +207,8 @@ export function ReportCard({
                 ))}
               </div>
 
-              {/* Dica de fechamento */}
               <p className={`text-xs ${currentTheme.cardText} opacity-50 text-center mt-4`}>
-                Clique no botão ✕ acima ou fora do card para fechar
+                Clique no botão ✕ acima para fechar
               </p>
             </footer>
           </article>
