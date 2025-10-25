@@ -1,0 +1,70 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import api from '../lib/api';
+import { Vacancy, CreateVacancyDto, UpdateVacancyDto } from '../types/vacancy';
+
+export function useVacancies() {
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchVacancies = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get('/vacancies');
+      const data = response.data.data || response.data;
+      setVacancies(data);
+      return data;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao buscar vagas';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createVacancy = useCallback(async (data: CreateVacancyDto) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.post('/vacancies', data);
+      const newVacancy = response.data.data || response.data;
+      setVacancies((prev) => [...prev, newVacancy]);
+      return newVacancy;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao criar vaga';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteVacancy = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await api.delete(`/vacancies/${id}`);
+      setVacancies((prev) => prev.filter((vacancy) => vacancy.id !== id));
+      return true;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao deletar vaga';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    vacancies,
+    loading,
+    error,
+    fetchVacancies,
+    createVacancy,
+    deleteVacancy,
+  };
+}
