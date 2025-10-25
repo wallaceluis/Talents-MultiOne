@@ -3,11 +3,10 @@
 import React, { useRef, useEffect } from 'react';
 import { Sun, Moon, User, ChevronDown, LogOut, Bell } from 'lucide-react';
 import { useTheme } from '../../lib/theme';
-import { useAuth } from '../../hooks/useAuth';
 
+// Componente Header com menus de usuário e notificações
 export const Header = () => {
   const { currentTheme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
   const [notificationsOpen, setNotificationsOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState([
@@ -16,15 +15,18 @@ export const Header = () => {
     { id: 3, text: 'Seu relatório está pronto', time: '2 horas atrás', unread: false },
   ]);
 
+  // Referências para detectar cliques fora dos menus
   const menuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   
+  // Determinar classes baseadas no tema
   const isDarkMode = currentTheme.name !== 'Claro';
   const iconColorClass = isDarkMode ? 'text-white' : 'text-gray-700';
   const textColorClass = isDarkMode ? 'text-white' : 'text-gray-800';
   const menuBgClass = isDarkMode ? 'bg-gray-800' : currentTheme.cardBg;
   const menuBorderClass = currentTheme.cardBorder;
 
+  // Fechar menus ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -39,6 +41,7 @@ export const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Marcar notificação como lida
   const markAsRead = (id: number) => {
     setNotifications(prev => 
       prev.map(notif => 
@@ -47,22 +50,22 @@ export const Header = () => {
     );
   };
 
+  // Contar notificações não lidas
   const unreadCount = notifications.filter(n => n.unread).length;
 
-  const handleLogout = () => {
-    if (confirm('Tem certeza que deseja sair?')) {
-      logout();
-    }
-  };
+
 
   return (
     <header
       className={`sticky top-0 ${currentTheme.sidebar} z-20 border-b ${currentTheme.cardBorder} backdrop-blur-sm bg-opacity-95`}
     >
       <div className="flex items-center justify-between px-4 md:px-6 h-16">
+        {/* Logo/Título */}
         <div className="flex items-center gap-3"></div>
 
+        {/* Ações da direita */}
         <div className="flex items-center gap-2">
+
           {/* Notificações */}
           <div className="relative" ref={notifRef}>
             <button
@@ -135,32 +138,21 @@ export const Header = () => {
                   {/* Informações do usuário */}
                   <div className="px-3 py-3 mb-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                        {user?.name?.charAt(0).toUpperCase() || 'U'}
-                      </div>
+                      <User size={20} className={iconColorClass} />
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-semibold ${textColorClass} truncate`}>
-                          {user?.name || 'Usuário'}
+                          Nome do Usuário
                         </p>
                         <p className={`text-xs ${iconColorClass} opacity-70 truncate`}>
-                          {user?.email || 'usuario@email.com'}
+                          usuario@email.com
                         </p>
                       </div>
                     </div>
-                    {user?.role && (
-                      <div className="mt-2">
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          isDarkMode ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {user.role === 'SUPER_ADMIN' ? 'Super Admin' : 
-                           user.role === 'MASTER' ? 'Master' : 
-                           user.role === 'ADMIN' ? 'Admin' : user.role}
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   <div className={`h-px ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-200'} my-1`} />
+
+                  
 
                   {/* Alternar tema */}
                   <button
@@ -183,7 +175,6 @@ export const Header = () => {
 
                   {/* Botão de sair */}
                   <button
-                    onClick={handleLogout}
                     className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg ${
                       isDarkMode
                         ? 'hover:bg-red-900/20 text-red-400'
