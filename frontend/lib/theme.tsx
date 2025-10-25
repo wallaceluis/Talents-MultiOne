@@ -49,7 +49,7 @@ export const themes: Themes = {
     sidebarActive: 'bg-blue-50 text-blue-800',
     cardBg: 'bg-white shadow-lg',
     cardBorder: 'border-gray-100 hover:border-blue-300',
-    iconColor: 'text-blue-500',
+    iconColor: 'text-black-500',
     titleColor: 'text-gray-900',
     cardText: 'text-gray-700',
     mainText: 'text-gray-900',

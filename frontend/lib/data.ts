@@ -142,7 +142,7 @@ export const reportsData: ReportCardData[] = [
     id: 'dashboard',
     title: 'Dashboard Geral',
     icon: LayoutDashboard,
-    color: 'text-blue-700',
+    color: 'text-blue-500',
     summary: [
       { label: 'Total de Métricas', value: 4 },
       { label: 'Período', value: 'Último mês' },
@@ -161,7 +161,7 @@ export const reportsData: ReportCardData[] = [
     id: 'companies',
     title: 'Empresas',
     icon: Building2,
-    color: 'text-purple-700',
+    color: 'text-purple-500',
     summary: [
       { label: 'Total', value: 8 },
       { label: 'Ativas', value: 6 },
