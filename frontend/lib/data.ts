@@ -97,7 +97,7 @@ export interface CandidatesRowData {
 }
 
 export const vacanciesMetricCards: MetricCardData[] = [
-    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-purple-600' },
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-purple-500' },
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
     { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' },
 ];
@@ -107,7 +107,7 @@ export const candidatesMetricCards: MetricCardData[] = [
   { title: 'Online', value: '5', icon: ListChecks, color: 'text-blue-500' },
   { title: 'Ativos (180 dias)', value: '60', icon: TrendingUp, color: 'text-red-500' },
   { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-yellow-500' },
-  { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-purple-700' },
+  { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-purple-500' },
 ];
 
 

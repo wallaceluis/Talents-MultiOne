@@ -45,7 +45,7 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div
             className={`flex flex-col flex-1 transition-all duration-300 ${
               sidebarOpen ? "lg:ml-64" : "lg:ml-20"
-            }`}
+            } ml-0`}
           >
             {/* HEADER FIXO */}
             <Header />
