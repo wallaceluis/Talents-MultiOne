@@ -155,7 +155,7 @@ export function ReportCard({
                 Informações Detalhadas
               </h4>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                 {detailedInfo.map((item, index) => (
                   <div 
                     key={`${id}-detail-${index}`}
@@ -184,7 +184,7 @@ export function ReportCard({
                 <div className="h-1 w-1 rounded-full bg-green-500"></div>
                 Exportar Relatório
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                 {downloadFormats.map((format) => (
                   <button
                     key={format}

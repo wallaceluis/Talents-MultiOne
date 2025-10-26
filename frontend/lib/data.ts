@@ -54,7 +54,7 @@ export const menuItems: MenuItem[] = [
 
 export const metricCards: MetricCardData[] = [
     { title: 'Empresas Cadastradas', value: '8', icon: Building2, color: 'text-blue-500' }, 
-    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-yellow-500' },
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-yellow-400' },
     { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-green-500' }, 
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
 ];
@@ -75,7 +75,7 @@ export const usersData: UserData[] = [
 export const statusCardsData = [
     { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
     { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
-    { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-500' },
+    { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-400' },
     { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
 ];
 
@@ -99,14 +99,14 @@ export interface CandidatesRowData {
 export const vacanciesMetricCards: MetricCardData[] = [
     { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-purple-500' },
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
-    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-500' },
+    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-400' },
 ];
 
 export const candidatesMetricCards: MetricCardData[] = [
   { title: 'Totais', value: '100', icon: Users, color: 'text-green-500' },
   { title: 'Online', value: '5', icon: ListChecks, color: 'text-blue-500' },
   { title: 'Ativos (180 dias)', value: '60', icon: TrendingUp, color: 'text-red-500' },
-  { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-yellow-500' },
+  { title: 'Candidaturas Totais', value: '260', icon: Briefcase, color: 'text-yellow-400' },
   { title: 'Média de Candidaturas', value: '2.6', icon: BarChart3, color: 'text-purple-500' },
 ];
 
@@ -218,7 +218,7 @@ export const reportsData: ReportCardData[] = [
     id: 'vacancies',
     title: 'Vagas',
     icon: Briefcase,
-    color: 'text-yellow-500',
+    color: 'text-yellow-400',
     summary: [
       { label: 'Total', value: 2 },
       { label: 'Abertas', value: 2 },

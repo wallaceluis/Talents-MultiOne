@@ -8,7 +8,7 @@ const config: Config = {
   ],
   safelist: [ 
     'text-blue-500',
-    'text-yellow-500',
+    'text-yellow-400',
     'text-red-500',
     'text-purple-500',
     'text-green-500',
