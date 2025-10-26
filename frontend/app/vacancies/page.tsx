@@ -2,20 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { useVacancies } from '../../hooks/useVacancies';
-import { Vacancy, CreateVacancyDto } from '../../types/vacancy';
-import { Briefcase, Plus, Trash2, Search, X, MapPin, DollarSign } from 'lucide-react';
+import { Vacancy, CreateVacancyDto, UpdateVacancyDto } from '../../types/vacancy';
+import { Briefcase, Plus, Trash2, Search, X, Edit2, MapPin, DollarSign } from 'lucide-react';
 
 export default function VacanciesPage() {
-  const { vacancies, loading, error, fetchVacancies, createVacancy, deleteVacancy } = useVacancies();
+  const { vacancies, loading, error, fetchVacancies, createVacancy, updateVacancy, deleteVacancy } = useVacancies();
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingVacancy, setEditingVacancy] = useState<Vacancy | null>(null);
   const [formData, setFormData] = useState<CreateVacancyDto>({
-    title: '',
-    description: '',
-    type: 'CLT',
-    workModel: 'HYBRID',
-    location: '',
-    companyId: '',
+    title: '', description: '', type: 'CLT', workModel: 'HYBRID', location: '', companyId: '',
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -27,14 +23,52 @@ export default function VacanciesPage() {
     (v.location && v.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleOpenCreate = () => {
+    setEditingVacancy(null);
+    setFormData({ title: '', description: '', type: 'CLT', workModel: 'HYBRID', location: '', companyId: '' });
+    setFormError('');
+    setShowModal(true);
+  };
+
+  const handleOpenEdit = (vacancy: Vacancy) => {
+    setEditingVacancy(vacancy);
+    setFormData({
+      title: vacancy.title,
+      description: vacancy.description,
+      type: vacancy.type,
+      workModel: vacancy.workModel,
+      location: vacancy.location || '',
+      salary: vacancy.salary,
+      companyId: vacancy.companyId,
+    });
+    setFormError('');
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingVacancy(null);
+    setFormError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormLoading(true);
     setFormError('');
     try {
-      await createVacancy(formData);
-      setShowCreateModal(false);
-      setFormData({ title: '', description: '', type: 'CLT', workModel: 'HYBRID', location: '', companyId: '' });
+      if (editingVacancy) {
+        const updateData: UpdateVacancyDto = {};
+        if (formData.title !== editingVacancy.title) updateData.title = formData.title;
+        if (formData.description !== editingVacancy.description) updateData.description = formData.description;
+        if (formData.type !== editingVacancy.type) updateData.type = formData.type;
+        if (formData.workModel !== editingVacancy.workModel) updateData.workModel = formData.workModel;
+        if (formData.location !== editingVacancy.location) updateData.location = formData.location;
+        if (formData.salary !== editingVacancy.salary) updateData.salary = formData.salary;
+        await updateVacancy(editingVacancy.id, updateData);
+      } else {
+        await createVacancy(formData);
+      }
+      handleCloseModal();
       await fetchVacancies();
     } catch (err: any) {
       setFormError(err.message);
@@ -63,36 +97,6 @@ export default function VacanciesPage() {
     }
   };
 
-  const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      'CLT': 'CLT',
-      'PJ': 'PJ',
-      'FREELANCE': 'Freelance',
-      'INTERNSHIP': 'Estágio',
-      'TEMPORARY': 'Temporário'
-    };
-    return labels[type] || type;
-  };
-
-  const getWorkModelLabel = (model: string) => {
-    const labels: Record<string, string> = {
-      'REMOTE': 'Remoto',
-      'HYBRID': 'Híbrido',
-      'ON_SITE': 'Presencial'
-    };
-    return labels[model] || model;
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      'DRAFT': 'Rascunho',
-      'OPEN': 'Aberta',
-      'CLOSED': 'Fechada',
-      'FILLED': 'Preenchida'
-    };
-    return labels[status] || status;
-  };
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -100,34 +104,21 @@ export default function VacanciesPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Vagas</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Gerencie as vagas disponíveis</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Nova Vaga
+        <button onClick={handleOpenCreate} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+          <Plus className="w-5 h-5" />Nova Vaga
         </button>
       </div>
 
       <div className="mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por título ou localização..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <input type="text" placeholder="Buscar por título ou localização..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">Carregando...</p>
-          </div>
+          <div className="p-8 text-center"><div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div><p className="mt-2 text-gray-600 dark:text-gray-400">Carregando...</p></div>
         ) : error ? (
           <div className="p-8 text-center text-red-600">{error}</div>
         ) : filteredVacancies.length === 0 ? (
@@ -137,8 +128,6 @@ export default function VacanciesPage() {
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Vaga</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Modelo</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Localização</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Salário</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
@@ -159,37 +148,12 @@ export default function VacanciesPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                      {getTypeLabel(vacancy.type)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-                      {getWorkModelLabel(vacancy.workModel)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900 dark:text-gray-300">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {vacancy.location || 'N/A'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900 dark:text-gray-300">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      {vacancy.salary ? `R$ ${Number(vacancy.salary).toLocaleString('pt-BR')}` : 'A combinar'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(vacancy.status)}`}>
-                      {getStatusLabel(vacancy.status)}
-                    </span>
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center text-sm text-gray-900 dark:text-gray-300"><MapPin className="w-4 h-4 mr-1" />{vacancy.location || 'N/A'}</div></td>
+                  <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center text-sm text-gray-900 dark:text-gray-300"><DollarSign className="w-4 h-4 mr-1" />{vacancy.salary ? `R$ ${Number(vacancy.salary).toLocaleString('pt-BR')}` : 'A combinar'}</div></td>
+                  <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(vacancy.status)}`}>{vacancy.status}</span></td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button onClick={() => handleDelete(vacancy)} className="text-red-600 hover:text-red-900">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <button onClick={() => handleOpenEdit(vacancy)} className="text-blue-600 hover:text-blue-900 mr-3" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(vacancy)} className="text-red-600 hover:text-red-900" title="Deletar"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
@@ -198,116 +162,54 @@ export default function VacanciesPage() {
         )}
       </div>
 
-      {showCreateModal && (
+      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 my-8">
             <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Nova Vaga</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
-              </button>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{editingVacancy ? 'Editar Vaga' : 'Nova Vaga'}</h3>
+              <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreate} className="p-6">
+            <form onSubmit={handleSubmit} className="p-6">
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Título *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descrição *</label>
-                  <textarea
-                    required
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <textarea required rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo *</label>
-                  <select
-                    required
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="CLT">CLT</option>
-                    <option value="PJ">PJ</option>
-                    <option value="FREELANCE">Freelance</option>
-                    <option value="INTERNSHIP">Estágio</option>
-                    <option value="TEMPORARY">Temporário</option>
+                  <select required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as any })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="CLT">CLT</option><option value="PJ">PJ</option><option value="FREELANCE">Freelance</option><option value="INTERNSHIP">Estágio</option><option value="TEMPORARY">Temporário</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Modelo de Trabalho *</label>
-                  <select
-                    required
-                    value={formData.workModel}
-                    onChange={(e) => setFormData({ ...formData, workModel: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="REMOTE">Remoto</option>
-                    <option value="HYBRID">Híbrido</option>
-                    <option value="ON_SITE">Presencial</option>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Modelo *</label>
+                  <select required value={formData.workModel} onChange={(e) => setFormData({ ...formData, workModel: e.target.value as any })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="REMOTE">Remoto</option><option value="HYBRID">Híbrido</option><option value="ON_SITE">Presencial</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Localização *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ex: São Paulo, SP"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <input type="text" required placeholder="Ex: São Paulo, SP" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Salário (R$)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="8000.00"
-                    value={formData.salary || ''}
-                    onChange={(e) => setFormData({ ...formData, salary: e.target.value ? Number(e.target.value) : undefined })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <input type="number" min="0" step="0.01" placeholder="8000.00" value={formData.salary || ''} onChange={(e) => setFormData({ ...formData, salary: e.target.value ? Number(e.target.value) : undefined })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID da Empresa *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="UUID da empresa"
-                    value={formData.companyId}
-                    onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+                {!editingVacancy && (
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID da Empresa *</label>
+                    <input type="text" required placeholder="UUID da empresa" value={formData.companyId} onChange={(e) => setFormData({ ...formData, companyId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                )}
               </div>
               {formError && <div className="text-red-600 text-sm mb-4">{formError}</div>}
               <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
-                >
-                  {formLoading ? 'Criando...' : 'Criar'}
-                </button>
+                <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">Cancelar</button>
+                <button type="submit" disabled={formLoading} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50">{formLoading ? 'Salvando...' : editingVacancy ? 'Atualizar' : 'Criar'}</button>
               </div>
             </form>
           </div>

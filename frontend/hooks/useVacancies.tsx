@@ -43,6 +43,25 @@ export function useVacancies() {
     }
   }, []);
 
+  const updateVacancy = useCallback(async (id: string, data: UpdateVacancyDto) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.patch(`/vacancies/${id}`, data);
+      const updatedVacancy = response.data.data || response.data;
+      setVacancies((prev) =>
+        prev.map((vacancy) => (vacancy.id === id ? updatedVacancy : vacancy))
+      );
+      return updatedVacancy;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao atualizar vaga';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const deleteVacancy = useCallback(async (id: string) => {
     try {
       setLoading(true);
@@ -65,6 +84,7 @@ export function useVacancies() {
     error,
     fetchVacancies,
     createVacancy,
+    updateVacancy,
     deleteVacancy,
   };
 }

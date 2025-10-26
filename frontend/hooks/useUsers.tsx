@@ -43,6 +43,25 @@ export function useUsers() {
     }
   }, []);
 
+  const updateUser = useCallback(async (id: string, data: UpdateUserDto) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.patch(`/users/${id}`, data);
+      const updatedUser = response.data.data || response.data;
+      setUsers((prev) =>
+        prev.map((user) => (user.id === id ? updatedUser : user))
+      );
+      return updatedUser;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao atualizar usuário';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const deleteUser = useCallback(async (id: string) => {
     try {
       setLoading(true);
@@ -65,6 +84,7 @@ export function useUsers() {
     error,
     fetchUsers,
     createUser,
+    updateUser,
     deleteUser,
   };
 }

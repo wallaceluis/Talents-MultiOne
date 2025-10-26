@@ -2,14 +2,13 @@
 
 import { useState, useCallback } from 'react';
 import api from '../lib/api';
-import { Company, CreateCompanyDto, UpdateCompanyDto, CompanyStats } from '../types/company';
+import { Company, CreateCompanyDto, UpdateCompanyDto } from '../types/company';
 
 export function useCompanies() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Listar todas as empresas
   const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true);
@@ -27,41 +26,6 @@ export function useCompanies() {
     }
   }, []);
 
-  // Buscar empresa por ID
-  const fetchCompanyById = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await api.get(`/companies/${id}`);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Erro ao buscar empresa';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Buscar estatísticas
-  const fetchStats = useCallback(async (): Promise<CompanyStats> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await api.get('/companies/stats');
-      const data = response.data.data || response.data;
-      return data;
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Erro ao buscar estatísticas';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Criar nova empresa
   const createCompany = useCallback(async (data: CreateCompanyDto) => {
     try {
       setLoading(true);
@@ -79,7 +43,6 @@ export function useCompanies() {
     }
   }, []);
 
-  // Atualizar empresa
   const updateCompany = useCallback(async (id: string, data: UpdateCompanyDto) => {
     try {
       setLoading(true);
@@ -99,7 +62,6 @@ export function useCompanies() {
     }
   }, []);
 
-  // Deletar empresa
   const deleteCompany = useCallback(async (id: string) => {
     try {
       setLoading(true);
@@ -121,8 +83,6 @@ export function useCompanies() {
     loading,
     error,
     fetchCompanies,
-    fetchCompanyById,
-    fetchStats,
     createCompany,
     updateCompany,
     deleteCompany,

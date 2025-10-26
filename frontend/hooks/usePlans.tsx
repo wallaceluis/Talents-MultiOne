@@ -43,6 +43,25 @@ export function usePlans() {
     }
   }, []);
 
+  const updatePlan = useCallback(async (id: string, data: UpdatePlanDto) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.patch(`/plans/${id}`, data);
+      const updatedPlan = response.data.data || response.data;
+      setPlans((prev) =>
+        prev.map((plan) => (plan.id === id ? updatedPlan : plan))
+      );
+      return updatedPlan;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao atualizar plano';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const deletePlan = useCallback(async (id: string) => {
     try {
       setLoading(true);
@@ -65,6 +84,7 @@ export function usePlans() {
     error,
     fetchPlans,
     createPlan,
+    updatePlan,
     deletePlan,
   };
 }
