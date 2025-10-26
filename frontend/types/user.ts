@@ -2,9 +2,9 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'RECRUITER' | 'USER';
   status: 'ACTIVE' | 'INACTIVE';
-  companyId: string;
+  companyId?: string;
   createdAt: string;
   updatedAt: string;
   company?: {
@@ -17,13 +17,16 @@ export interface CreateUserDto {
   name: string;
   email: string;
   password: string;
-  role: 'ADMIN' | 'USER';
-  companyId: string;
+  role?: 'ADMIN' | 'RECRUITER' | 'USER';
+  status?: 'ACTIVE' | 'INACTIVE';
+  companyId?: string;
 }
 
 export interface UpdateUserDto {
   name?: string;
   email?: string;
-  role?: 'ADMIN' | 'USER';
+  password?: string;
+  role?: 'ADMIN' | 'RECRUITER' | 'USER';
   status?: 'ACTIVE' | 'INACTIVE';
+  companyId?: string;
 }

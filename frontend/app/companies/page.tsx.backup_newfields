@@ -14,7 +14,6 @@ export default function CompaniesPage() {
     name: '',
     domain: '',
     planId: '',
-    status: 'ACTIVE',
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -30,7 +29,7 @@ export default function CompaniesPage() {
 
   const handleOpenCreate = () => {
     setEditingCompany(null);
-    setFormData({ name: '', domain: '', planId: '', status: 'ACTIVE' });
+    setFormData({ name: '', domain: '', planId: '' });
     setFormError('');
     setShowModal(true);
   };
@@ -41,7 +40,6 @@ export default function CompaniesPage() {
       name: company.name,
       domain: company.domain || '',
       planId: company.planId,
-      status: company.status,
     });
     setFormError('');
     setShowModal(true);
@@ -50,7 +48,7 @@ export default function CompaniesPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingCompany(null);
-    setFormData({ name: '', domain: '', planId: '', status: 'ACTIVE' });
+    setFormData({ name: '', domain: '', planId: '' });
     setFormError('');
   };
 
@@ -65,12 +63,10 @@ export default function CompaniesPage() {
         if (formData.name !== editingCompany.name) updateData.name = formData.name;
         if (formData.domain !== editingCompany.domain) updateData.domain = formData.domain;
         if (formData.planId !== editingCompany.planId) updateData.planId = formData.planId;
-        if (formData.status !== editingCompany.status) updateData.status = formData.status;
         await updateCompany(editingCompany.id, updateData);
       } else {
         await createCompany(formData);
       }
-      
       handleCloseModal();
       await fetchCompanies();
     } catch (err: any) {
@@ -82,19 +78,12 @@ export default function CompaniesPage() {
 
   const handleDelete = async (company: Company) => {
     if (!confirm(`Deseja realmente excluir a empresa "${company.name}"?`)) return;
-    
     try {
       await deleteCompany(company.id);
       await fetchCompanies();
     } catch (err: any) {
       alert(err.message);
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    return status === 'ACTIVE' 
-      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
-      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
   };
 
   return (
@@ -143,7 +132,6 @@ export default function CompaniesPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Empresa</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Domínio</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Plano</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
               </tr>
             </thead>
@@ -164,28 +152,15 @@ export default function CompaniesPage() {
                     {company.domain || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                       {company.plan?.name || 'N/A'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(company.status)}`}>
-                      {company.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button
-                      onClick={() => handleOpenEdit(company)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                      title="Editar"
-                    >
+                    <button onClick={() => handleOpenEdit(company)} className="text-blue-600 hover:text-blue-900 mr-3" title="Editar">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => handleDelete(company)}
-                      className="text-red-600 hover:text-red-900"
-                      title="Deletar"
-                    >
+                    <button onClick={() => handleDelete(company)} className="text-red-600 hover:text-red-900" title="Deletar">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
@@ -210,9 +185,7 @@ export default function CompaniesPage() {
             <form onSubmit={handleSubmit} className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nome *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome *</label>
                   <input
                     type="text"
                     required
@@ -222,9 +195,7 @@ export default function CompaniesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Domínio
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Domínio</label>
                   <input
                     type="text"
                     value={formData.domain}
@@ -234,23 +205,7 @@ export default function CompaniesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Status *
-                  </label>
-                  <select
-                    required
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="ACTIVE">Ativo</option>
-                    <option value="INACTIVE">Inativo</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    ID do Plano *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID do Plano *</label>
                   <input
                     type="text"
                     required
@@ -261,22 +216,12 @@ export default function CompaniesPage() {
                   />
                 </div>
               </div>
-              {formError && (
-                <div className="text-red-600 text-sm mt-4">{formError}</div>
-              )}
+              {formError && <div className="text-red-600 text-sm mt-4">{formError}</div>}
               <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                >
+                <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
-                >
+                <button type="submit" disabled={formLoading} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50">
                   {formLoading ? 'Salvando...' : editingCompany ? 'Atualizar' : 'Criar'}
                 </button>
               </div>
