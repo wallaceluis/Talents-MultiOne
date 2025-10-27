@@ -34,7 +34,7 @@ export const themes: Themes = {
     sidebarActive: 'bg-blue-600/70',
     cardBg: 'bg-gray-800/70',
     cardBorder: 'border-blue-700/30 hover:border-blue-600',
-    iconColor: 'text-blue-400',
+    iconColor: 'text-black-400',
     titleColor: 'text-white',
     cardText: 'text-gray-300',
     mainText: 'text-white',

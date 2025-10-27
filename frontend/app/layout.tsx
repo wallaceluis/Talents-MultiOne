@@ -10,7 +10,7 @@ import { Header } from "../components/ui/header";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      {/* 👇 Remove o bg-white daqui, deixa o ThemeProvider controlar */}
+      {/* Remove o bg-white daqui, deixa o ThemeProvider controlar */}
       <body suppressHydrationWarning={true}>
         <ThemeProvider>
           <LayoutWrapper>{children}</LayoutWrapper>
