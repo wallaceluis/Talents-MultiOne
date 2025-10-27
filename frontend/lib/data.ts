@@ -97,9 +97,9 @@ export interface CandidatesRowData {
 }
 
 export const vacanciesMetricCards: MetricCardData[] = [
-    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-purple-500' },
+    { title: 'Vagas Abertas', value: '2', icon: Briefcase, color: 'text-yellow-400' },
     { title: 'Total de Candidaturas', value: '0', icon: TrendingUp, color: 'text-red-500' },
-    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-yellow-400' },
+    { title: 'Total de Candidatos', value: '3', icon: Users, color: 'text-green-500' },
 ];
 
 export const candidatesMetricCards: MetricCardData[] = [
