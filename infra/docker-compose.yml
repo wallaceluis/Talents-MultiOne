@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev123
+      POSTGRES_DB: talents
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ..
+      dockerfile: ./infra/Dockerfile.backend
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://dev:dev123@db:5432/talents?schema=public"
+      JWT_SECRET: "seu-secret-super-seguro-minimo-32-caracteres-aleat0ri0s"
+      JWT_EXPIRES_IN: "7d"
+    depends_on:
+      - db
+    ports:
+      - "4000:4000"
+    command: ["npm", "run", "start"]
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: ./infra/Dockerfile.frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:4000"
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "start"]
+
+volumes:
+  pgdata:

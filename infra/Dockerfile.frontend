@@ -1,55 +1,43 @@
 # --- ESTÁGIO 1: BUILDER ---
-# Aqui instalamos tudo e rodamos o build
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Define o ambiente para não baixar coisas desnecessárias
 ENV NODE_ENV=production
 
-# 1. Copia os package.json de TODOS os workspaces
-# Isso otimiza o cache do Docker.
-COPY package.json package-lock.json* ./
-COPY frontend/package.json ./frontend/
-COPY backend/package.json ./backend/
-COPY shared/package.json ./shared/
+# 1. Copia apenas o package.json do frontend
+COPY ../frontend/package.json ./frontend/
 
-# 2. Instala TODAS as dependências do monorepo (incluindo devDependencies)
+# 2. Instala dependências do frontend
+WORKDIR /app/frontend
 RUN npm install
 
-# 3. Copia TODO o código-fonte
-COPY . .
+# 3. Copia o restante do código-fonte do frontend
+COPY ../frontend ./
 
 # 4. Roda o build do Next.js
-# Navega para a pasta do frontend e executa o build
-WORKDIR /app/frontend
 RUN npm run build
 
 
 # --- ESTÁGIO 2: PRODUÇÃO ---
-# Aqui criamos a imagem final, apenas com o necessário
 FROM node:18-alpine AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# 1. Copia os package.json dos workspaces de PRODUÇÃO
-# (Não precisamos do backend aqui)
-COPY package.json package-lock.json* ./
-COPY frontend/package.json ./frontend/
-COPY shared/package.json ./shared/
+# 1. Copia apenas o package.json do frontend
+COPY ../frontend/package.json ./frontend/
 
-# 2. Instala APENAS as dependências de produção
+# 2. Instala apenas dependências de produção
+WORKDIR /app/frontend
 RUN npm install --omit=dev
 
-# 3. Copia os artefatos de build do estágio 'builder'
+# 3. Copia o build do estágio anterior
 COPY --from=builder /app/frontend/.next ./frontend/.next
 COPY --from=builder /app/frontend/public ./frontend/public
 
-# 4. Define o diretório final
+# 4. Define o diretório final e porta
 WORKDIR /app/frontend
-
-# 5. Expõe a porta do Next.js
 EXPOSE 3000
 
-# 6. Comando para iniciar o app
+# 5. Comando para iniciar o app
 CMD ["npm", "run", "start"]
