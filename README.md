@@ -1,319 +1,431 @@
-# 🚀 Talents MultiOne
+# 🎯 Talents MultiOne - Sistema de Recrutamento
 
-Sistema completo de gerenciamento de recrutamento e seleção com **Next.js 15**, **NestJS**, **Prisma** e **PostgreSQL**.
+<div align="center">
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Node](https://img.shields.io/badge/node-18.x-green.svg)
-![Next.js](https://img.shields.io/badge/Next.js-15.5-black.svg)
+
+Sistema completo de gerenciamento de recrutamento e seleção de talentos.
+
+[Funcionalidades](#-funcionalidades) • [Instalação](#-instalação) • [Documentação](#-documentação) • [API](#-api)
+
+</div>
 
 ---
 
-## 📖 Sobre o Projeto
+## 📋 Índice
 
-**Talents MultiOne** é uma plataforma completa para gestão de processos de recrutamento e seleção.
-
-### ✨ Funcionalidades
-
-- 🔐 **Autenticação JWT** - Login/Logout seguro
-- 🏢 **CRUD de Empresas** - Gestão completa
-- 💼 **Gestão de Vagas** - Controle de processos
-- 👥 **Gestão de Candidatos** - Base de talentos
-- 📊 **Dashboard** - Métricas e estatísticas
-- 🎨 **Tema Claro/Escuro** - Interface moderna
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#-tecnologias)
+- [Arquitetura](#-arquitetura)
+- [Instalação](#-instalação)
+- [Configuração](#-configuração)
+- [Uso](#-uso)
+- [API](#-api)
+- [Database](#-database)
+- [Deploy](#-deploy)
+- [Contribuindo](#-contribuindo)
 
 ---
 
-## 🛠 Tecnologias
+## 🎯 Sobre o Projeto
 
-### Frontend
-- Next.js 15 + TypeScript
-- Tailwind CSS
-- Axios
+O **Talents MultiOne** é uma plataforma completa para gerenciamento de processos de recrutamento e seleção, desenvolvida para empresas que buscam otimizar suas contratações.
+
+### Por que usar o Talents MultiOne?
+
+- ✅ **Multi-tenant** - Múltiplas empresas no mesmo sistema
+- ✅ **Sistema de Planos** - Free, Basic, Premium
+- ✅ **Gestão Completa** - Candidatos, vagas, usuários
+- ✅ **API RESTful** - Totalmente documentada
+- ✅ **Autenticação JWT** - Segurança robusta
+- ✅ **Database Relacional** - PostgreSQL com Prisma
+
+---
+
+## ✨ Funcionalidades
+
+### 👥 Gestão de Candidatos
+- Cadastro completo de candidatos
+- Histórico de experiências profissionais
+- Formação acadêmica
+- Skills e competências técnicas
+- Status do processo seletivo
+
+### 🏢 Gestão de Empresas
+- Multi-tenant (várias empresas)
+- Planos de assinatura (Free, Basic, Premium)
+- Limites por plano
+- Status da empresa (ativa/inativa)
+
+### 💼 Gestão de Vagas
+- Criação e gerenciamento de vagas
+- Requisitos e descrição detalhada
+- Faixa salarial
+- Modalidade (remoto, presencial, híbrido)
+- Status da vaga
+
+### 👤 Gestão de Usuários
+- Sistema de roles (Admin, Manager, Recruiter, Viewer)
+- Permissões por função
+- Múltiplos usuários por empresa
+
+### 📊 Sistema de Planos
+- **Free**: 2 usuários, 10 candidatos, 2 vagas
+- **Basic**: 5 usuários, 50 candidatos, 10 vagas
+- **Premium**: Ilimitado
+
+### 🔐 Autenticação & Autorização
+- Login com JWT
+- Refresh tokens
+- Role-based access control (RBAC)
+- Guards por endpoint
+
+---
+
+## 🛠️ Tecnologias
 
 ### Backend
-- NestJS
-- Prisma ORM
-- PostgreSQL
-- JWT
+- **[NestJS](https://nestjs.com/)** - Framework Node.js progressivo
+- **[Prisma](https://www.prisma.io/)** - ORM type-safe
+- **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional
+- **[JWT](https://jwt.io/)** - Autenticação
+- **[bcrypt](https://github.com/kelektiv/node.bcrypt.js)** - Hash de senhas
+- **[class-validator](https://github.com/typestack/class-validator)** - Validação de dados
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
+
+### Frontend (Opcional)
+- **[Next.js 14](https://nextjs.org/)** - Framework React
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
+- **[Tailwind CSS](https://tailwindcss.com/)** - Estilização
+
+### Database
+- **PostgreSQL 14+**
+- **Prisma ORM**
+- **Migrations automáticas**
 
 ---
 
-## ⚙️ Pré-requisitos
-
-- Node.js 18+
-- PostgreSQL 14+
-- npm ou yarn
+## 🏗️ Arquitetura
+```
+┌─────────────────────────────────────────────┐
+│           Frontend (Next.js)                │
+│         localhost:3000 (Opcional)           │
+└────────────────┬────────────────────────────┘
+                 │ HTTP/REST
+                 ▼
+┌─────────────────────────────────────────────┐
+│         Backend API (NestJS)                │
+│            localhost:3001                   │
+│                                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │  Auth    │  │Companies │  │Candidates│ │
+│  │ Module   │  │  Module  │  │  Module  │ │
+│  └──────────┘  └──────────┘  └──────────┘ │
+│                                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │  Users   │  │  Plans   │  │Vacancies │ │
+│  │ Module   │  │  Module  │  │  Module  │ │
+│  └──────────┘  └──────────┘  └──────────┘ │
+│                                             │
+│         Prisma ORM + Guards                │
+└────────────────┬────────────────────────────┘
+                 │ Prisma Client
+                 ▼
+┌─────────────────────────────────────────────┐
+│       PostgreSQL Database                   │
+│          localhost:5432                     │
+│                                             │
+│  ┌─────────────────────────────────────┐  │
+│  │  Schema: public                      │  │
+│  │                                      │  │
+│  │  • companies  • users                │  │
+│  │  • candidates • plans                │  │
+│  │  • vacancies  • skills               │  │
+│  │  • experiences • educations          │  │
+│  │  • applications                      │  │
+│  └─────────────────────────────────────┘  │
+└─────────────────────────────────────────────┘
+```
 
 ---
 
-## 📥 Instalação
+## 📦 Instalação
+
+### Pré-requisitos
+
+- Node.js 18+ ([Download](https://nodejs.org/))
+- PostgreSQL 14+ ([Download](https://www.postgresql.org/))
+- Git ([Download](https://git-scm.com/))
 
 ### 1. Clone o repositório
 ```bash
-git clone https://github.com/wallaceluis/Talents-MultiOne.git
-cd Talents-MultiOne
+git clone <URL_DO_SEU_REPOSITORIO>
+cd Talents-MultiOne-Clone
 ```
 
-### 2. Configure o PostgreSQL
-```bash
-# Iniciar PostgreSQL
-sudo service postgresql start
-
-# Criar banco de dados
-sudo -u postgres psql
-CREATE DATABASE talents;
-CREATE USER dev WITH PASSWORD 'dev123';
-GRANT ALL PRIVILEGES ON DATABASE talents TO dev;
-\q
-```
-
-### 3. Configure o Backend
+### 2. Instale o Backend
 ```bash
 cd backend
 npm install
+```
 
-# Criar arquivo .env
-cat > .env << 'ENV'
+### 3. Configure o Banco de Dados
+```bash
+# Crie o banco PostgreSQL
+createdb talents
+
+# Copie o .env
+cp .env.example .env
+
+# Edite com suas credenciais
+nano .env
+```
+
+**Configurar DATABASE_URL:**
+```env
 DATABASE_URL="postgresql://dev:dev123@localhost:5432/talents?schema=public"
-JWT_SECRET="seu-secret-super-seguro-aqui-2024"
-JWT_EXPIRES_IN="7d"
-PORT=3001
-NODE_ENV=development
-ENV
+```
 
-# Executar migrações
-npx prisma migrate deploy
+### 4. Execute as Migrations
+```bash
+cd backend
+npx prisma migrate dev
+```
+
+### 5. Popule o Banco (Seed)
+```bash
 npx prisma db seed
 ```
 
-### 4. Configure o Frontend
+**Credenciais criadas:**
+- Admin: `admin@multione.digital` / `Admin@123`
+- Manager: `master@multione.digital` / `Admin@123`
+- Recruiter: `joao@techsolutions.com` / `Senha@123`
+- Viewer: `maria@innovationcorp.com` / `Senha@123`
+
+### 6. Inicie o Backend
 ```bash
-cd ../frontend
-npm install
-
-# Criar arquivo .env.local
-cat > .env.local << 'ENV'
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-ENV
-```
-
----
-
-## 🚀 Executando o Projeto
-
-### Terminal 1 - Backend:
-```bash
-cd backend
 npm run start:dev
 ```
-✅ Backend: http://localhost:3001
 
-### Terminal 2 - Frontend:
+Backend rodando em: **http://localhost:3001**
+
+---
+
+## ⚙️ Configuração
+
+### Variáveis de Ambiente
+
+**backend/.env:**
+```env
+# Database
+DATABASE_URL="postgresql://dev:dev123@localhost:5432/talents?schema=public"
+
+# JWT
+JWT_SECRET="seu-secret-super-seguro-minimo-32-caracteres-aleat0ri0s"
+JWT_EXPIRES_IN="7d"
+
+# Server
+PORT=3001
+NODE_ENV=development
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
+```
+
+Veja a [documentação completa de configuração](docs/CONFIGURATION.md).
+
+---
+
+## 🚀 Uso
+
+### Acessar a API
+
+Base URL: `http://localhost:3001`
+
+### Login
 ```bash
-cd frontend
-npm run dev
-```
-✅ Frontend: http://localhost:3000
-
----
-
-## 🔑 Credenciais Padrão
-
-Após executar o seed:
-
-- **Email:** admin@multione.digital
-- **Senha:** Admin@123
-
----
-
-## 🔌 API Endpoints
-
-### Autenticação
-```
-POST   /api/auth/login      # Login
-GET    /api/auth/me         # Usuário atual
+curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@multione.digital",
+    "password": "Admin@123"
+  }'
 ```
 
-### Empresas
+**Resposta:**
+```json
+{
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "uuid",
+      "name": "Admin User",
+      "email": "admin@multione.digital",
+      "role": "ADMIN"
+    }
+  }
+}
 ```
-GET    /api/companies       # Listar
-GET    /api/companies/:id   # Buscar
-POST   /api/companies       # Criar
-PATCH  /api/companies/:id   # Atualizar
-DELETE /api/companies/:id   # Deletar
+
+### Usar o Token
+```bash
+TOKEN="seu-token-aqui"
+
+curl http://localhost:3001/api/companies \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
 
-## 📁 Estrutura
+## 📡 API
+
+### Endpoints Principais
+
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| POST | `/api/auth/login` | Login | ❌ |
+| POST | `/api/auth/register` | Registro | ❌ |
+| GET | `/api/auth/me` | Usuário atual | ✅ |
+| GET | `/api/companies` | Listar empresas | ✅ |
+| GET | `/api/candidates` | Listar candidatos | ✅ |
+| GET | `/api/users` | Listar usuários | ✅ |
+| GET | `/api/plans` | Listar planos | ✅ |
+| GET | `/api/vacancies` | Listar vagas | ✅ |
+
+Veja a [documentação completa da API](docs/API.md).
+
+---
+
+## 🗄️ Database
+
+### Schema Principal
+```prisma
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  domain    String   @unique
+  status    String
+  planId    String
+  
+  plan       Plan         @relation(fields: [planId], references: [id])
+  users      User[]
+  candidates Candidate[]
+  vacancies  Vacancy[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  status    String
+  companyId String
+  
+  company   Company  @relation(fields: [companyId], references: [id])
+}
+
+model Candidate {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  status    String
+  companyId String
+  
+  company    Company           @relation(fields: [companyId], references: [id])
+  skills     CandidateSkill[]
+  experiences Experience[]
+  educations  Education[]
+}
 ```
-Talents-MultiOne/
+
+Veja o [schema completo](backend/prisma/schema.prisma).
+
+---
+
+## 📁 Estrutura do Projeto
+```
+Talents-MultiOne-Clone/
 ├── backend/
 │   ├── src/
-│   │   ├── auth/
-│   │   ├── companies/
-│   │   └── users/
-│   └── prisma/
-│       └── schema.prisma
-├── frontend/
-│   ├── app/
-│   │   ├── auth/
-│   │   ├── companies/
-│   │   └── dashboard/
-│   ├── hooks/
-│   └── types/
+│   │   ├── auth/              # Autenticação
+│   │   ├── companies/         # Gestão de empresas
+│   │   ├── candidates/        # Gestão de candidatos
+│   │   ├── users/             # Gestão de usuários
+│   │   ├── plans/             # Planos de assinatura
+│   │   ├── vacancies/         # Gestão de vagas
+│   │   ├── experiences/       # Experiências
+│   │   ├── educations/        # Formações
+│   │   └── common/            # Guards, decorators
+│   ├── prisma/
+│   │   ├── schema.prisma      # Schema do banco
+│   │   ├── seed.ts            # Dados iniciais
+│   │   └── migrations/        # Migrations
+│   └── package.json
+├── frontend/ (opcional)
+├── docs/                      # Documentação
 └── README.md
 ```
+
+---
+
+## 🚢 Deploy
+
+### Produção
+```bash
+# Build
+cd backend
+npm run build
+
+# Start
+npm run start:prod
+```
+
+### Docker (em breve)
+```bash
+docker-compose up -d
+```
+
+---
+
+## 🐛 Troubleshooting
+
+Veja o [guia completo de troubleshooting](docs/TROUBLESHOOTING.md).
 
 ---
 
 ## 🤝 Contribuindo
 
 1. Fork o projeto
-2. Crie sua branch (`git checkout -b feature/MinhaFeature`)
-3. Commit (`git commit -m 'Add: MinhaFeature'`)
-4. Push (`git push origin feature/MinhaFeature`)
+2. Crie sua branch (`git checkout -b feature/NovaFuncionalidade`)
+3. Commit suas mudanças (`git commit -m 'Add: Nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/NovaFuncionalidade`)
 5. Abra um Pull Request
 
 ---
 
 ## 📝 Licença
 
-Este projeto está sob a licença MIT.
+Este projeto é de uso interno da MultiOne Digital.
 
 ---
 
-## 👥 Autor
+## 🔗 Links Relacionados
 
-**Wallace Luis** - [GitHub](https://github.com/wallaceluis)
-
----
-
-**Desenvolvido com ❤️ por MultiOne Digital**
+- [DEV Talents - Painel de Monitoramento](https://github.com/wesleyrobot/DEV-PAINEL-)
+- [Documentação Completa](docs/)
 
 ---
 
-## 💻 Desenvolvendo no VS Code
+<div align="center">
 
-### 🎨 Configuração Recomendada
+**Versão 1.0.0** • **Status: ✅ Produção**
 
-#### 1. Abrir o projeto
-```bash
-cd ~/Talents-MultiOne-Clone
-code .
-```
+Made with ❤️ for MultiOne Digital
 
-#### 2. Instalar extensões recomendadas
-
-- **ESLint** - Linter JavaScript/TypeScript
-- **Prettier** - Formatação de código
-- **Prisma** - Syntax highlighting para schema
-- **GitLens** - Git supercharged
-- **Thunder Client** - Testar API (alternativa ao Postman)
-
-#### 3. Configurar terminais integrados
-
-O VS Code permite múltiplos terminais na mesma janela:
-
-**Terminal 1 - Backend:**
-```bash
-cd backend
-npm run start:dev
-```
-✅ Backend rodando em: http://localhost:3001
-
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-✅ Frontend rodando em: http://localhost:3000
-
-**Atalhos úteis:**
-- `` Ctrl+` `` - Abrir/fechar terminal
-- `Ctrl+Shift+5` - Dividir terminal
-- `Ctrl+Shift+]` - Próximo terminal
-
----
-
-### 🔧 Git no VS Code
-
-O VS Code tem integração visual com Git:
-
-#### **Source Control (Ctrl+Shift+G)**
-
-1. **Ver mudanças:** Arquivos modificados aparecem automaticamente
-2. **Stage (adicionar):** Clique no `+` ao lado do arquivo
-3. **Commit:** Digite a mensagem e clique em ✓
-4. **Push:** Menu `...` → `Push` ou `Sync Changes`
-
-#### **Ver branch atual:**
-- Canto inferior esquerdo da janela
-- Clique para trocar de branch
-
-#### **Comparar mudanças:**
-- Clique em qualquer arquivo modificado
-- Veja lado a lado: antes → depois
-
----
-
-### 📂 Layout recomendado
-```
-┌──────────────────────────────────────────────────┐
-│  🔍 Explorer        │  📝 Editor (código)        │
-│  ├── backend/       │                            │
-│  ├── frontend/      │  Edite seus arquivos aqui  │
-│  └── README.md      │                            │
-├──────────────────────────────────────────────────┤
-│  🖥️ Terminal 1     │  🖥️ Terminal 2             │
-│  Backend running   │  Frontend running          │
-│  Port 3001         │  Port 3000                 │
-└──────────────────────────────────────────────────┘
-```
-
----
-
-### ⚡ Dicas de Produtividade
-
-1. **Ctrl+P** - Buscar arquivo rapidamente
-2. **Ctrl+Shift+F** - Buscar em todos os arquivos
-3. **Ctrl+D** - Selecionar próxima ocorrência
-4. **Alt+Shift+F** - Formatar documento
-5. **F12** - Ir para definição
-6. **Ctrl+Space** - Autocomplete
-
----
-
-### 🐛 Debugging
-
-#### Frontend (Next.js):
-1. Adicione breakpoints clicando na margem esquerda
-2. Pressione `F5` ou vá em `Run and Debug`
-3. Selecione "Next.js: debug full stack"
-
-#### Backend (NestJS):
-1. Configure `launch.json`:
-```json
-{
-  "type": "node",
-  "request": "attach",
-  "name": "Attach to NestJS",
-  "port": 9229,
-  "restart": true
-}
-```
-2. Execute backend com: `npm run start:debug`
-3. Pressione `F5`
-
----
-
-### 📦 Extensões Adicionais Úteis
-
-- **Auto Rename Tag** - Renomeia tags HTML automaticamente
-- **Path Intellisense** - Autocomplete de caminhos
-- **Color Highlight** - Preview de cores no código
-- **Error Lens** - Mostra erros inline
-- **Import Cost** - Mostra tamanho dos imports
-
----
-
+</div>
