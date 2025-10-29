@@ -76,7 +76,7 @@ export const statusCardsData = [
     { title: 'Total', value: '8', icon: ListChecks, color: 'text-blue-500' },
     { title: 'Ativo', value: '6', icon: Users, color: 'text-green-500' },
     { title: 'Trial', value: '2', icon: Briefcase, color: 'text-yellow-400' },
-    { title: 'Inativo', value: '0', icon: X, color: 'text-red-500' },
+    { title: 'Inativo', value: '9', icon: X, color: 'text-red-500' },
 ];
 
 
