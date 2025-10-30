@@ -57,11 +57,13 @@ export const MetricCharts = ({
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
+    const labelColor = isLight ? '#000000' : '#FFFFFF';
+
     return (
       <text 
         x={x} 
         y={y} 
-        fill="white" 
+        fill={labelColor}
         textAnchor={x > cx ? 'start' : 'end'} 
         dominantBaseline="central"
         className="font-bold drop-shadow-lg"
