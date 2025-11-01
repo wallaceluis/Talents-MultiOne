@@ -235,3 +235,163 @@ export const reportsData: ReportCardData[] = [
   },
 ];
 
+// ============================================
+// ADICIONAR NO FINAL DE frontend/lib/data.ts
+// ============================================
+
+// Configurações de cores com gradientes
+export const chartGradients = {
+  blue: ['#3B82F6', '#60A5FA', '#93C5FD'],
+  green: ['#10B981', '#34D399', '#6EE7B7'],
+  yellow: ['#F59E0B', '#FBBF24', '#FCD34D'],
+  purple: ['#A855F7', '#C084FC', '#D8B4FE'],
+  red: ['#EF4444', '#F87171', '#FCA5A5'],
+  cyan: ['#06B6D4', '#22D3EE', '#67E8F9'],
+};
+
+// Dados para Análise de Candidatos
+export const candidatesAnalysisData = {
+  // Evolução temporal
+  evolution: [
+    { month: 'Jan', total: 120 },
+    { month: 'Fev', total: 145 },
+    { month: 'Mar', total: 180 },
+    { month: 'Abr', total: 210 },
+    { month: 'Mai', total: 260 },
+  ],
+  
+  // Comparação por atividade
+  activities: [
+    { name: 'Cadastros', value: 260 },
+    { name: 'Logins', value: 180 },
+    { name: 'Candidaturas', value: 320 },
+  ],
+  
+  // Distribuição por estado
+  byState: [
+    { state: 'SP', count: 85 },
+    { state: 'RJ', count: 62 },
+    { state: 'MG', count: 45 },
+    { state: 'RS', count: 38 },
+    { state: 'PR', count: 30 },
+  ],
+  
+  // Gênero
+  byGender: [
+    { name: 'Masculino', value: 140 },
+    { name: 'Feminino', value: 110 },
+    { name: 'Outros', value: 10 },
+  ],
+  
+  // Faixa etária
+  byAge: [
+    { range: '18-24', count: 45 },
+    { range: '25-34', count: 120 },
+    { range: '35-44', count: 70 },
+    { range: '45+', count: 25 },
+  ],
+  
+  // Top cargos buscados
+  topPositions: [
+    { position: 'Desenvolvedor', count: 85 },
+    { position: 'Analista', count: 62 },
+    { position: 'Gerente', count: 48 },
+    { position: 'Designer', count: 35 },
+    { position: 'Vendedor', count: 30 },
+  ],
+};
+
+// Dados para Análise de Empresas
+export const companiesAnalysisData = {
+  // Evolução temporal
+  evolution: [
+    { month: 'Jan', total: 5 },
+    { month: 'Fev', total: 6 },
+    { month: 'Mar', total: 7 },
+    { month: 'Abr', total: 7 },
+    { month: 'Mai', total: 8 },
+  ],
+  
+  // Por segmento
+  bySegment: [
+    { name: 'Tecnologia', value: 3 },
+    { name: 'Saúde', value: 2 },
+    { name: 'Educação', value: 1 },
+    { name: 'Logística', value: 1 },
+    { name: 'Indústria', value: 1 },
+  ],
+  
+  // Por estado
+  byState: [
+    { state: 'SP', count: 4 },
+    { state: 'RJ', count: 2 },
+    { state: 'MG', count: 1 },
+    { state: 'RS', count: 1 },
+  ],
+  
+  // Vagas por empresa (top 5)
+  topByVacancies: [
+    { company: 'Empresa 10', vacancies: 5 },
+    { company: 'Suprenova Telecom', vacancies: 4 },
+    { company: 'MedCare Saúde', vacancies: 3 },
+    { company: 'EduTech Ensino', vacancies: 2 },
+    { company: 'LogiExpress', vacancies: 1 },
+  ],
+  
+  // Top 5 empresas com mais candidaturas
+  topByCandidates: [
+    { company: 'Empresa 10', applications: 45 },
+    { company: 'Suprenova Telecom', applications: 38 },
+    { company: 'MedCare Saúde', applications: 32 },
+    { company: 'EduTech Ensino', applications: 25 },
+    { company: 'LogiExpress', applications: 20 },
+  ],
+};
+
+// Dados para Análise de Vagas
+export const vacanciesAnalysisData = {
+  // Evolução temporal
+  evolution: [
+    { month: 'Jan', total: 8 },
+    { month: 'Fev', total: 12 },
+    { month: 'Mar', total: 15 },
+    { month: 'Abr', total: 18 },
+    { month: 'Mai', total: 22 },
+  ],
+  
+  // Por status
+  byStatus: [
+    { name: 'Abertas', value: 12 },
+    { name: 'Encerradas', value: 8 },
+    { name: 'Pausadas', value: 2 },
+  ],
+  
+  // Por setor
+  bySector: [
+    { sector: 'Tecnologia', count: 8 },
+    { sector: 'Saúde', count: 5 },
+    { sector: 'Educação', count: 4 },
+    { sector: 'Logística', count: 3 },
+    { sector: 'Indústria', count: 2 },
+  ],
+  
+  // Por cargo
+  byPosition: [
+    { position: 'Desenvolvedor Full Stack', count: 5 },
+    { position: 'Analista de Dados', count: 4 },
+    { position: 'Gerente de Projetos', count: 3 },
+    { position: 'Designer UX/UI', count: 3 },
+    { position: 'Analista de Logística', count: 2 },
+    { position: 'Vendedor', count: 2 },
+    { position: 'Professor', count: 2 },
+    { position: 'Enfermeiro', count: 1 },
+  ],
+  
+  // Por região
+  byRegion: [
+    { region: 'Sudeste', count: 12 },
+    { region: 'Sul', count: 5 },
+    { region: 'Nordeste', count: 3 },
+    { region: 'Centro-Oeste', count: 2 },
+  ],
+};

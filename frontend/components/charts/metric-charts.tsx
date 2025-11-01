@@ -19,6 +19,45 @@ interface MetricChartsProps {
   timeSeriesData?: any[];
 }
 
+// ============================================
+// CONFIGURAÇÕES EXPORTADAS PARA USO GLOBAL
+// ============================================
+
+// Gradientes de cores suaves
+export const CHART_GRADIENTS = {
+  blue: ['#3B82F6', '#60A5FA', '#93C5FD'],
+  green: ['#10B981', '#34D399', '#6EE7B7'],
+  yellow: ['#F59E0B', '#FBBF24', '#FCD34D'],
+  purple: ['#A855F7', '#C084FC', '#D8B4FE'],
+  red: ['#EF4444', '#F87171', '#FCA5A5'],
+  cyan: ['#06B6D4', '#22D3EE', '#67E8F9'],
+  pink: ['#EC4899', '#F472B6', '#F9A8D4'],
+  indigo: ['#6366F1', '#818CF8', '#A5B4FC'],
+};
+
+// Array de cores em gradiente para gráficos
+export const CHART_COLORS = [
+  '#3B82F6', '#60A5FA', '#10B981', '#34D399', 
+  '#F59E0B', '#FBBF24', '#A855F7', '#C084FC',
+  '#EF4444', '#F87171', '#06B6D4', '#22D3EE'
+];
+
+// Função para obter configurações de tema para gráficos
+export const getChartTheme = (currentTheme: any) => {
+  const isLight = currentTheme.name === 'Claro';
+  return {
+    gridColor: isLight ? '#E5E7EB' : '#374151',
+    axisColor: isLight ? '#6B7280' : '#9CA3AF',
+    tooltipBg: isLight ? '#FFFFFF' : '#1F2937',
+    tooltipBorder: isLight ? '#D1D5DB' : '#374151',
+    tooltipTextColor: isLight ? '#111827' : '#F9FAFB',
+  };
+};
+
+// ============================================
+// COMPONENTE ORIGINAL (mantido)
+// ============================================
+
 export const MetricCharts = ({ 
   metricsData, 
   currentTheme, 
@@ -49,7 +88,6 @@ export const MetricCharts = ({
   const tooltipTextColor = isLight ? '#111827' : '#F9FAFB';
 
   const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    // Não mostra label se for menor que 5%
     if (percent < 0.05) return null;
     
     const RADIAN = Math.PI / 180;
@@ -74,7 +112,6 @@ export const MetricCharts = ({
     );
   };
 
-  // Componente de Donut (Rosca)
   const PieChartComponent = () => (
     <div className={`p-4 md:p-6 rounded-xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} transition-all`}>
       <h3 className={`text-lg font-semibold ${currentTheme.titleColor} mb-4`}>
@@ -124,7 +161,6 @@ export const MetricCharts = ({
     </div>
   );
 
-  // Componente de Barras
   const BarChartComponent = () => (
     <div className={`p-4 md:p-6 rounded-xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} transition-all`}>
       <h3 className={`text-lg font-semibold ${currentTheme.titleColor} mb-4`}>
@@ -176,7 +212,6 @@ export const MetricCharts = ({
     </div>
   );
 
-  // Componente de Linha
   const LineChartComponent = () => (
     <div className={`p-4 md:p-6 rounded-xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} transition-all`}>
       <h3 className={`text-lg font-semibold ${currentTheme.titleColor} mb-4`}>
@@ -216,7 +251,6 @@ export const MetricCharts = ({
                 <span className={currentTheme.cardText}>{value}</span>
               )}
             />
-            {/* Linhas dinâmicas baseadas nos dados */}
             {statusData.map((entry, index) => (
               <Line 
                 key={`line-${index}`}
