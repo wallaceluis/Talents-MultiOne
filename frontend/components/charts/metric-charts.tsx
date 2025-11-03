@@ -25,14 +25,14 @@ interface MetricChartsProps {
 
 // Gradientes de cores suaves
 export const CHART_GRADIENTS = {
-  blue: ['#3B82F6', '#60A5FA', '#93C5FD'],
-  green: ['#10B981', '#34D399', '#6EE7B7'],
-  yellow: ['#F59E0B', '#FBBF24', '#FCD34D'],
-  purple: ['#A855F7', '#C084FC', '#D8B4FE'],
-  red: ['#EF4444', '#F87171', '#FCA5A5'],
-  cyan: ['#06B6D4', '#22D3EE', '#67E8F9'],
-  pink: ['#EC4899', '#F472B6', '#F9A8D4'],
-  indigo: ['#6366F1', '#818CF8', '#A5B4FC'],
+  blue: { start: '#0456daff', middle: '#3d8ef0ff', end: '#4294f1ff' },
+  green: { start: '#10B981', middle: '#34D399', end: '#6EE7B7' },
+  yellow: { start: '#F59E0B', middle: '#FBBF24', end: '#FCD34D' },
+  purple: { start: '#A855F7', middle: '#C084FC', end: '#D8B4FE' },
+  red: { start: '#EF4444', middle: '#F87171', end: '#FCA5A5' },
+  cyan: { start: '#06B6D4', middle: '#22D3EE', end: '#67E8F9' },
+  pink: { start: '#EC4899', middle: '#F472B6', end: '#F9A8D4' },
+  indigo: { start: '#6366F1', middle: '#818CF8', end: '#A5B4FC' },
 };
 
 // Array de cores em gradiente para gráficos
@@ -41,6 +41,13 @@ export const CHART_COLORS = [
   '#F59E0B', '#FBBF24', '#A855F7', '#C084FC',
   '#EF4444', '#F87171', '#06B6D4', '#22D3EE'
 ];
+
+// Configuração de estilo de barras
+export const BAR_CONFIG = {
+  radius: [8, 8, 0, 0] as [number, number, number, number],
+  maxBarSize: 50,
+  barSize: 45,
+};
 
 // Função para obter configurações de tema para gráficos
 export const getChartTheme = (currentTheme: any) => {
@@ -53,6 +60,17 @@ export const getChartTheme = (currentTheme: any) => {
     tooltipTextColor: isLight ? '#111827' : '#F9FAFB',
   };
 };
+
+// Função auxiliar para criar gradientes SVG
+export const createGradientDefs = (id: string, colors: { start: string; middle: string; end: string }) => (
+  <defs>
+    <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="5%" stopColor={colors.start} stopOpacity={0.9}/>
+      <stop offset="50%" stopColor={colors.middle} stopOpacity={0.6}/>
+      <stop offset="95%" stopColor={colors.end} stopOpacity={0.3}/>
+    </linearGradient>
+  </defs>
+);
 
 // ============================================
 // COMPONENTE ORIGINAL (mantido)
@@ -170,7 +188,7 @@ export const MetricCharts = ({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={statusData}
-            barSize={40}
+            barSize={BAR_CONFIG.barSize}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} strokeOpacity={0.3} />
@@ -198,8 +216,8 @@ export const MetricCharts = ({
             />
             <Bar 
               dataKey="value" 
-              radius={[8, 8, 0, 0]}
-              maxBarSize={60}
+              radius={BAR_CONFIG.radius}
+              maxBarSize={BAR_CONFIG.maxBarSize}
               label={{ position: 'top', fill: axisColor, fontSize: 12, fontWeight: 'bold' }}
             >
               {statusData.map((entry, index) => (
