@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, IsNumber, IsArray, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsNumber, IsArray, IsOptional, IsUUID, Min, Max } from 'class-validator';
 import { VacancyStatus, VacancyType, WorkModel } from '@prisma/client';
 
 export class CreateVacancyDto {
@@ -32,8 +32,19 @@ export class CreateVacancyDto {
 
   @IsNumber()
   @IsOptional()
-  @Min(0, { message: 'Salário não pode ser negativo' })
-  salary?: number;
+  @Min(0, { message: 'Salário mínimo não pode ser negativo' })
+  salaryMin?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0, { message: 'Salário máximo não pode ser negativo' })
+  salaryMax?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(1, { message: 'Experiência mínima deve ser no mínimo 1 ano' })
+  @Max(50, { message: 'Experiência mínima deve ser no máximo 50 anos' })
+  experienceYears?: number;
 
   @IsEnum(VacancyStatus, { message: 'Status inválido' })
   @IsOptional()

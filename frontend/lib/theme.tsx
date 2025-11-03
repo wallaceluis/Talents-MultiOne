@@ -30,6 +30,7 @@ export const themes: Themes = {
     name: 'Escuro',
     bg: 'bg-gradient-to-br from-black via-slate-900 to-slate-950',
     sidebar: 'bg-gray-900/95 backdrop-blur-sm border-r border-blue-900/30',
+    sidebarHover: 'hover:bg-slate-800/40',
     sidebarActive: 'bg-blue-600/70',
     cardBg: 'bg-gray-800/70',
     cardBorder: 'border-blue-700/30 hover:border-blue-600',
@@ -38,7 +39,7 @@ export const themes: Themes = {
     cardText: 'text-gray-300',
     mainText: 'text-white',
     buttonBg: 'bg-blue-600 hover:bg-blue-700',
-    sidebarHover: 'hover:bg-slate-800/40',
+    
   },
   whiteblue: {
     name: 'Claro',
