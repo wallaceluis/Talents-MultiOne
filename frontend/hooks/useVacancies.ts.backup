@@ -3,23 +3,22 @@
 import { useState } from 'react';
 import api from '../lib/api';
 
-export function useCompanies() {
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [stats, setStats] = useState({ total: 0, active: 0, trial: 0, inactive: 0 });
+export function useVacancies() {
+  const [vacancies, setVacancies] = useState<any[]>([]);
+  const [stats, setStats] = useState({ total: 0, open: 0, closed: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCompanies = async () => {
+  const fetchVacancies = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/companies');
-      // CORRIGIDO: response.data.data
+      const res = await api.get('/vacancies');
       const data = res.data.data || res.data || [];
-      setCompanies(Array.isArray(data) ? data : []);
+      setVacancies(Array.isArray(data) ? data : []);
       return data;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao buscar empresas');
-      setCompanies([]);
+      setError(err.response?.data?.message || 'Erro ao buscar vagas');
+      setVacancies([]);
       return [];
     } finally {
       setLoading(false);
@@ -28,7 +27,7 @@ export function useCompanies() {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get('/companies/stats');
+      const res = await api.get('/vacancies/stats');
       const data = res.data.data || res.data || {};
       setStats(data);
       return data;
@@ -38,13 +37,13 @@ export function useCompanies() {
     }
   };
 
-  const createCompany = async (data: any) => {
+  const createVacancy = async (data: any) => {
     setLoading(true);
     try {
-      const res = await api.post('/companies', data);
-      const newCompany = res.data.data || res.data;
-      setCompanies(prev => [newCompany, ...prev]);
-      return { success: true, data: newCompany };
+      const res = await api.post('/vacancies', data);
+      const newVacancy = res.data.data || res.data;
+      setVacancies(prev => [newVacancy, ...prev]);
+      return { success: true, data: newVacancy };
     } catch (err: any) {
       return { success: false, error: err.response?.data?.message };
     } finally {
@@ -52,12 +51,12 @@ export function useCompanies() {
     }
   };
 
-  const updateCompany = async (id: string, data: any) => {
+  const updateVacancy = async (id: string, data: any) => {
     setLoading(true);
     try {
-      const res = await api.patch(`/companies/${id}`, data);
+      const res = await api.patch(`/vacancies/${id}`, data);
       const updated = res.data.data || res.data;
-      setCompanies(prev => prev.map(c => c.id === id ? updated : c));
+      setVacancies(prev => prev.map(v => v.id === id ? updated : v));
       return { success: true, data: updated };
     } catch (err: any) {
       return { success: false, error: err.response?.data?.message };
@@ -66,11 +65,11 @@ export function useCompanies() {
     }
   };
 
-  const deleteCompany = async (id: string) => {
+  const deleteVacancy = async (id: string) => {
     setLoading(true);
     try {
-      await api.delete(`/companies/${id}`);
-      setCompanies(prev => prev.filter(c => c.id !== id));
+      await api.delete(`/vacancies/${id}`);
+      setVacancies(prev => prev.filter(v => v.id !== id));
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.response?.data?.message };
@@ -80,14 +79,14 @@ export function useCompanies() {
   };
 
   return {
-    companies,
+    vacancies,
     stats,
     loading,
     error,
-    fetchCompanies,
+    fetchVacancies,
     fetchStats,
-    createCompany,
-    updateCompany,
-    deleteCompany,
+    createVacancy,
+    updateVacancy,
+    deleteVacancy,
   };
 }

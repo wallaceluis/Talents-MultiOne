@@ -3,23 +3,22 @@
 import { useState } from 'react';
 import api from '../lib/api';
 
-export function useCompanies() {
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [stats, setStats] = useState({ total: 0, active: 0, trial: 0, inactive: 0 });
+export function useCandidates() {
+  const [candidates, setCandidates] = useState<any[]>([]);
+  const [stats, setStats] = useState({ total: 0, active: 0, inProcess: 0, hired: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCompanies = async () => {
+  const fetchCandidates = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/companies');
-      // CORRIGIDO: response.data.data
+      const res = await api.get('/candidates');
       const data = res.data.data || res.data || [];
-      setCompanies(Array.isArray(data) ? data : []);
+      setCandidates(Array.isArray(data) ? data : []);
       return data;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao buscar empresas');
-      setCompanies([]);
+      setError(err.response?.data?.message || 'Erro ao buscar candidatos');
+      setCandidates([]);
       return [];
     } finally {
       setLoading(false);
@@ -28,7 +27,7 @@ export function useCompanies() {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get('/companies/stats');
+      const res = await api.get('/candidates/stats');
       const data = res.data.data || res.data || {};
       setStats(data);
       return data;
@@ -38,13 +37,13 @@ export function useCompanies() {
     }
   };
 
-  const createCompany = async (data: any) => {
+  const createCandidate = async (data: any) => {
     setLoading(true);
     try {
-      const res = await api.post('/companies', data);
-      const newCompany = res.data.data || res.data;
-      setCompanies(prev => [newCompany, ...prev]);
-      return { success: true, data: newCompany };
+      const res = await api.post('/candidates', data);
+      const newCandidate = res.data.data || res.data;
+      setCandidates(prev => [newCandidate, ...prev]);
+      return { success: true, data: newCandidate };
     } catch (err: any) {
       return { success: false, error: err.response?.data?.message };
     } finally {
@@ -52,12 +51,12 @@ export function useCompanies() {
     }
   };
 
-  const updateCompany = async (id: string, data: any) => {
+  const updateCandidate = async (id: string, data: any) => {
     setLoading(true);
     try {
-      const res = await api.patch(`/companies/${id}`, data);
+      const res = await api.patch(`/candidates/${id}`, data);
       const updated = res.data.data || res.data;
-      setCompanies(prev => prev.map(c => c.id === id ? updated : c));
+      setCandidates(prev => prev.map(c => c.id === id ? updated : c));
       return { success: true, data: updated };
     } catch (err: any) {
       return { success: false, error: err.response?.data?.message };
@@ -66,11 +65,11 @@ export function useCompanies() {
     }
   };
 
-  const deleteCompany = async (id: string) => {
+  const deleteCandidate = async (id: string) => {
     setLoading(true);
     try {
-      await api.delete(`/companies/${id}`);
-      setCompanies(prev => prev.filter(c => c.id !== id));
+      await api.delete(`/candidates/${id}`);
+      setCandidates(prev => prev.filter(c => c.id !== id));
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.response?.data?.message };
@@ -80,14 +79,14 @@ export function useCompanies() {
   };
 
   return {
-    companies,
+    candidates,
     stats,
     loading,
     error,
-    fetchCompanies,
+    fetchCandidates,
     fetchStats,
-    createCompany,
-    updateCompany,
-    deleteCompany,
+    createCandidate,
+    updateCandidate,
+    deleteCandidate,
   };
 }

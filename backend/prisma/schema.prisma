@@ -7,277 +7,163 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  RECRUITER
-  MANAGER
-  VIEWER
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum PlanType {
-  FREE
-  BASIC
-  PREMIUM
-  ENTERPRISE
-}
-
-enum CompanyStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum CandidateStatus {
-  ACTIVE
-  IN_PROCESS
-  HIRED
-  REJECTED
-  INACTIVE
-}
-
-enum VacancyStatus {
-  DRAFT
-  OPEN
-  CLOSED
-  CANCELLED
-}
-
-enum VacancyType {
-  CLT
-  PJ
-  INTERNSHIP
-  TEMPORARY
-  FREELANCE
-}
-
-enum WorkModel {
-  REMOTE
-  ONSITE
-  HYBRID
-}
-
-enum ApplicationStatus {
-  PENDING
-  IN_REVIEW
-  INTERVIEW_SCHEDULED
-  APPROVED
-  REJECTED
-  WITHDRAWN
-}
-
-enum InterviewType {
-  PHONE
-  VIDEO
-  IN_PERSON
-  TECHNICAL
-  HR
-}
-
-enum InterviewStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
-  RESCHEDULED
-  NO_SHOW
-}
-
-enum SkillLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
-  EXPERT
-}
-
-enum EducationLevel {
-  HIGH_SCHOOL
-  TECHNICAL
-  ASSOCIATE
-  BACHELOR
-  MASTER
-  DOCTORATE
-}
-
-enum EducationStatus {
-  IN_PROGRESS
-  COMPLETED
-  INCOMPLETE
-}
-
-model Plan {
-  id            String    @id @default(uuid())
-  name          String
-  type          PlanType  @default(FREE)
-  maxUsers      Int       @default(5)
-  maxCandidates Int       @default(50)
-  maxVacancies  Int       @default(10)
-  price         Decimal   @db.Decimal(10, 2)
-  features      String[]
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  companies     Company[]
-  
-  @@map("plans")
-}
-
-model Company {
-  id        String        @id @default(uuid())
-  name      String
-  domain    String        @unique
-  status    CompanyStatus @default(ACTIVE)
-  planId    String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  
-  plan       Plan?        @relation(fields: [planId], references: [id])
-  users      User[]
-  candidates Candidate[]
-  vacancies  Vacancy[]
-  
-  @@map("companies")
-}
-
 model User {
-  id        String     @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String     @unique
+  email     String   @unique
   password  String
-  role      UserRole   @default(RECRUITER)
+  role      Role     @default(RECRUITER)
   status    UserStatus @default(ACTIVE)
-  companyId String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
-  company    Company?     @relation(fields: [companyId], references: [id])
-  interviews Interview[]
-  auditLogs  AuditLog[]
-  
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("users")
 }
 
+model Company {
+  id          String        @id @default(uuid())
+  name        String
+  domain      String        @unique
+  industry    String?
+  description String?
+  location    String?
+  website     String?
+  size        CompanySize   @default(SMALL)
+  status      CompanyStatus @default(TRIAL)
+  planId      String?
+  plan        Plan?         @relation(fields: [planId], references: [id])
+  users       User[]
+  vacancies   Vacancy[]
+  candidates  Candidate[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("companies")
+}
+
+model Plan {
+  id                String    @id @default(uuid())
+  name              String
+  maxVacancies      Int
+  maxCandidates     Int
+  maxUsers          Int
+  price             Float
+  companies         Company[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("plans")
+}
+
+model Vacancy {
+  id           String         @id @default(uuid())
+  title        String
+  description  String
+  location     String?
+  type         VacancyType    @default(FULL_TIME)
+  status       VacancyStatus  @default(OPEN)
+  salary       Float?
+  companyId    String
+  company      Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications Application[]
+  skills       VacancySkill[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("vacancies")
+}
+
 model Candidate {
-  id        String          @id @default(uuid())
-  name      String
-  email     String
-  phone     String?
-  resume    String?
-  status    CandidateStatus @default(ACTIVE)
-  companyId String?
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  
-  company          Company?         @relation(fields: [companyId], references: [id])
-  candidateSkills  CandidateSkill[]
-  experiences      Experience[]
-  educations       Education[]
-  applications     Application[]
-  
+  id              String            @id @default(uuid())
+  name            String
+  email           String            @unique
+  phone           String?
+  birthDate       DateTime?
+  city            String?
+  state           String?
+  country         String?
+  linkedin        String?
+  resume          String?
+  status          CandidateStatus   @default(ACTIVE)
+  companyId       String
+  company         Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications    Application[]
+  skills          CandidateSkill[]
+  experiences     Experience[]
+  educations      Education[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
   @@map("candidates")
 }
 
 model Skill {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  category  String?
-  createdAt DateTime @default(now())
-  
-  candidateSkills CandidateSkill[]
-  vacancySkills   VacancySkill[]
-  
+  id         String           @id @default(uuid())
+  name       String           @unique
+  candidates CandidateSkill[]
+  vacancies  VacancySkill[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @default(now()) @updatedAt
+
   @@map("skills")
 }
 
 model CandidateSkill {
-  id                String     @id @default(uuid())
-  candidateId       String
-  skillId           String
-  level             SkillLevel @default(INTERMEDIATE)
-  yearsOfExperience Int        @default(0)
-  createdAt         DateTime   @default(now())
-  
-  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  skill     Skill     @relation(fields: [skillId], references: [id])
-  
-  @@unique([candidateId, skillId])
+  candidateId String
+  skillId     String
+  level       SkillLevel @default(INTERMEDIATE)
+  candidate   Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  skill       Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@id([candidateId, skillId])
   @@map("candidate_skills")
+}
+
+model VacancySkill {
+  vacancyId String
+  skillId   String
+  required  Boolean  @default(true)
+  vacancy   Vacancy  @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([vacancyId, skillId])
+  @@map("vacancy_skills")
 }
 
 model Experience {
   id          String    @id @default(uuid())
-  candidateId String
   company     String
   position    String
-  description String?   @db.Text
+  description String?
   startDate   DateTime
   endDate     DateTime?
-  isCurrent   Boolean   @default(false)
+  current     Boolean   @default(false)
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
-  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  
+
   @@map("experiences")
 }
 
 model Education {
-  id           String          @id @default(uuid())
-  candidateId  String
-  institution  String
-  degree       String
-  fieldOfStudy String?
-  level        EducationLevel  @default(BACHELOR)
-  status       EducationStatus @default(COMPLETED)
-  startDate    DateTime
-  endDate      DateTime?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  
-  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  
+  id          String    @id @default(uuid())
+  institution String
+  degree      String
+  field       String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean   @default(false)
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@map("educations")
-}
-
-model Vacancy {
-  id          String        @id @default(uuid())
-  title       String
-  description String        @db.Text
-  type        VacancyType   @default(CLT)
-  workModel   WorkModel     @default(HYBRID)
-  status      VacancyStatus @default(DRAFT)
-  salary      Decimal?      @db.Decimal(10, 2)
-  location    String?
-  companyId   String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  closedAt    DateTime?
-  
-  company       Company        @relation(fields: [companyId], references: [id])
-  vacancySkills VacancySkill[]
-  applications  Application[]
-  
-  @@map("vacancies")
-}
-
-model VacancySkill {
-  id           String     @id @default(uuid())
-  vacancyId    String
-  skillId      String
-  isRequired   Boolean    @default(false)
-  minimumLevel SkillLevel @default(INTERMEDIATE)
-  createdAt    DateTime   @default(now())
-  
-  vacancy Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
-  skill   Skill   @relation(fields: [skillId], references: [id])
-  
-  @@unique([vacancyId, skillId])
-  @@map("vacancy_skills")
 }
 
 model Application {
@@ -285,50 +171,87 @@ model Application {
   candidateId String
   vacancyId   String
   status      ApplicationStatus @default(PENDING)
-  notes       String?           @db.Text
-  appliedAt   DateTime          @default(now())
+  candidate   Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  vacancy     Vacancy           @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  interviews  Interview[]
+  createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  
-  candidate  Candidate   @relation(fields: [candidateId], references: [id])
-  vacancy    Vacancy     @relation(fields: [vacancyId], references: [id])
-  interviews Interview[]
-  
+
   @@unique([candidateId, vacancyId])
   @@map("applications")
 }
 
 model Interview {
-  id            String          @id @default(uuid())
+  id            String      @id @default(uuid())
   applicationId String
-  interviewerId String
-  type          InterviewType   @default(VIDEO)
-  status        InterviewStatus @default(SCHEDULED)
   scheduledAt   DateTime
-  duration      Int             @default(60)
-  location      String?
-  notes         String?         @db.Text
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  
-  application Application @relation(fields: [applicationId], references: [id])
-  interviewer User        @relation(fields: [interviewerId], references: [id])
-  
+  type          String
+  notes         String?
+  status        String      @default("SCHEDULED")
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
   @@map("interviews")
 }
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  action    String
-  entity    String
-  entityId  String?
-  oldData   String?  @db.Text
-  newData   String?  @db.Text
-  ip        String?
-  userAgent String?
-  createdAt DateTime @default(now())
-  
-  user User @relation(fields: [userId], references: [id])
-  
-  @@map("audit_logs")
+enum Role {
+  ADMIN
+  MANAGER
+  RECRUITER
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CompanyStatus {
+  ACTIVE
+  TRIAL
+  INACTIVE
+}
+
+enum CompanySize {
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum VacancyType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum VacancyStatus {
+  OPEN
+  CLOSED
+  PAUSED
+}
+
+enum CandidateStatus {
+  ACTIVE
+  INACTIVE
+  IN_PROCESS
+  HIRED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  INTERVIEW
+  OFFERED
+  ACCEPTED
+  REJECTED
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
 }

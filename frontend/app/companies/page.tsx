@@ -1,13 +1,77 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CompaniesTable } from '../../components/tables/companies-table';
-import { statusCardsData } from '../../lib/data';
-import { Search } from 'lucide-react';
+import { CompanyModal } from '../../components/modals/CompanyModal';
+import { DeleteModal } from '../../components/modals/DeleteModal';
+import { useCompanies } from '../../hooks/useCompanies';
+import { Search, ListChecks, Users, Briefcase, X } from 'lucide-react';
 
 export default function CompaniesPage() {
     const { currentTheme } = useTheme();
+    const { stats, fetchStats, createCompany, updateCompany, deleteCompany } = useCompanies();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedCompany, setSelectedCompany] = useState<any>(null);
+    const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+    const [deleteLoading, setDeleteLoading] = useState(false);
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const statusCardsData = [
+        { title: 'Total', value: String(stats.total), icon: ListChecks, color: 'text-blue-500' },
+        { title: 'Ativo', value: String(stats.active), icon: Users, color: 'text-green-500' },
+        { title: 'Trial', value: String(stats.trial), icon: Briefcase, color: 'text-yellow-500' },
+        { title: 'Inativo', value: String(stats.inactive), icon: X, color: 'text-blue-500' },
+    ];
+
+    const handleCreate = () => {
+        setSelectedCompany(null);
+        setModalMode('create');
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (company: any) => {
+        setSelectedCompany(company);
+        setModalMode('edit');
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteClick = (company: any) => {
+        setSelectedCompany(company);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleSubmit = async (data: any) => {
+        if (modalMode === 'create') {
+            const result = await createCompany(data);
+            if (result.success) {
+                await fetchStats();
+            }
+        } else {
+            const result = await updateCompany(selectedCompany.id, data);
+            if (result.success) {
+                await fetchStats();
+            }
+        }
+    };
+
+    const handleDeleteConfirm = async () => {
+        setDeleteLoading(true);
+        try {
+            const result = await deleteCompany(selectedCompany.id);
+            if (result.success) {
+                await fetchStats();
+                setIsDeleteModalOpen(false);
+            }
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
 
     return (
         <main className="space-y-6 md:space-y-8">
@@ -18,7 +82,10 @@ export default function CompaniesPage() {
                         Empresas cadastradas na plataforma
                     </p>
                 </div>
-                <button className={`w-full md:w-auto px-5 py-3 rounded-lg ${currentTheme.buttonBg} font-medium whitespace-nowrap`}>
+                <button 
+                    onClick={handleCreate}
+                    className={`w-full md:w-auto px-5 py-3 rounded-lg ${currentTheme.buttonBg} font-medium whitespace-nowrap`}
+                >
                     + Cadastrar Empresa
                 </button>
             </div>
@@ -40,8 +107,25 @@ export default function CompaniesPage() {
                 ))}
             </div>
 
-            <CompaniesTable />
+            <CompaniesTable onEdit={handleEdit} onDelete={handleDeleteClick} />
+
+            <CompanyModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleSubmit}
+                company={selectedCompany}
+                mode={modalMode}
+            />
+
+            <DeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                title="Deletar Empresa"
+                description="Tem certeza que deseja deletar esta empresa? Esta ação não pode ser desfeita."
+                itemName={selectedCompany?.name}
+                loading={deleteLoading}
+            />
         </main>
     );
 }
-

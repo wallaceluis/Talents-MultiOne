@@ -1,12 +1,32 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CompaniesTable } from '../../components/tables/companies-table';
-import { metricCards } from '../../lib/data';
+import { useDashboard } from '../../hooks/useDashboard';
+import { Building2, Briefcase, Users, TrendingUp } from 'lucide-react';
 
 export default function DashboardPage() {
     const { currentTheme } = useTheme();
+    const { stats, loading } = useDashboard();
+
+    const metricCards = [
+        { title: 'Empresas Cadastradas', value: String(stats.companies), icon: Building2, color: 'text-blue-500' },
+        { title: 'Vagas Abertas', value: String(stats.vacancies), icon: Briefcase, color: 'text-blue-500' },
+        { title: 'Total de Candidatos', value: String(stats.candidates), icon: Users, color: 'text-yellow-500' },
+        { title: 'Total de Candidaturas', value: String(stats.applications), icon: TrendingUp, color: 'text-red-500' },
+    ];
+
+    if (loading) {
+        return (
+            <main className="space-y-6 md:space-y-8">
+                <div className="text-center">
+                    <p className={currentTheme.mainText}>Carregando...</p>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="space-y-6 md:space-y-8">
@@ -22,6 +42,7 @@ export default function DashboardPage() {
                     <MetricCard key={`metric-${i}`} {...data} />
                 ))}
             </div>
+            
             <CompaniesTable />
         </main>
     );

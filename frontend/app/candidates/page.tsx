@@ -1,13 +1,27 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CandidatesTable } from '../../components/tables/candidates-table';
-import { candidatesMetricCards } from '../../lib/data';
-import { Search } from 'lucide-react';
+import { useCandidates } from '../../hooks/useCandidates';
+import { Search, Users, ListChecks, TrendingUp, Briefcase, BarChart3 } from 'lucide-react';
 
 export default function CandidatesPage() {
     const { currentTheme } = useTheme();
+    const { stats, fetchStats, loading } = useCandidates();
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const candidatesMetricCards = [
+        { title: 'Totais', value: String(stats.total || 0), icon: Users, color: 'text-blue-500' },
+        { title: 'Online', value: '0', icon: ListChecks, color: 'text-green-500' },
+        { title: 'Ativos (180 dias)', value: String(stats.active || 0), icon: TrendingUp, color: 'text-yellow-500' },
+        { title: 'Em Processo', value: String(stats.inProcess || 0), icon: Briefcase, color: 'text-purple-500' },
+        { title: 'Contratados', value: String(stats.hired || 0), icon: BarChart3, color: 'text-red-500' },
+    ];
 
     return (
         <main className="space-y-6 md:space-y-8">
@@ -34,12 +48,17 @@ export default function CandidatesPage() {
                 </div>
             </div>
 
-            {/* Cards de métricas */}
-            <div className="grid-row-2 grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
-                {candidatesMetricCards.map((data, i) => (
-                    <MetricCard key={`candidate-${i}`} {...data} />
-                ))}
-            </div>
+            {loading ? (
+                <div className="text-center">
+                    <p className={currentTheme.mainText}>Carregando...</p>
+                </div>
+            ) : (
+                <div className="grid-row-2 grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                    {candidatesMetricCards.map((data, i) => (
+                        <MetricCard key={`candidate-${i}`} {...data} />
+                    ))}
+                </div>
+            )}
 
             <CandidatesTable />
         </main>
