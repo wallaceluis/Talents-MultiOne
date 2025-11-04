@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import api from '../lib/api';
 
@@ -12,7 +13,8 @@ export function useCompanies() {
     setLoading(true);
     try {
       const res = await api.get('/companies');
-      const data = res.data || [];
+      // CORRIGIDO: response.data.data
+      const data = res.data.data || res.data || [];
       setCompanies(Array.isArray(data) ? data : []);
       return data;
     } catch (err: any) {
@@ -27,7 +29,7 @@ export function useCompanies() {
   const fetchStats = async () => {
     try {
       const res = await api.get('/companies/stats');
-      const data = res.data || {};
+      const data = res.data.data || res.data || {};
       setStats(data);
       return data;
     } catch (err: any) {
@@ -40,7 +42,7 @@ export function useCompanies() {
     setLoading(true);
     try {
       const res = await api.post('/companies', data);
-      const newCompany = res.data;
+      const newCompany = res.data.data || res.data;
       setCompanies(prev => [newCompany, ...prev]);
       return { success: true, data: newCompany };
     } catch (err: any) {
@@ -54,7 +56,7 @@ export function useCompanies() {
     setLoading(true);
     try {
       const res = await api.patch(`/companies/${id}`, data);
-      const updated = res.data;
+      const updated = res.data.data || res.data;
       setCompanies(prev => prev.map(c => c.id === id ? updated : c));
       return { success: true, data: updated };
     } catch (err: any) {
@@ -85,7 +87,6 @@ export function useCompanies() {
     fetchCompanies,
     fetchStats,
     createCompany,
-  console.log("🔍 useCompanies retornando:", { stats, fetchStats: typeof fetchStats });
     updateCompany,
     deleteCompany,
   };

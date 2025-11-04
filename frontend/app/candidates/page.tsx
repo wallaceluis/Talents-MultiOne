@@ -12,15 +12,15 @@ export default function CandidatesPage() {
     const { stats, fetchStats, loading } = useCandidates();
 
     useEffect(() => {
-        fetchStats();
+        if (fetchStats) fetchStats();
     }, []);
 
     const candidatesMetricCards = [
-        { title: 'Totais', value: String(stats.total || 0), icon: Users, color: 'text-blue-500' },
+        { title: 'Totais', value: String(stats?.total || 0), icon: Users, color: 'text-blue-500' },
         { title: 'Online', value: '0', icon: ListChecks, color: 'text-green-500' },
-        { title: 'Ativos (180 dias)', value: String(stats.active || 0), icon: TrendingUp, color: 'text-yellow-500' },
-        { title: 'Em Processo', value: String(stats.inProcess || 0), icon: Briefcase, color: 'text-purple-500' },
-        { title: 'Contratados', value: String(stats.hired || 0), icon: BarChart3, color: 'text-red-500' },
+        { title: 'Ativos (180 dias)', value: String(stats?.active || 0), icon: TrendingUp, color: 'text-yellow-500' },
+        { title: 'Em Processo', value: String(stats?.inProcess || 0), icon: Briefcase, color: 'text-purple-500' },
+        { title: 'Contratados', value: String(stats?.hired || 0), icon: BarChart3, color: 'text-red-500' },
     ];
 
     return (

@@ -19,14 +19,14 @@ export default function CompaniesPage() {
     const [deleteLoading, setDeleteLoading] = useState(false);
 
     useEffect(() => {
-        fetchStats();
+        if (fetchStats) fetchStats();
     }, []);
 
     const statusCardsData = [
-        { title: 'Total', value: String(stats.total), icon: ListChecks, color: 'text-blue-500' },
-        { title: 'Ativo', value: String(stats.active), icon: Users, color: 'text-green-500' },
-        { title: 'Trial', value: String(stats.trial), icon: Briefcase, color: 'text-yellow-500' },
-        { title: 'Inativo', value: String(stats.inactive), icon: X, color: 'text-blue-500' },
+        { title: 'Total', value: String(stats?.total || 0), icon: ListChecks, color: 'text-blue-500' },
+        { title: 'Ativo', value: String(stats?.active || 0), icon: Users, color: 'text-green-500' },
+        { title: 'Trial', value: String(stats?.trial || 0), icon: Briefcase, color: 'text-yellow-500' },
+        { title: 'Inativo', value: String(stats?.inactive || 0), icon: X, color: 'text-blue-500' },
     ];
 
     const handleCreate = () => {
@@ -82,7 +82,7 @@ export default function CompaniesPage() {
                         Empresas cadastradas na plataforma
                     </p>
                 </div>
-                <button 
+                <button
                     onClick={handleCreate}
                     className={`w-full md:w-auto px-5 py-3 rounded-lg ${currentTheme.buttonBg} font-medium whitespace-nowrap`}
                 >

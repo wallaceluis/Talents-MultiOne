@@ -12,13 +12,13 @@ export default function VacanciesPage() {
     const { stats, fetchStats, loading } = useVacancies();
 
     useEffect(() => {
-        fetchStats();
+        if (fetchStats) fetchStats();
     }, []);
 
     const vacanciesMetricCards = [
-        { title: 'Vagas Abertas', value: String(stats.open || 0), icon: Briefcase, color: 'text-green-500' },
-        { title: 'Total de Vagas', value: String(stats.total || 0), icon: TrendingUp, color: 'text-red-500' },
-        { title: 'Vagas Fechadas', value: String(stats.closed || 0), icon: Users, color: 'text-yellow-500' },
+        { title: 'Vagas Abertas', value: String(stats?.open || 0), icon: Briefcase, color: 'text-green-500' },
+        { title: 'Total de Vagas', value: String(stats?.total || 0), icon: TrendingUp, color: 'text-red-500' },
+        { title: 'Vagas Fechadas', value: String(stats?.closed || 0), icon: Users, color: 'text-yellow-500' },
     ];
 
     return (

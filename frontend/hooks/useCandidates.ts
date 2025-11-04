@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import api from '../lib/api';
 
@@ -13,7 +12,7 @@ export function useCandidates() {
     setLoading(true);
     try {
       const res = await api.get('/candidates');
-      const data = res.data.data || res.data || [];
+      const data = res.data || [];
       setCandidates(Array.isArray(data) ? data : []);
       return data;
     } catch (err: any) {
@@ -28,53 +27,12 @@ export function useCandidates() {
   const fetchStats = async () => {
     try {
       const res = await api.get('/candidates/stats');
-      const data = res.data.data || res.data || {};
+      const data = res.data || {};
       setStats(data);
       return data;
     } catch (err: any) {
       console.error('Erro ao buscar stats:', err);
       return null;
-    }
-  };
-
-  const createCandidate = async (data: any) => {
-    setLoading(true);
-    try {
-      const res = await api.post('/candidates', data);
-      const newCandidate = res.data.data || res.data;
-      setCandidates(prev => [newCandidate, ...prev]);
-      return { success: true, data: newCandidate };
-    } catch (err: any) {
-      return { success: false, error: err.response?.data?.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateCandidate = async (id: string, data: any) => {
-    setLoading(true);
-    try {
-      const res = await api.patch(`/candidates/${id}`, data);
-      const updated = res.data.data || res.data;
-      setCandidates(prev => prev.map(c => c.id === id ? updated : c));
-      return { success: true, data: updated };
-    } catch (err: any) {
-      return { success: false, error: err.response?.data?.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteCandidate = async (id: string) => {
-    setLoading(true);
-    try {
-      await api.delete(`/candidates/${id}`);
-      setCandidates(prev => prev.filter(c => c.id !== id));
-      return { success: true };
-    } catch (err: any) {
-      return { success: false, error: err.response?.data?.message };
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -85,8 +43,5 @@ export function useCandidates() {
     error,
     fetchCandidates,
     fetchStats,
-    createCandidate,
-    updateCandidate,
-    deleteCandidate,
   };
 }
