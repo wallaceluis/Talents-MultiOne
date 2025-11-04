@@ -4,53 +4,29 @@ import "../styles/globals.css";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "../lib/theme";
-import { AuthProvider, useAuth } from "../hooks/useAuth";
 import { Sidebar } from "../components/ui/sidebar";
 import { Header } from "../components/ui/header";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
+      {/* Remove o bg-white daqui, deixa o ThemeProvider controlar */}
       <body suppressHydrationWarning={true}>
         <ThemeProvider>
-          <AuthProvider>
-            <LayoutWrapper>{children}</LayoutWrapper>
-          </AuthProvider>
+          <LayoutWrapper>{children}</LayoutWrapper>
         </ThemeProvider>
       </body>
     </html>
   );
 }
 
+// Componente interno para consumir ThemeProvider
 const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentTheme } = useTheme();
-  const { isAuthenticated, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
   const isAuthPage = pathname?.startsWith('/auth');
-
-  if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white text-xl">Carregando...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated && !isAuthPage) {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/auth';
-    }
-    return null;
-  }
-
-  if (isAuthenticated && isAuthPage) {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/dashboard';
-    }
-    return null;
-  }
 
   return (
     <div
@@ -62,13 +38,19 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       ) : (
         <div className="flex h-full">
+          {/* SIDEBAR */}
           <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+          {/* CONTEÚDO PRINCIPAL */}
           <div
             className={`flex flex-col flex-1 transition-all duration-300 ${
               sidebarOpen ? "lg:ml-64" : "lg:ml-20"
-            }`}
+            } ml-0`}
           >
+            {/* HEADER FIXO */}
             <Header />
+
+            {/* CONTEÚDO SCROLLÁVEL */}
             <main
               className={`flex-1 overflow-y-auto p-4 md:p-6 ${currentTheme.bg} ${currentTheme.mainText}`}
             >
