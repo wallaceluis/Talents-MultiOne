@@ -1,130 +1,132 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import api from '../lib/api';
 
+// ============================================
+// TIPOS
+// ============================================
 interface User {
   id: string;
   name: string;
   email: string;
   role: string;
-  companyId: string;
+  companyId?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
+// ============================================
+// CONTEXT
+// ============================================
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ============================================
+// PROVIDER
+// ============================================
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
+  // Carregar usuário do localStorage ao iniciar
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUser = () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('🔑 Token no localStorage:', token ? 'EXISTE' : 'NÃO EXISTE');
+        const storedUser = localStorage.getItem('user');
         
-        if (!token) {
-          setLoading(false);
-          return;
+        if (token && storedUser) {
+          setUser(JSON.parse(storedUser));
         }
-        
-        console.log('📤 Configurando Authorization header...');
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        
-        console.log('📤 Chamando /auth/me...');
-        const response = await api.get('/auth/me');
-        
-        console.log('✅ Resposta /auth/me:', response.data);
-        const userData = response.data.data || response.data;
-        setUser(userData);
       } catch (error) {
-        console.error('❌ Erro ao carregar usuário:', error);
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
+        console.error('Erro ao carregar usuário:', error);
+        localStorage.clear();
       } finally {
         setLoading(false);
       }
     };
+
     loadUser();
   }, []);
 
+  // Redirecionar para /auth se não estiver logado (exceto na página de auth)
+  useEffect(() => {
+    if (!loading && !user && pathname && !pathname.startsWith('/auth')) {
+      router.push('/auth');
+    }
+  }, [user, loading, pathname, router]);
+
+  // Login
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      console.log('🔐 Tentando login...', { email });
+      console.log('🔐 Iniciando login...', { email });
       
       const response = await api.post('/auth/login', { email, password });
-      console.log('📥 Resposta completa do login:', response);
-      console.log('📥 response.data:', response.data);
+      console.log('✅ Resposta da API:', response.data);
       
-      const responseData = response.data.data || response.data;
-      console.log('📥 responseData:', responseData);
-      
-      const { access_token, user: userData } = responseData;
-      
-      console.log('🔑 Token recebido:', access_token);
-      console.log('👤 Usuário recebido:', userData);
+      const { access_token, user: userData } = response.data;
       
       if (!access_token) {
-        throw new Error('Token não recebido do servidor');
+        throw new Error('Token não encontrado na resposta');
       }
       
-      console.log('💾 Salvando token no localStorage...');
+      // Salvar no localStorage
       localStorage.setItem('token', access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
       
-      console.log('🔧 Configurando header Authorization...');
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      
-      console.log('✅ Atualizando estado do usuário...');
+      // Atualizar estado
       setUser(userData);
       
-      console.log('🎯 Redirecionando para /dashboard...');
+      console.log('✅ Login concluído! Redirecionando...');
+      
+      // Redirecionar para dashboard
       router.push('/dashboard');
+      
+      return { success: true };
     } catch (error: any) {
       console.error('❌ Erro no login:', error);
-      console.error('❌ error.response:', error.response);
-      throw new Error(error.response?.data?.message || 'Erro ao fazer login');
+      const errorMessage = error.response?.data?.message || error.message || 'Erro ao fazer login';
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
 
+  // Logout
   const logout = () => {
-    console.log('🚪 Fazendo logout...');
     localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem('user');
     setUser(null);
     router.push('/auth');
   };
 
-  const authValue = {
-    user: user,
-    loading: loading,
-    login: login,
-    logout: logout,
-    isAuthenticated: user !== null
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    isAuthenticated: !!user,
   };
 
-  return (
-    <AuthContext.Provider value={authValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// ============================================
+// HOOK CUSTOMIZADO
+// ============================================
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within AuthProvider');
   }
   return context;

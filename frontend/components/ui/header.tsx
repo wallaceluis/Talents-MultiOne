@@ -123,7 +123,7 @@ export const Header = () => {
                 isDarkMode ? 'hover:bg-gray-800/50' : 'hover:bg-gray-100'
               } ${iconColorClass} transition-colors`}
             >
-              <User size={22} className={iconColorClass} />
+              <User size={20} className={iconColorClass} />
               <ChevronDown size={16} className={`hidden md:block transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 

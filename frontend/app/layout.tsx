@@ -4,23 +4,25 @@ import "../styles/globals.css";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "../lib/theme";
+import { AuthProvider } from "../hooks/useAuth";
 import { Sidebar } from "../components/ui/sidebar";
 import { Header } from "../components/ui/header";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      {/* Remove o bg-white daqui, deixa o ThemeProvider controlar */}
       <body suppressHydrationWarning={true}>
         <ThemeProvider>
-          <LayoutWrapper>{children}</LayoutWrapper>
+          <AuthProvider>
+            <LayoutWrapper>{children}</LayoutWrapper>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
 
-// Componente interno para consumir ThemeProvider
+// Componente interno para consumir ThemeProvider e AuthProvider
 const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,19 +40,13 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       ) : (
         <div className="flex h-full">
-          {/* SIDEBAR */}
           <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
-          {/* CONTEÚDO PRINCIPAL */}
           <div
             className={`flex flex-col flex-1 transition-all duration-300 ${
               sidebarOpen ? "lg:ml-64" : "lg:ml-20"
             } ml-0`}
           >
-            {/* HEADER FIXO */}
             <Header />
-
-            {/* CONTEÚDO SCROLLÁVEL */}
             <main
               className={`flex-1 overflow-y-auto p-4 md:p-6 ${currentTheme.bg} ${currentTheme.mainText}`}
             >

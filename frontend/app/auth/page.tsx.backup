@@ -22,8 +22,8 @@ export default function AuthPage() {
       const response = await api.post('/auth/login', { email, password });
       console.log('🟢 Resposta:', response.data);
       
-      const token = response.data.data?.access_token;
-      const user = response.data.data?.user;
+      const token = response.data.access_token;
+      const user = response.data.user;
       
       if (!token) {
         throw new Error('Token não encontrado');
