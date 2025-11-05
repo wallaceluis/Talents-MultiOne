@@ -47,7 +47,7 @@ export class CandidatesService {
           connect: { id: companyId },
         },
         ...(skillIds && skillIds.length > 0 && {
-          candidateSkills: {
+          skills: {
             create: skillIds.map(skillId => ({
               skill: { connect: { id: skillId } },
             })),
@@ -62,7 +62,7 @@ export class CandidatesService {
             domain: true,
           },
         },
-        candidateSkills: {
+        skills: {
           include: {
             skill: true,
           },
@@ -98,7 +98,7 @@ export class CandidatesService {
         },
         _count: {
           select: {
-            candidateSkills: true,
+            skills: true,
             experiences: true,
             educations: true,
             applications: true,
@@ -122,7 +122,7 @@ export class CandidatesService {
             domain: true,
           },
         },
-        candidateSkills: {
+        skills: {
           include: {
             skill: true,
           },
@@ -152,7 +152,7 @@ export class CandidatesService {
             },
           },
           orderBy: {
-            appliedAt: 'desc',
+            createdAt: 'desc',
           },
         },
       },
@@ -193,7 +193,7 @@ export class CandidatesService {
       data: candidateData,
       include: {
         company: true,
-        candidateSkills: {
+        skills: {
           include: {
             skill: true,
           },

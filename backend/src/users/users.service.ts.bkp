@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -18,10 +17,6 @@ export class UsersService {
       throw new ConflictException('Email já cadastrado');
     }
 
-    if (!createUserDto.companyId) {
-      throw new BadRequestException('ID da empresa é obrigatório');
-    }
-
     // Hash da senha
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const { companyId, role, password, ...userData } = createUserDto;
@@ -30,16 +25,19 @@ export class UsersService {
       data: {
         ...userData,
         password: hashedPassword,
-        role: role as Role,
+        role: role,
         status: 'ACTIVE',
-        company: {
-          connect: { id: companyId }
-        },
+        ...(companyId && {
+          company: {
+            connect: { id: companyId }
+          }
+        }),
       },
     });
 
     return user;
   }
+
   async findAll() {
     const users = await this.prisma.user.findMany({
       select: {

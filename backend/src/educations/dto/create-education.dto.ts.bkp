@@ -1,0 +1,31 @@
+import { IsString, IsNotEmpty, IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
+
+export class CreateEducationDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Instituição é obrigatória' })
+  institution: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Curso é obrigatório' })
+  degree: string;
+
+  @IsString()
+  @IsOptional()
+  fieldOfStudy?: string;
+
+  @IsNotEmpty({ message: 'Nível é obrigatório' })
+
+  @IsNotEmpty({ message: 'Status é obrigatório' })
+
+  @IsDateString()
+  @IsNotEmpty({ message: 'Data de início é obrigatória' })
+  startDate: string;
+
+  @IsDateString()
+  @IsOptional()
+  endDate?: string;
+
+  @IsUUID('4', { message: 'Candidate ID inválido' })
+  @IsNotEmpty({ message: 'Candidate ID é obrigatório' })
+  candidateId: string;
+}

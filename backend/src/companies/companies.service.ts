@@ -41,7 +41,6 @@ export class CompaniesService {
           select: {
             id: true,
             name: true,
-            type: true,
           },
         },
         _count: {

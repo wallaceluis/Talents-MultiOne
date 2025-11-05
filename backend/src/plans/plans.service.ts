@@ -8,16 +8,15 @@ export class PlansService {
   constructor(private prisma: PrismaService) {}
 
   async create(createPlanDto: CreatePlanDto) {
-    // Verificar se já existe plano com mesmo tipo
+    // Verificar se já existe plano com mesmo nome
     const existingPlan = await this.prisma.plan.findFirst({
-      where: { 
-        type: createPlanDto.type,
-        isActive: true 
+      where: {
+        name: createPlanDto.name,
       },
     });
 
     if (existingPlan) {
-      throw new ConflictException(`Já existe um plano ativo do tipo ${createPlanDto.type}`);
+      throw new ConflictException('Já existe um plano com este nome');
     }
 
     return this.prisma.plan.create({
@@ -25,11 +24,8 @@ export class PlansService {
     });
   }
 
-  async findAll(includeInactive = false) {
-    const where = includeInactive ? {} : { isActive: true };
-
+  async findAll() {
     return this.prisma.plan.findMany({
-      where,
       include: {
         _count: {
           select: {
@@ -70,15 +66,6 @@ export class PlansService {
     return plan;
   }
 
-  async findByType(type: string) {
-    return this.prisma.plan.findFirst({
-      where: { 
-        type: type as any,
-        isActive: true 
-      },
-    });
-  }
-
   async update(id: string, updatePlanDto: UpdatePlanDto) {
     await this.findOne(id);
 
@@ -110,13 +97,11 @@ export class PlansService {
   }
 
   async getStats() {
-    const [total, active, companiesByPlan] = await Promise.all([
+    const [total, companiesByPlan] = await Promise.all([
       this.prisma.plan.count(),
-      this.prisma.plan.count({ where: { isActive: true } }),
       this.prisma.plan.findMany({
         select: {
           name: true,
-          type: true,
           _count: {
             select: {
               companies: true,
@@ -128,10 +113,8 @@ export class PlansService {
 
     return {
       total,
-      active,
       companiesByPlan: companiesByPlan.map(plan => ({
         planName: plan.name,
-        planType: plan.type,
         companies: plan._count.companies,
       })),
     };

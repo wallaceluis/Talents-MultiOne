@@ -1,0 +1,47 @@
+import { IsString, IsNotEmpty, IsEnum, IsNumber, IsArray, IsOptional, IsUUID, Min } from 'class-validator';
+
+export class CreateVacancyDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Título é obrigatório' })
+  title: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Descrição é obrigatória' })
+  description: string;
+
+  @IsString()
+  @IsOptional()
+  requirements?: string;
+
+  @IsString()
+  @IsOptional()
+  benefits?: string;
+
+  @IsEnum(VacancyType, { message: 'Tipo de vaga inválido' })
+  @IsNotEmpty({ message: 'Tipo de vaga é obrigatório' })
+  type: VacancyType;
+
+  @IsNotEmpty({ message: 'Modelo de trabalho é obrigatório' })
+
+  @IsString()
+  @IsNotEmpty({ message: 'Localização é obrigatória' })
+  location: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0, { message: 'Salário não pode ser negativo' })
+  salary?: number;
+
+  @IsEnum(VacancyStatus, { message: 'Status inválido' })
+  @IsOptional()
+  status?: VacancyStatus;
+
+  @IsUUID('4', { message: 'Company ID inválido' })
+  @IsNotEmpty({ message: 'Company ID é obrigatório' })
+  companyId: string;
+
+  @IsArray()
+  @IsUUID('4', { each: true, message: 'Skill ID inválido' })
+  @IsOptional()
+  skillIds?: string[];
+}

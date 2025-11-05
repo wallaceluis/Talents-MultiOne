@@ -1,0 +1,6 @@
+Substituir esta linha (aproximadamente linha 16):
+        await createUser(formData);
+
+Por estas linhas:
+        const { status, ...createData } = formData;
+        await createUser(createData);

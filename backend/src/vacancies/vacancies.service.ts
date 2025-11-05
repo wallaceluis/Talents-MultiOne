@@ -39,7 +39,7 @@ export class VacanciesService {
           connect: { id: companyId },
         },
         ...(skillIds && skillIds.length > 0 && {
-          vacancySkills: {
+          skills: {
             create: skillIds.map(skillId => ({
               skill: { connect: { id: skillId } },
             })),
@@ -54,7 +54,7 @@ export class VacanciesService {
             domain: true,
           },
         },
-        vacancySkills: {
+        skills: {
           include: {
             skill: true,
           },
@@ -86,7 +86,7 @@ export class VacanciesService {
             domain: true,
           },
         },
-        vacancySkills: {
+        skills: {
           include: {
             skill: true,
           },
@@ -115,12 +115,12 @@ export class VacanciesService {
             plan: {
               select: {
                 name: true,
-                type: true,
+                maxVacancies: true,
               },
             },
-          },
         },
-        vacancySkills: {
+          },
+        skills: {
           include: {
             skill: true,
           },
@@ -137,7 +137,7 @@ export class VacanciesService {
             },
           },
           orderBy: {
-            appliedAt: 'desc',
+            createdAt: 'desc',
           },
         },
         _count: {
@@ -183,7 +183,7 @@ export class VacanciesService {
       data: vacancyData,
       include: {
         company: true,
-        vacancySkills: {
+        skills: {
           include: {
             skill: true,
           },
@@ -226,7 +226,7 @@ export class VacanciesService {
       this.prisma.vacancy.count({ where }),
       this.prisma.vacancy.count({ where: { ...where, status: 'OPEN' } }),
       this.prisma.vacancy.count({ where: { ...where, status: 'CLOSED' } }),
-      this.prisma.vacancy.count({ where: { ...where, status: 'DRAFT' } }),
+      this.prisma.vacancy.count({ where: { ...where, status: 'PAUSED' } }),
       this.prisma.application.count({
         where: companyId ? { vacancy: { companyId } } : {},
       }),

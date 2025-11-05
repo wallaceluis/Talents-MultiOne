@@ -25,13 +25,10 @@ async function createAdmin() {
       const plan = await prisma.plan.create({
         data: {
           name: 'Básico',
-          type: 'BASIC',
           maxUsers: 5,
           maxCandidates: 50,
           maxVacancies: 10,
           price: 99.90,
-          features: ['5 usuários', '50 candidatos'],
-          isActive: true,
         },
       });
 

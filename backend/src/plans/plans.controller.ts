@@ -29,7 +29,7 @@ export class PlansController {
 
   @Get()
   findAll(@Query('includeInactive') includeInactive?: string) {
-    return this.plansService.findAll(includeInactive === 'true');
+    return this.plansService.findAll();
   }
 
   @Get('stats')

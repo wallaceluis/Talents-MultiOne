@@ -1,35 +1,22 @@
-import { IsString, IsNotEmpty, IsEnum, IsNumber, IsArray, IsBoolean, Min } from 'class-validator';
-import { PlanType } from '@prisma/client';
+import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class CreatePlanDto {
-  @IsString()
-  @IsNotEmpty({ message: 'Nome é obrigatório' })
+  @IsString({ message: 'Nome é obrigatório' })
   name: string;
 
-  @IsEnum(PlanType, { message: 'Tipo de plano inválido' })
-  @IsNotEmpty({ message: 'Tipo é obrigatório' })
-  type: PlanType;
-
-  @IsNumber()
-  @Min(1, { message: 'Máximo de usuários deve ser no mínimo 1' })
-  maxUsers: number;
-
-  @IsNumber()
-  @Min(1, { message: 'Máximo de candidatos deve ser no mínimo 1' })
-  maxCandidates: number;
-
-  @IsNumber()
-  @Min(1, { message: 'Máximo de vagas deve ser no mínimo 1' })
+  @IsNumber({}, { message: 'Máximo de vagas deve ser um número' })
+  @Min(0)
   maxVacancies: number;
 
-  @IsNumber()
-  @Min(0, { message: 'Preço não pode ser negativo' })
+  @IsNumber({}, { message: 'Máximo de candidatos deve ser um número' })
+  @Min(0)
+  maxCandidates: number;
+
+  @IsNumber({}, { message: 'Máximo de usuários deve ser um número' })
+  @Min(0)
+  maxUsers: number;
+
+  @IsNumber({}, { message: 'Preço deve ser um número' })
+  @Min(0)
   price: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  features: string[];
-
-  @IsBoolean()
-  isActive: boolean;
 }

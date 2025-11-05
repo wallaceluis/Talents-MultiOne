@@ -1,50 +1,34 @@
-import { IsString, IsNotEmpty, IsEnum, IsNumber, IsArray, IsOptional, IsUUID, Min } from 'class-validator';
-import { VacancyStatus, VacancyType, WorkModel } from '@prisma/client';
+import { IsString, IsOptional, IsEnum, IsNumber, Min, IsArray } from 'class-validator';
+import { VacancyStatus, VacancyType } from '@prisma/client';
 
 export class CreateVacancyDto {
-  @IsString()
-  @IsNotEmpty({ message: 'Título é obrigatório' })
+  @IsString({ message: 'Título é obrigatório' })
   title: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'Descrição é obrigatória' })
+  @IsString({ message: 'Descrição é obrigatória' })
   description: string;
 
   @IsString()
   @IsOptional()
-  requirements?: string;
-
-  @IsString()
-  @IsOptional()
-  benefits?: string;
+  location?: string;
 
   @IsEnum(VacancyType, { message: 'Tipo de vaga inválido' })
-  @IsNotEmpty({ message: 'Tipo de vaga é obrigatório' })
-  type: VacancyType;
-
-  @IsEnum(WorkModel, { message: 'Modelo de trabalho inválido' })
-  @IsNotEmpty({ message: 'Modelo de trabalho é obrigatório' })
-  workModel: WorkModel;
-
-  @IsString()
-  @IsNotEmpty({ message: 'Localização é obrigatória' })
-  location: string;
+  @IsOptional()
+  type?: VacancyType;
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
-  @Min(0, { message: 'Salário não pode ser negativo' })
   salary?: number;
+
+  @IsString({ message: 'ID da empresa é obrigatório' })
+  companyId: string;
 
   @IsEnum(VacancyStatus, { message: 'Status inválido' })
   @IsOptional()
   status?: VacancyStatus;
 
-  @IsUUID('4', { message: 'Company ID inválido' })
-  @IsNotEmpty({ message: 'Company ID é obrigatório' })
-  companyId: string;
-
   @IsArray()
-  @IsUUID('4', { each: true, message: 'Skill ID inválido' })
   @IsOptional()
   skillIds?: string[];
 }

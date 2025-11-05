@@ -31,8 +31,7 @@ export function useUsers() {
       setUsers(prev => [newUser, ...prev]);
       return { success: true, data: newUser };
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'Erro ao criar usuário';
-      throw new Error(errorMsg);
+      return { success: false, error: err.response?.data?.message };
     } finally {
       setLoading(false);
     }

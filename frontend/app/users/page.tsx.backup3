@@ -65,8 +65,7 @@ export default function UsersPage() {
         if (formData.companyId !== editingUser.companyId) updateData.companyId = formData.companyId;
         await updateUser(editingUser.id, updateData);
       } else {
-        const { status, ...createData } = formData;
-        await createUser(createData);
+        await createUser(formData);
       }
       handleCloseModal();
       await fetchUsers();
