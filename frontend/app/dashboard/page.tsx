@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { 
@@ -10,17 +10,12 @@ import {
   getChartTheme,
   createGradientDefs 
 } from '../../components/charts/metric-charts';
-import { 
-  metricCards, 
-  candidatesAnalysisData, 
-  companiesAnalysisData, 
-  vacanciesAnalysisData 
-} from '../../lib/data';
+import { useDashboard } from '../../hooks/useDashboard';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts';
-import { Users, Building2, Briefcase, Filter } from 'lucide-react';
+import { Users, Building2, Briefcase, Filter, TrendingUp } from 'lucide-react';
 
 type AnalysisTab = 'candidates' | 'companies' | 'vacancies';
 
@@ -28,31 +23,46 @@ export default function DashboardPage() {
   const { currentTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<AnalysisTab>('candidates');
   
-  // Estados dos filtros
-  const [candidateFilters, setCandidateFilters] = useState({
-    region: '', gender: '', ageRange: '', status: '', dateStart: '', dateEnd: '',
-  });
-  
-  const [companyFilters, setCompanyFilters] = useState({
-    segment: '', state: '', dateStart: '', dateEnd: '',
-  });
-  
-  const [vacancyFilters, setVacancyFilters] = useState({
-    status: '', sector: '', position: '', region: '', dateStart: '', dateEnd: '',
-  });
+  const {
+    metrics,
+    candidatesAnalysis,
+    companiesAnalysis,
+    vacanciesAnalysis,
+    loading,
+    error,
+    fetchMetrics,
+    fetchCandidatesAnalysis,
+    fetchCompaniesAnalysis,
+    fetchVacanciesAnalysis,
+  } = useDashboard();
 
-  // Importar tema dos gráficos
+  // Carregar dados iniciais
+  useEffect(() => {
+    fetchMetrics();
+    fetchCandidatesAnalysis();
+    fetchCompaniesAnalysis();
+    fetchVacanciesAnalysis();
+  }, []);
+
+  // Atualizar quando mudar de aba
+  useEffect(() => {
+    if (activeTab === 'candidates' && !candidatesAnalysis) {
+      fetchCandidatesAnalysis();
+    } else if (activeTab === 'companies' && !companiesAnalysis) {
+      fetchCompaniesAnalysis();
+    } else if (activeTab === 'vacancies' && !vacanciesAnalysis) {
+      fetchVacanciesAnalysis();
+    }
+  }, [activeTab]);
+
   const chartTheme = getChartTheme(currentTheme);
 
-  // Tabs de navegação
   const tabs = [
     { id: 'candidates' as AnalysisTab, label: 'Candidatos', icon: Users },
     { id: 'companies' as AnalysisTab, label: 'Empresas', icon: Building2 },
     { id: 'vacancies' as AnalysisTab, label: 'Vagas', icon: Briefcase },
   ];
 
-  // === COMPONENTES REUTILIZÁVEIS ===
-  
   const ChartCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className={`p-4 md:p-6 rounded-xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} transition-all hover:shadow-lg`}>
       <h3 className={`text-lg font-semibold ${currentTheme.titleColor} mb-4`}>{title}</h3>
@@ -60,47 +70,36 @@ export default function DashboardPage() {
     </div>
   );
 
-  const FilterSection = ({ children }: { children: React.ReactNode }) => (
-    <div className={`p-4 rounded-xl border ${currentTheme.cardBorder} ${currentTheme.cardBg} mb-6`}>
-      <div className="flex items-center gap-2 mb-4">
-        <Filter size={18} className={currentTheme.iconColor} />
-        <h3 className={`text-sm font-semibold ${currentTheme.titleColor} uppercase tracking-wide`}>Filtros</h3>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{children}</div>
-    </div>
-  );
-
-  const FilterInput = ({ label, type = 'text', value, onChange, options }: { 
-    label: string; type?: string; value: string; 
-    onChange: (value: string) => void; options?: { value: string; label: string }[];
-  }) => (
-    <div>
-      <label className={`block text-xs font-medium ${currentTheme.cardText} mb-1.5`}>{label}</label>
-      {type === 'select' && options ? (
-        <select value={value} onChange={(e) => onChange(e.target.value)}
-          className={`w-full px-3 py-2 rounded-lg border text-sm ${
-            currentTheme.name === 'Claro' ? 'bg-white border-gray-300 text-gray-900' : 'bg-gray-800/50 border-gray-700 text-white'
-          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}>
-          <option value="">Todos</option>
-          {options.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-        </select>
-      ) : (
-        <input type={type} value={value} onChange={(e) => onChange(e.target.value)}
-          className={`w-full px-3 py-2 rounded-lg border text-sm ${
-            currentTheme.name === 'Claro' ? 'bg-white border-gray-300 text-gray-900' : 'bg-gray-800/50 border-gray-700 text-white'
-          } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
-        />
-      )}
-    </div>
-  );
-
-  // === CONFIGURAÇÃO DE TOOLTIP PADRÃO ===
   const tooltipStyle = {
     backgroundColor: chartTheme.tooltipBg,
     border: `1px solid ${chartTheme.tooltipBorder}`,
     color: chartTheme.tooltipTextColor,
     borderRadius: '8px'
   };
+
+  // Métricas gerais
+  const metricCardsData = [
+    { title: 'Empresas Cadastradas', value: String(metrics.companies), icon: Building2, color: 'text-blue-500' },
+    { title: 'Vagas Abertas', value: String(metrics.vacancies), icon: Briefcase, color: 'text-yellow-400' },
+    { title: 'Total de Candidatos', value: String(metrics.candidates), icon: Users, color: 'text-green-500' },
+    { title: 'Total de Candidaturas', value: String(metrics.applications), icon: TrendingUp, color: 'text-red-500' },
+  ];
+
+  if (loading && !candidatesAnalysis && !companiesAnalysis && !vacanciesAnalysis) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className={`text-xl ${currentTheme.mainText}`}>Carregando dados do dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl text-red-500">Erro: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <main className="space-y-6 md:space-y-8">
@@ -114,10 +113,10 @@ export default function DashboardPage() {
 
       {/* KPIs Gerais */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-        {metricCards.map((data, i) => <MetricCard key={`metric-${i}`} {...data} />)}
+        {metricCardsData.map((data, i) => <MetricCard key={`metric-${i}`} {...data} />)}
       </div>
 
-      {/* Tabs - AUMENTADO */}
+      {/* Tabs */}
       <div className={`p-2 rounded-xl ${currentTheme.cardBg} border ${currentTheme.cardBorder} inline-flex gap-2 shadow-lg`}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -134,51 +133,17 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* ============ ANÁLISE DE CANDIDATOS ============ */}
-      {activeTab === 'candidates' && (
+      {/* ANÁLISE DE CANDIDATOS */}
+      {activeTab === 'candidates' && candidatesAnalysis && (
         <div className="space-y-6">
           <h2 className={`text-xl md:text-2xl font-bold ${currentTheme.mainText}`}>Análise de Candidatos</h2>
 
-          {/* Filtros */}
-          <FilterSection>
-            <FilterInput label="Região" type="select" value={candidateFilters.region}
-              onChange={(v) => setCandidateFilters({ ...candidateFilters, region: v })}
-              options={[
-                { value: 'sudeste', label: 'Sudeste' }, { value: 'sul', label: 'Sul' },
-                { value: 'nordeste', label: 'Nordeste' }, { value: 'norte', label: 'Norte' },
-                { value: 'centro-oeste', label: 'Centro-Oeste' },
-              ]} />
-            <FilterInput label="Gênero" type="select" value={candidateFilters.gender}
-              onChange={(v) => setCandidateFilters({ ...candidateFilters, gender: v })}
-              options={[
-                { value: 'masculino', label: 'Masculino' }, { value: 'feminino', label: 'Feminino' },
-                { value: 'outros', label: 'Outros' },
-              ]} />
-            <FilterInput label="Faixa Etária" type="select" value={candidateFilters.ageRange}
-              onChange={(v) => setCandidateFilters({ ...candidateFilters, ageRange: v })}
-              options={[
-                { value: '18-24', label: '18-24 anos' }, { value: '25-34', label: '25-34 anos' },
-                { value: '35-44', label: '35-44 anos' }, { value: '45+', label: '45+ anos' },
-              ]} />
-            <FilterInput label="Status" type="select" value={candidateFilters.status}
-              onChange={(v) => setCandidateFilters({ ...candidateFilters, status: v })}
-              options={[
-                { value: 'ativo', label: 'Ativo' }, { value: 'inativo', label: 'Inativo' },
-                { value: 'processo', label: 'Em Processo' },
-              ]} />
-            <FilterInput label="Data Inicial" type="date" value={candidateFilters.dateStart}
-              onChange={(v) => setCandidateFilters({ ...candidateFilters, dateStart: v })} />
-            <FilterInput label="Data Final" type="date" value={candidateFilters.dateEnd}
-              onChange={(v) => setCandidateFilters({ ...candidateFilters, dateEnd: v })} />
-          </FilterSection>
-
-          {/* Gráficos */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* Evolução com Gradiente */}
+            {/* Evolução */}
             <ChartCard title="Evolução Total de Candidatos">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={candidatesAnalysisData.evolution}>
+                <LineChart data={candidatesAnalysis.evolution}>
                   {createGradientDefs('blueGradient', CHART_GRADIENTS.blue)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="month" stroke={chartTheme.axisColor} />
@@ -190,10 +155,10 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </ChartCard>
 
-            {/* Comparação por Atividade com Gradiente */}
+            {/* Atividades */}
             <ChartCard title="Comparação por Atividade">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={candidatesAnalysisData.activities} barSize={BAR_CONFIG.barSize}>
+                <BarChart data={candidatesAnalysis.activities} barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('bar1', CHART_GRADIENTS.blue)}
                   {createGradientDefs('bar2', CHART_GRADIENTS.green)}
                   {createGradientDefs('bar3', CHART_GRADIENTS.yellow)}
@@ -210,10 +175,10 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </ChartCard>
 
-            {/* Distribuição por Estado */}
+            {/* Estado */}
             <ChartCard title="Distribuição por Estado">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={candidatesAnalysisData.byState} layout="vertical" barSize={BAR_CONFIG.barSize}>
+                <BarChart data={candidatesAnalysis.byState} layout="vertical" barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('stateGradient', CHART_GRADIENTS.green)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis type="number" stroke={chartTheme.axisColor} />
@@ -224,13 +189,13 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </ChartCard>
 
-            {/* Distribuição por Gênero */}
+            {/* Gênero */}
             <ChartCard title="Distribuição por Gênero">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={candidatesAnalysisData.byGender} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
+                  <Pie data={candidatesAnalysis.byGender} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
                     dataKey="value" label>
-                    {candidatesAnalysisData.byGender.map((_, index) => (
+                    {candidatesAnalysis.byGender.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
@@ -243,7 +208,7 @@ export default function DashboardPage() {
             {/* Faixa Etária */}
             <ChartCard title="Distribuição por Faixa Etária">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={candidatesAnalysisData.byAge} barSize={BAR_CONFIG.barSize}>
+                <BarChart data={candidatesAnalysis.byAge} barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('ageGradient', CHART_GRADIENTS.yellow)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="range" stroke={chartTheme.axisColor} />
@@ -257,7 +222,7 @@ export default function DashboardPage() {
             {/* Top Cargos */}
             <ChartCard title="Top 5 Cargos Mais Buscados">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={candidatesAnalysisData.topPositions} layout="vertical" barSize={BAR_CONFIG.barSize}>
+                <BarChart data={candidatesAnalysis.topPositions} layout="vertical" barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('posGradient', CHART_GRADIENTS.purple)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis type="number" stroke={chartTheme.axisColor} />
@@ -271,35 +236,15 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ============ ANÁLISE DE EMPRESAS ============ */}
-      {activeTab === 'companies' && (
+      {/* ANÁLISE DE EMPRESAS */}
+      {activeTab === 'companies' && companiesAnalysis && (
         <div className="space-y-6">
           <h2 className={`text-xl md:text-2xl font-bold ${currentTheme.mainText}`}>Análise de Empresas</h2>
-
-          <FilterSection>
-            <FilterInput label="Segmento" type="select" value={companyFilters.segment}
-              onChange={(v) => setCompanyFilters({ ...companyFilters, segment: v })}
-              options={[
-                { value: 'tecnologia', label: 'Tecnologia' }, { value: 'saude', label: 'Saúde' },
-                { value: 'educacao', label: 'Educação' }, { value: 'logistica', label: 'Logística' },
-                { value: 'industria', label: 'Indústria' },
-              ]} />
-            <FilterInput label="Estado" type="select" value={companyFilters.state}
-              onChange={(v) => setCompanyFilters({ ...companyFilters, state: v })}
-              options={[
-                { value: 'SP', label: 'São Paulo' }, { value: 'RJ', label: 'Rio de Janeiro' },
-                { value: 'MG', label: 'Minas Gerais' }, { value: 'RS', label: 'Rio Grande do Sul' },
-              ]} />
-            <FilterInput label="Data Inicial" type="date" value={companyFilters.dateStart}
-              onChange={(v) => setCompanyFilters({ ...companyFilters, dateStart: v })} />
-            <FilterInput label="Data Final" type="date" value={companyFilters.dateEnd}
-              onChange={(v) => setCompanyFilters({ ...companyFilters, dateEnd: v })} />
-          </FilterSection>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChartCard title="Evolução de Novas Empresas">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={companiesAnalysisData.evolution}>
+                <LineChart data={companiesAnalysis.evolution}>
                   {createGradientDefs('greenGradient', CHART_GRADIENTS.green)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="month" stroke={chartTheme.axisColor} />
@@ -314,8 +259,8 @@ export default function DashboardPage() {
             <ChartCard title="Empresas por Segmento">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={companiesAnalysisData.bySegment} cx="50%" cy="50%" outerRadius={90} dataKey="value" label>
-                    {companiesAnalysisData.bySegment.map((_, index) => (
+                  <Pie data={companiesAnalysis.bySegment} cx="50%" cy="50%" outerRadius={90} dataKey="value" label>
+                    {companiesAnalysis.bySegment.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
@@ -327,7 +272,7 @@ export default function DashboardPage() {
 
             <ChartCard title="Empresas por Estado">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={companiesAnalysisData.byState} barSize={BAR_CONFIG.barSize}>
+                <BarChart data={companiesAnalysis.byState} barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('compStateGradient', CHART_GRADIENTS.cyan)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="state" stroke={chartTheme.axisColor} />
@@ -340,7 +285,7 @@ export default function DashboardPage() {
 
             <ChartCard title="Top 5 Empresas por Vagas">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={companiesAnalysisData.topByVacancies} layout="vertical" barSize={BAR_CONFIG.barSize}>
+                <BarChart data={companiesAnalysis.topByVacancies} layout="vertical" barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('compVacGradient', CHART_GRADIENTS.yellow)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis type="number" stroke={chartTheme.axisColor} />
@@ -354,7 +299,7 @@ export default function DashboardPage() {
 
           <ChartCard title="Top 5 Empresas por Candidaturas">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={companiesAnalysisData.topByCandidates} layout="vertical" barSize={BAR_CONFIG.barSize}>
+              <BarChart data={companiesAnalysis.topByCandidates} layout="vertical" barSize={BAR_CONFIG.barSize}>
                 {createGradientDefs('compAppGradient', CHART_GRADIENTS.purple)}
                 <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                 <XAxis type="number" stroke={chartTheme.axisColor} />
@@ -367,47 +312,15 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ============ ANÁLISE DE VAGAS ============ */}
-      {activeTab === 'vacancies' && (
+      {/* ANÁLISE DE VAGAS */}
+      {activeTab === 'vacancies' && vacanciesAnalysis && (
         <div className="space-y-6">
           <h2 className={`text-xl md:text-2xl font-bold ${currentTheme.mainText}`}>Análise de Vagas</h2>
-
-          <FilterSection>
-            <FilterInput label="Status da Vaga" type="select" value={vacancyFilters.status}
-              onChange={(v) => setVacancyFilters({ ...vacancyFilters, status: v })}
-              options={[
-                { value: 'aberta', label: 'Aberta' }, { value: 'encerrada', label: 'Encerrada' },
-                { value: 'pausada', label: 'Pausada' },
-              ]} />
-            <FilterInput label="Setor" type="select" value={vacancyFilters.sector}
-              onChange={(v) => setVacancyFilters({ ...vacancyFilters, sector: v })}
-              options={[
-                { value: 'tecnologia', label: 'Tecnologia' }, { value: 'saude', label: 'Saúde' },
-                { value: 'educacao', label: 'Educação' }, { value: 'logistica', label: 'Logística' },
-                { value: 'industria', label: 'Indústria' },
-              ]} />
-            <FilterInput label="Cargo" type="select" value={vacancyFilters.position}
-              onChange={(v) => setVacancyFilters({ ...vacancyFilters, position: v })}
-              options={[
-                { value: 'desenvolvedor', label: 'Desenvolvedor' }, { value: 'analista', label: 'Analista' },
-                { value: 'gerente', label: 'Gerente' }, { value: 'designer', label: 'Designer' },
-              ]} />
-            <FilterInput label="Região" type="select" value={vacancyFilters.region}
-              onChange={(v) => setVacancyFilters({ ...vacancyFilters, region: v })}
-              options={[
-                { value: 'sudeste', label: 'Sudeste' }, { value: 'sul', label: 'Sul' },
-                { value: 'nordeste', label: 'Nordeste' }, { value: 'centro-oeste', label: 'Centro-Oeste' },
-              ]} />
-            <FilterInput label="Data Inicial" type="date" value={vacancyFilters.dateStart}
-              onChange={(v) => setVacancyFilters({ ...vacancyFilters, dateStart: v })} />
-            <FilterInput label="Data Final" type="date" value={vacancyFilters.dateEnd}
-              onChange={(v) => setVacancyFilters({ ...vacancyFilters, dateEnd: v })} />
-          </FilterSection>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChartCard title="Evolução Total de Vagas">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={vacanciesAnalysisData.evolution}>
+                <LineChart data={vacanciesAnalysis.evolution}>
                   {createGradientDefs('redGradient', CHART_GRADIENTS.red)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="month" stroke={chartTheme.axisColor} />
@@ -422,9 +335,9 @@ export default function DashboardPage() {
             <ChartCard title="Vagas por Status">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={vacanciesAnalysisData.byStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
+                  <Pie data={vacanciesAnalysis.byStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
                     dataKey="value" label>
-                    {vacanciesAnalysisData.byStatus.map((_, index) => (
+                    {vacanciesAnalysis.byStatus.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
@@ -436,13 +349,13 @@ export default function DashboardPage() {
 
             <ChartCard title="Vagas por Setor">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={vacanciesAnalysisData.bySector} barSize={BAR_CONFIG.barSize}>
+                <BarChart data={vacanciesAnalysis.bySector} barSize={BAR_CONFIG.barSize}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="sector" stroke={chartTheme.axisColor} />
                   <YAxis stroke={chartTheme.axisColor} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="count" radius={BAR_CONFIG.radius}>
-                    {vacanciesAnalysisData.bySector.map((_, index) => (
+                    {vacanciesAnalysis.bySector.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Bar>
@@ -452,7 +365,7 @@ export default function DashboardPage() {
 
             <ChartCard title="Vagas por Cargo (Top 8)">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={vacanciesAnalysisData.byPosition} layout="vertical" barSize={BAR_CONFIG.barSize}>
+                <BarChart data={vacanciesAnalysis.byPosition} layout="vertical" barSize={BAR_CONFIG.barSize}>
                   {createGradientDefs('vacPosGradient', CHART_GRADIENTS.indigo)}
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis type="number" stroke={chartTheme.axisColor} />
@@ -465,13 +378,13 @@ export default function DashboardPage() {
 
             <ChartCard title="Vagas por Região">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={vacanciesAnalysisData.byRegion} barSize={BAR_CONFIG.barSize}>
+                <BarChart data={vacanciesAnalysis.byRegion} barSize={BAR_CONFIG.barSize}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridColor} strokeOpacity={0.3} />
                   <XAxis dataKey="region" stroke={chartTheme.axisColor} />
                   <YAxis stroke={chartTheme.axisColor} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="count" radius={BAR_CONFIG.radius}>
-                    {vacanciesAnalysisData.byRegion.map((_, index) => (
+                    {vacanciesAnalysis.byRegion.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Bar>

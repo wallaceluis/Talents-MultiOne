@@ -10,6 +10,7 @@ import { PlansModule } from './plans/plans.module';
 import { VacanciesModule } from './vacancies/vacancies.module';
 import { ExperiencesModule } from './experiences/experiences.module';
 import { EducationsModule } from './educations/educations.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -31,6 +32,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     VacanciesModule,
     ExperiencesModule,
     EducationsModule,
+    DashboardModule,
   ],
   providers: [
     {
