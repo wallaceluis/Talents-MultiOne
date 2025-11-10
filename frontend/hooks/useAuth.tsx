@@ -23,6 +23,12 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
+// Tipo para a resposta da API de login
+interface LoginResponse {
+  access_token: string;
+  user: User;
+}
+
 // ============================================
 // CONTEXT
 // ============================================
@@ -66,12 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, loading, pathname, router]);
 
   // Login
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
       console.log('🔐 Iniciando login...', { email });
       
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post<LoginResponse>('/auth/login', { email, password });
       console.log('✅ Resposta da API:', response.data);
       
       const { access_token, user: userData } = response.data;
@@ -103,14 +109,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Logout
-  const logout = () => {
+  const logout = (): void => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
     router.push('/auth');
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     loading,
     login,
@@ -124,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // ============================================
 // HOOK CUSTOMIZADO
 // ============================================
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within AuthProvider');

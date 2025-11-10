@@ -4,7 +4,7 @@ import "../styles/globals.css";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, useTheme } from "../lib/theme";
-import { AuthProvider } from "../hooks/useAuth";
+import { AuthProvider } from '../hooks/useAuth';
 import { Sidebar } from "../components/ui/sidebar";
 import { Header } from "../components/ui/header";
 
@@ -18,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </AuthProvider>
         </ThemeProvider>
       </body>
+      
     </html>
   );
 }

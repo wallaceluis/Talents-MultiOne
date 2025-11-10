@@ -2,21 +2,47 @@
 import { useState } from 'react';
 import api from '../lib/api';
 
+
+interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  status?: string;
+  position?: string;
+  
+}
+
+interface CandidateStats {
+  total: number;
+  active: number;
+  inProcess: number;
+  hired: number;
+}
+
+
 export function useCandidates() {
-  const [candidates, setCandidates] = useState<any[]>([]);
-  const [stats, setStats] = useState({ total: 0, active: 0, inProcess: 0, hired: 0 });
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [stats, setStats] = useState<CandidateStats>({ 
+    total: 0, 
+    active: 0, 
+    inProcess: 0, 
+    hired: 0 
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCandidates = async () => {
+  const fetchCandidates = async (): Promise<Candidate[]> => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await api.get('/candidates');
+      const res = await api.get<Candidate[]>('/candidates');
       const data = res.data || [];
       setCandidates(Array.isArray(data) ? data : []);
       return data;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao buscar candidatos');
+      const errorMessage = err.response?.data?.message || 'Erro ao buscar candidatos';
+      setError(errorMessage);
       setCandidates([]);
       return [];
     } finally {
@@ -24,10 +50,10 @@ export function useCandidates() {
     }
   };
 
-  const fetchStats = async () => {
+  const fetchStats = async (): Promise<CandidateStats | null> => {
     try {
-      const res = await api.get('/candidates/stats');
-      const data = res.data || {};
+      const res = await api.get<CandidateStats>('/candidates/stats');
+      const data = res.data || { total: 0, active: 0, inProcess: 0, hired: 0 };
       setStats(data);
       return data;
     } catch (err: any) {
@@ -43,5 +69,6 @@ export function useCandidates() {
     error,
     fetchCandidates,
     fetchStats,
+    setCandidates, 
   };
 }
