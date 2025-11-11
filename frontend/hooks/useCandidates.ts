@@ -10,7 +10,7 @@ interface Candidate {
   phone?: string;
   status?: string;
   position?: string;
-  
+   
 }
 
 interface CandidateStats {
