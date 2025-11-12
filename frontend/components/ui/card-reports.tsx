@@ -72,7 +72,7 @@ export function ReportCard({
         </header>
 
         {/* Resumo */}
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           {summary && summary.map((item, index) => (
             <div 
               key={`${id}-summary-${index}`}
@@ -85,6 +85,31 @@ export function ReportCard({
                 {item.value}
               </span>
             </div>
+          ))}
+        </div>
+
+        {/* botão de download no card  */}
+        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-700/30">
+          {downloadFormats.map((format) => (
+            <button
+              key={format}
+              onClick={(e) => handleDownload(format, e)}
+              aria-label={`Baixar relatório de ${title} em formato ${format}`}
+              className={`
+                flex items-center justify-center gap-1.5
+                px-3 py-2 rounded-lg text-xs font-medium
+                ${currentTheme.buttonBg} text-white
+                transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+                hover:opacity-95 hover:scale-105 active:scale-95 hover:brightness-105
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                shadow-md hover:shadow-lg
+                flex-1
+                will-change-transform
+              `}
+            >
+              {FORMAT_ICONS[format as keyof typeof FORMAT_ICONS] || <Download size={14} />}
+              <span className="uppercase font-bold">{format}</span>
+            </button>
           ))}
         </div>
       </article>
