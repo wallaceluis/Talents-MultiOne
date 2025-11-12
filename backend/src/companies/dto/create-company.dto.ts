@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Matches, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsString()
@@ -6,9 +6,6 @@ export class CreateCompanyDto {
   name: string;
 
   @IsString()
-  @Matches(/^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/, {
-    message: 'Domain deve ter formato válido (ex: empresa.com)',
-  })
   @IsNotEmpty({ message: 'Domain é obrigatório' })
   domain: string;
 

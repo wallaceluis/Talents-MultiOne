@@ -1,92 +1,143 @@
-'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../lib/api';
 
-export function useCompanies() {
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [stats, setStats] = useState({ total: 0, active: 0, trial: 0, inactive: 0 });
-  const [loading, setLoading] = useState(false);
+export interface Company {
+  id: string;
+  name: string;
+  domain: string;
+  status: string;
+  planId?: string;
+  plan?: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CompanyStats {
+  total: number;
+  active: number;
+  trial: number;
+  inactive: number;
+}
+
+export const useCompanies = () => {
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [stats, setStats] = useState<CompanyStats>({
+    total: 0,
+    active: 0,
+    trial: 0,
+    inactive: 0,
+  });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Buscar lista de empresas
   const fetchCompanies = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/companies');
-      const data = res.data || [];
-      setCompanies(Array.isArray(data) ? data : []);
-      return data;
+      setLoading(true);
+      const response = await api.get('/companies');
+      console.log('✅ Empresas carregadas:', response.data);
+      setCompanies(response.data || []);
+      setError(null);
     } catch (err: any) {
+      console.error('❌ Erro ao buscar empresas:', err);
       setError(err.response?.data?.message || 'Erro ao buscar empresas');
       setCompanies([]);
-      return [];
     } finally {
       setLoading(false);
     }
   };
 
+  // Buscar estatísticas
   const fetchStats = async () => {
     try {
-      const res = await api.get('/companies/stats');
-      const data = res.data || {};
-      setStats(data);
-      return data;
+      const response = await api.get('/companies/stats');
+      console.log('✅ Stats carregadas:', response.data);
+      setStats(response.data || { total: 0, active: 0, trial: 0, inactive: 0 });
     } catch (err: any) {
-      console.error('Erro ao buscar stats:', err);
-      return null;
+      console.error('❌ Erro ao buscar stats:', err);
+      // Calcular stats localmente se API falhar
+      const total = companies.length;
+      const active = companies.filter(c => c.status === 'ACTIVE').length;
+      const trial = companies.filter(c => c.status === 'TRIAL').length;
+      const inactive = companies.filter(c => c.status === 'INACTIVE').length;
+      setStats({ total, active, trial, inactive });
     }
   };
 
-  const createCompany = async (data: any) => {
-    setLoading(true);
+  // Criar empresa
+  const createCompany = async (data: { name: string; domain: string; planId?: string }) => {
     try {
-      const res = await api.post('/companies', data);
-      const newCompany = res.data;
-      setCompanies(prev => [newCompany, ...prev]);
-      return { success: true, data: newCompany };
+      const response = await api.post('/companies', data);
+      console.log('✅ Empresa criada:', response.data);
+      await fetchCompanies();
+      await fetchStats();
+      return { success: true, data: response.data };
     } catch (err: any) {
-      return { success: false, error: err.response?.data?.message };
-    } finally {
-      setLoading(false);
+      console.error('❌ Erro ao criar empresa:', err);
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Erro ao criar empresa' 
+      };
     }
   };
 
-  const updateCompany = async (id: string, data: any) => {
-    setLoading(true);
+  // Atualizar empresa
+  const updateCompany = async (id: string, data: { name?: string; domain?: string; planId?: string }) => {
     try {
-      const res = await api.patch(`/companies/${id}`, data);
-      const updated = res.data;
-      setCompanies(prev => prev.map(c => c.id === id ? updated : c));
-      return { success: true, data: updated };
+      const response = await api.patch(`/companies/${id}`, data);
+      console.log('✅ Empresa atualizada:', response.data);
+      await fetchCompanies();
+      await fetchStats();
+      return { success: true, data: response.data };
     } catch (err: any) {
-      return { success: false, error: err.response?.data?.message };
-    } finally {
-      setLoading(false);
+      console.error('❌ Erro ao atualizar empresa:', err);
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Erro ao atualizar empresa' 
+      };
     }
   };
 
+  // Deletar empresa
   const deleteCompany = async (id: string) => {
-    setLoading(true);
     try {
       await api.delete(`/companies/${id}`);
-      setCompanies(prev => prev.filter(c => c.id !== id));
+      console.log('✅ Empresa deletada:', id);
+      await fetchCompanies();
+      await fetchStats();
       return { success: true };
     } catch (err: any) {
-      return { success: false, error: err.response?.data?.message };
-    } finally {
-      setLoading(false);
+      console.error('❌ Erro ao deletar empresa:', err);
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Erro ao deletar empresa' 
+      };
     }
   };
 
-  return {
-    companies,
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  useEffect(() => {
+    if (companies.length > 0) {
+      fetchStats();
+    }
+  }, [companies]);
+
+  return { 
+    companies, 
     stats,
-    loading,
-    error,
+    loading, 
+    error, 
     fetchCompanies,
     fetchStats,
     createCompany,
-  console.log("🔍 useCompanies retornando:", { stats, fetchStats: typeof fetchStats });
     updateCompany,
     deleteCompany,
+    refetch: fetchCompanies 
   };
-}
+};
