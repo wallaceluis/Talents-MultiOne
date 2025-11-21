@@ -5,14 +5,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # 1. Copia apenas o package.json do frontend
-COPY ../frontend/package.json ./frontend/
+COPY frontend/package.json ./frontend/
 
 # 2. Instala dependências do frontend
 WORKDIR /app/frontend
 RUN npm install
 
 # 3. Copia o restante do código-fonte do frontend
-COPY ../frontend ./
+COPY frontend ./
 
 # 4. Roda o build do Next.js
 RUN npm run build
@@ -25,7 +25,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # 1. Copia apenas o package.json do frontend
-COPY ../frontend/package.json ./frontend/
+COPY frontend/package.json ./frontend/
 
 # 2. Instala apenas dependências de produção
 WORKDIR /app/frontend

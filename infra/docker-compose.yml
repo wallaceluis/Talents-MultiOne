@@ -20,6 +20,7 @@ services:
       DATABASE_URL: "postgresql://dev:dev123@db:5432/talents?schema=public"
       JWT_SECRET: "seu-secret-super-seguro-minimo-32-caracteres-aleat0ri0s"
       JWT_EXPIRES_IN: "7d"
+      PORT: 4000
     depends_on:
       - db
     ports:

@@ -14,7 +14,7 @@ export function usePlans() {
       setLoading(true);
       setError(null);
       const response = await api.get('/plans');
-      const data = response.data.data || response.data;
+      const data = (response.data as any).data || response.data;
       setPlans(data);
       return data;
     } catch (err: any) {
@@ -31,7 +31,7 @@ export function usePlans() {
       setLoading(true);
       setError(null);
       const response = await api.post('/plans', data);
-      const newPlan = response.data.data || response.data;
+      const newPlan = (response.data as any).data || response.data;
       setPlans((prev) => [...prev, newPlan]);
       return newPlan;
     } catch (err: any) {
@@ -48,7 +48,7 @@ export function usePlans() {
       setLoading(true);
       setError(null);
       const response = await api.patch(`/plans/${id}`, data);
-      const updatedPlan = response.data.data || response.data;
+      const updatedPlan = (response.data as any).data || response.data;
       setPlans((prev) =>
         prev.map((plan) => (plan.id === id ? updatedPlan : plan))
       );

@@ -5,12 +5,12 @@ import { useTheme } from '../../lib/theme';
 import { ReportCard } from '../../components/ui/card-reports';
 import { useReports } from '../../hooks/useReports';
 import { ClipboardList } from 'lucide-react';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  FileUser, 
-  Briefcase, 
-  Users 
+import {
+  LayoutDashboard,
+  Building2,
+  FileUser,
+  Briefcase,
+  Users
 } from 'lucide-react';
 
 export default function ReportsPage() {
@@ -62,7 +62,7 @@ export default function ReportsPage() {
     const loadAllReports = async () => {
       console.log('🔄 Carregando todos os relatórios automaticamente...');
       setLoadingAll(true);
-      
+
       try {
         // Carregar todos em paralelo
         await Promise.all(
@@ -125,7 +125,7 @@ export default function ReportsPage() {
                 { label: 'Carregando', value: '...' },
               ]}
               detailedInfo={reportData?.detailedInfo || []}
-              downloadFormats={report.downloadFormats}
+              downloadFormats={[...report.downloadFormats]}
               onView={() => handleViewReport(report.id)}
               onExport={(format) => handleExport(report.id, format)}
               loading={isLoading}

@@ -48,26 +48,20 @@ export default function CompaniesPage() {
 
     const handleSubmit = async (data: any) => {
         if (modalMode === 'create') {
-            const result = await createCompany(data);
-            if (result.success) {
-                await fetchStats();
-            }
+            await createCompany(data);
+            await fetchStats();
         } else {
-            const result = await updateCompany(selectedCompany.id, data);
-            if (result.success) {
-                await fetchStats();
-            }
+            await updateCompany(selectedCompany.id, data);
+            await fetchStats();
         }
     };
 
     const handleDeleteConfirm = async () => {
         setDeleteLoading(true);
         try {
-            const result = await deleteCompany(selectedCompany.id);
-            if (result.success) {
-                await fetchStats();
-                setIsDeleteModalOpen(false);
-            }
+            await deleteCompany(selectedCompany.id);
+            await fetchStats();
+            setIsDeleteModalOpen(false);
         } finally {
             setDeleteLoading(false);
         }

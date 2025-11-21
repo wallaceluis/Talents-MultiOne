@@ -2,7 +2,7 @@ export interface Company {
   id: string;
   name: string;
   domain?: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'TRIAL';
   planId: string;
   createdAt: string;
   updatedAt: string;
@@ -16,7 +16,7 @@ export interface CreateCompanyDto {
   name: string;
   domain?: string;
   status?: 'ACTIVE' | 'INACTIVE';
-  planId: string;
+  planId?: string;
 }
 
 export interface UpdateCompanyDto {

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { createCompany } from '../../hooks/useCompanies';
+import { useCompanies } from '../../hooks/useCompanies';
 
 export default function CompanyForm({ onSuccess }: { onSuccess: () => void }) {
+  const { createCompany } = useCompanies();
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,7 +12,7 @@ export default function CompanyForm({ onSuccess }: { onSuccess: () => void }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       await createCompany({ name, domain });
       setName('');
@@ -32,7 +33,7 @@ export default function CompanyForm({ onSuccess }: { onSuccess: () => void }) {
           {error}
         </div>
       )}
-      
+
       <div>
         <label className="block mb-1">Nome da Empresa</label>
         <input
@@ -44,7 +45,7 @@ export default function CompanyForm({ onSuccess }: { onSuccess: () => void }) {
           disabled={loading}
         />
       </div>
-      
+
       <div>
         <label className="block mb-1">Domínio</label>
         <input
@@ -57,9 +58,9 @@ export default function CompanyForm({ onSuccess }: { onSuccess: () => void }) {
           disabled={loading}
         />
       </div>
-      
-      <button 
-        type="submit" 
+
+      <button
+        type="submit"
         className="bg-blue-600 px-4 py-2 rounded hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={loading}
       >
