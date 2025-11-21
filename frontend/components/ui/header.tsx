@@ -18,7 +18,7 @@ export const Header = () => {
 
   const menuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-  
+
   const isDarkMode = currentTheme.name !== 'Claro';
   const iconColorClass = isDarkMode ? 'text-white' : 'text-gray-700';
   const textColorClass = isDarkMode ? 'text-white' : 'text-gray-800';
@@ -40,8 +40,8 @@ export const Header = () => {
   }, []);
 
   const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(notif => 
+    setNotifications(prev =>
+      prev.map(notif =>
         notif.id === id ? { ...notif, unread: false } : notif
       )
     );
@@ -57,7 +57,7 @@ export const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 ${currentTheme.sidebar} z-20 border-b ${currentTheme.cardBorder} backdrop-blur-sm bg-opacity-95`}
+      className={`sticky top-0 ${currentTheme.sidebar} z-20 ${isDarkMode ? 'border-b-0 shadow-[0_10px_40px_-10px_rgba(2,10,30,0.9)]' : `border-b ${currentTheme.cardBorder}`} backdrop-blur-sm bg-opacity-95`}
     >
       <div className="flex items-center justify-between px-4 md:px-6 h-16">
         <div className="flex items-center gap-3"></div>
@@ -67,9 +67,8 @@ export const Header = () => {
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className={`relative p-2 rounded-lg ${
-                isDarkMode ? 'hover:bg-gray-800/50' : 'hover:bg-gray-100'
-              } ${iconColorClass} transition-colors`}
+              className={`relative p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-800/50' : 'hover:bg-gray-100'
+                } ${iconColorClass} transition-colors`}
             >
               <Bell size={20} />
               {unreadCount > 0 && (
@@ -95,11 +94,9 @@ export const Header = () => {
                       <div
                         key={notif.id}
                         onClick={() => markAsRead(notif.id)}
-                        className={`p-3 rounded-lg ${
-                          isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'
-                        } cursor-pointer transition-colors ${
-                          notif.unread ? 'border-l-2 border-blue-500' : ''
-                        }`}
+                        className={`p-3 rounded-lg ${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'
+                          } cursor-pointer transition-colors ${notif.unread ? 'border-l-2 border-blue-500' : ''
+                          }`}
                       >
                         <p className={`text-sm ${textColorClass} ${notif.unread ? 'font-medium' : ''}`}>
                           {notif.text}
@@ -119,9 +116,8 @@ export const Header = () => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className={`flex items-center gap-2 p-2 rounded-lg ${
-                isDarkMode ? 'hover:bg-gray-800/50' : 'hover:bg-gray-100'
-              } ${iconColorClass} transition-colors`}
+              className={`flex items-center gap-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-800/50' : 'hover:bg-gray-100'
+                } ${iconColorClass} transition-colors`}
             >
               <User size={20} className={iconColorClass} />
               <ChevronDown size={16} className={`hidden md:block transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
@@ -149,12 +145,11 @@ export const Header = () => {
                     </div>
                     {user?.role && (
                       <div className="mt-2">
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          isDarkMode ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {user.role === 'SUPER_ADMIN' ? 'Super Admin' : 
-                           user.role === 'MASTER' ? 'Master' : 
-                           user.role === 'ADMIN' ? 'Admin' : user.role}
+                        <span className={`text-xs px-2 py-1 rounded-full ${isDarkMode ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                          {user.role === 'SUPER_ADMIN' ? 'Super Admin' :
+                            user.role === 'MASTER' ? 'Master' :
+                              user.role === 'ADMIN' ? 'Admin' : user.role}
                         </span>
                       </div>
                     )}
@@ -165,9 +160,8 @@ export const Header = () => {
                   {/* Alternar tema */}
                   <button
                     onClick={toggleTheme}
-                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg ${
-                      isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'
-                    } transition-colors`}
+                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg ${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'
+                      } transition-colors`}
                   >
                     {isDarkMode ? (
                       <Sun size={18} className={iconColorClass} />
@@ -184,11 +178,10 @@ export const Header = () => {
                   {/* Botão de sair */}
                   <button
                     onClick={handleLogout}
-                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg ${
-                      isDarkMode
+                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg ${isDarkMode
                         ? 'hover:bg-red-900/20 text-red-400'
                         : 'hover:bg-red-50 text-red-600'
-                    } transition-colors`}
+                      } transition-colors`}
                   >
                     <LogOut size={18} />
                     <span className="text-sm font-medium">Sair</span>

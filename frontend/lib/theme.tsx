@@ -16,13 +16,13 @@ export interface ThemeStyle {
   mainText: string;
   buttonBg: string;
   sidebarHover: string;
-  
+
   // NOVAS PROPRIEDADES PARA O PROBLEMA DA TABELA E BUSCA
-  searchBg: string; 
-  tableContainerBg: string; 
-  tableHeadBg: string; 
-  tableRowHover: string; 
-  tableRowText: string; 
+  searchBg: string;
+  tableContainerBg: string;
+  tableHeadBg: string;
+  tableRowHover: string;
+  tableRowText: string;
 }
 
 export type Themes = Record<string, ThemeStyle>;
@@ -42,11 +42,11 @@ export const themes: Themes = {
     cardText: 'text-gray-300',
     mainText: 'text-white',
     buttonBg: 'bg-blue-600 hover:bg-blue-700',
-    
+
     // Configurações para o modo ESCURO
-    searchBg: 'bg-gray-900 border-gray-700', 
+    searchBg: 'bg-gray-900 border border-gray-700',
     tableContainerBg: 'bg-gray-800 rounded-lg shadow overflow-hidden',
-    tableHeadBg: 'bg-gray-900', 
+    tableHeadBg: 'bg-gray-900',
     tableRowHover: 'hover:bg-gray-700',
     tableRowText: 'text-gray-300',
   },
@@ -63,11 +63,11 @@ export const themes: Themes = {
     cardText: 'text-gray-700',
     mainText: 'text-gray-900',
     buttonBg: 'bg-blue-600 hover:bg-blue-700 text-white',
-    
+
     // Configurações para o modo CLARO
-    searchBg: 'bg-white border-gray-300 shadow-sm', 
+    searchBg: 'bg-white border border-gray-400 shadow-sm',
     tableContainerBg: 'bg-white rounded-lg shadow overflow-hidden border border-gray-200',
-    tableHeadBg: 'bg-gray-50', 
+    tableHeadBg: 'bg-gray-50',
     tableRowHover: 'hover:bg-gray-100',
     tableRowText: 'text-gray-700',
   },
