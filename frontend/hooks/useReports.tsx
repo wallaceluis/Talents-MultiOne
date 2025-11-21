@@ -58,21 +58,27 @@ export const useReports = () => {
     try {
       console.log(`📥 Exportando ${reportId} como ${format}...`);
 
-      // Buscar dados do relatório se não existir
-      let reportData = reports[reportId];
-      if (!reportData) {
-        reportData = await fetchReport(reportId);
-      }
+      const response = await api.get(`/dashboard/reports/${reportId}/export`, {
+        params: { format },
+        responseType: 'blob',
+      });
 
-      // Simular download
-      const dataStr = JSON.stringify(reportData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
+      const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `relatorio-${reportId}-${new Date().toISOString().split('T')[0]}.${format}`;
+
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `relatorio-${reportId}.${format === 'excel' ? 'xlsx' : format}`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match && match[1]) filename = match[1];
+      }
+
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(url);
+      link.remove();
+      window.URL.revokeObjectURL(url);
 
       console.log(`✅ Exportado com sucesso!`);
       return { success: true };

@@ -43,11 +43,11 @@ export function ReportCard({
   const handleDownload = async (format: 'pdf' | 'excel' | 'csv', e: React.MouseEvent) => {
     e.stopPropagation();
     setExporting(format);
-    
+
     if (onExport) {
       await onExport(format);
     }
-    
+
     setTimeout(() => setExporting(null), 1000);
   };
 
@@ -113,7 +113,7 @@ export function ReportCard({
               key={format}
               onClick={(e) => handleDownload(format, e)}
               disabled={exporting !== null || loading}
-              className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium ${currentTheme.buttonBg} text-white transition-all hover:opacity-95 hover:scale-105 disabled:opacity-50 shadow-md flex-1`}
+              className={`flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[10px] md:text-xs font-medium ${currentTheme.buttonBg} text-white transition-all hover:opacity-95 hover:scale-105 disabled:opacity-50 shadow-md flex-1 min-w-0`}
             >
               {exporting === format ? (
                 <Loader2 className="animate-spin" size={14} />
@@ -136,10 +136,10 @@ export function ReportCard({
 
           <article
             onClick={(e) => e.stopPropagation()}
-            className={`relative ${currentTheme.cardBg} border-2 ${currentTheme.cardBorder} rounded-2xl p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl`}
+            className={`relative ${currentTheme.cardBg} border-2 ${currentTheme.cardBorder} rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden`}
           >
-            {/* Header */}
-            <header className={`flex items-start justify-between mb-6 sticky top-0 ${currentTheme.cardBg} pb-4 border-b ${currentTheme.cardBorder}`}>
+            {/* Header Fixo */}
+            <header className={`flex items-start justify-between p-6 md:p-8 pb-4 border-b ${currentTheme.cardBorder} flex-none`}>
               <div className="flex items-center gap-4">
                 <div className={`p-4 rounded-xl ${currentTheme.cardBg} border ${currentTheme.cardBorder}`}>
                   <Icon className={color} size={32} />
@@ -155,62 +155,65 @@ export function ReportCard({
               </div>
               <button
                 onClick={() => setIsExpanded(false)}
-                className={`p-3 rounded-xl ${currentTheme.buttonBg} text-white hover:opacity-90`}
+                className={`p-3 rounded-xl ${currentTheme.buttonBg} text-white hover:opacity-90 transition-opacity`}
               >
                 <X size={20} />
               </button>
             </header>
 
-            {/* Resumo no Modal */}
-            <section className="mb-6">
-              <h4 className={`text-lg font-bold ${currentTheme.titleColor} mb-4 flex items-center gap-2`}>
-                <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                Resumo
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {summary.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`p-4 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder}`}
-                  >
-                    <p className={`text-xs ${currentTheme.cardText} opacity-70 mb-1`}>
-                      {item.label}
-                    </p>
-                    <p className={`text-2xl font-bold ${currentTheme.titleColor}`}>
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Informações Detalhadas */}
-            {detailedInfo.length > 0 && (
-              <section className="mb-6">
+            {/* Conteúdo Rolável */}
+            <div className="overflow-y-auto p-6 md:p-8 flex-1 custom-scrollbar">
+              {/* Resumo no Modal */}
+              <section className="mb-8">
                 <h4 className={`text-lg font-bold ${currentTheme.titleColor} mb-4 flex items-center gap-2`}>
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  Informações Detalhadas
+                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                  Resumo
                 </h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {detailedInfo.map((item, index) => (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {summary.map((item, index) => (
                     <div
                       key={index}
-                      className={`p-4 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder} hover:border-blue-500/60 transition-all`}
+                      className={`p-4 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder}`}
                     >
                       <p className={`text-xs ${currentTheme.cardText} opacity-70 mb-1`}>
                         {item.label}
                       </p>
-                      <p className={`text-lg font-bold ${currentTheme.titleColor}`}>
+                      <p className={`text-2xl font-bold ${currentTheme.titleColor}`}>
                         {item.value}
                       </p>
                     </div>
                   ))}
                 </div>
               </section>
-            )}
 
-            {/* Botões de Download no Modal */}
-            <footer className={`border-t ${currentTheme.cardBorder} pt-6`}>
+              {/* Informações Detalhadas */}
+              {detailedInfo.length > 0 && (
+                <section className="mb-6">
+                  <h4 className={`text-lg font-bold ${currentTheme.titleColor} mb-4 flex items-center gap-2`}>
+                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                    Informações Detalhadas
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {detailedInfo.map((item, index) => (
+                      <div
+                        key={index}
+                        className={`p-4 rounded-lg ${currentTheme.cardBg} border ${currentTheme.cardBorder} hover:border-blue-500/60 transition-all`}
+                      >
+                        <p className={`text-xs ${currentTheme.cardText} opacity-70 mb-1`}>
+                          {item.label}
+                        </p>
+                        <p className={`text-lg font-bold ${currentTheme.titleColor}`}>
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Footer Fixo */}
+            <footer className={`p-6 md:p-8 pt-4 border-t ${currentTheme.cardBorder} flex-none`}>
               <h4 className={`text-lg font-bold ${currentTheme.titleColor} mb-4 flex items-center gap-2`}>
                 <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
                 Exportar Relatório
@@ -221,7 +224,7 @@ export function ReportCard({
                     key={format}
                     onClick={(e) => handleDownload(format, e)}
                     disabled={exporting !== null}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg ${currentTheme.buttonBg} text-white font-medium hover:opacity-90 disabled:opacity-50`}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg ${currentTheme.buttonBg} text-white font-medium hover:opacity-90 disabled:opacity-50 transition-all active:scale-95`}
                   >
                     {exporting === format ? (
                       <>
