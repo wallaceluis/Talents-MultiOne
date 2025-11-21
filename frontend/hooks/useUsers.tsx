@@ -13,7 +13,7 @@ export function useUsers() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/users');
+      const response = await api.get<any>('/users');
       const data = response.data.data || response.data;
       setUsers(data);
       return data;
@@ -30,7 +30,7 @@ export function useUsers() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.post('/users', data);
+      const response = await api.post<any>('/users', data);
       const newUser = response.data.data || response.data;
       setUsers((prev) => [...prev, newUser]);
       return newUser;
@@ -47,7 +47,7 @@ export function useUsers() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.patch(`/users/${id}`, data);
+      const response = await api.patch<any>(`/users/${id}`, data);
       const updatedUser = response.data.data || response.data;
       setUsers((prev) =>
         prev.map((user) => (user.id === id ? updatedUser : user))

@@ -4,8 +4,16 @@ import { useState, useCallback } from 'react';
 import api from '../lib/api';
 import { Company, CreateCompanyDto, UpdateCompanyDto } from '../types/company';
 
+export interface CompanyStats {
+  total: number;
+  active: number;
+  inactive: number;
+  trial?: number;
+}
+
 export function useCompanies() {
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [stats, setStats] = useState<CompanyStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,8 +21,8 @@ export function useCompanies() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/companies');
-      const data = response.data.data || response.data;
+      const response = await api.get<Company[]>('/companies');
+      const data = response.data;
       setCompanies(data);
       return data;
     } catch (err: any) {
@@ -26,12 +34,29 @@ export function useCompanies() {
     }
   }, []);
 
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get<CompanyStats>('/companies/stats');
+      const data = response.data;
+      setStats(data);
+      return data;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao buscar estatísticas';
+      setError(message);
+      console.error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const createCompany = useCallback(async (data: CreateCompanyDto) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.post('/companies', data);
-      const newCompany = response.data.data || response.data;
+      const response = await api.post<Company>('/companies', data);
+      const newCompany = response.data;
       setCompanies((prev) => [...prev, newCompany]);
       return newCompany;
     } catch (err: any) {
@@ -47,8 +72,8 @@ export function useCompanies() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.patch(`/companies/${id}`, data);
-      const updatedCompany = response.data.data || response.data;
+      const response = await api.patch<Company>(`/companies/${id}`, data);
+      const updatedCompany = response.data;
       setCompanies((prev) =>
         prev.map((company) => (company.id === id ? updatedCompany : company))
       );
@@ -80,9 +105,11 @@ export function useCompanies() {
 
   return {
     companies,
+    stats,
     loading,
     error,
     fetchCompanies,
+    fetchStats,
     createCompany,
     updateCompany,
     deleteCompany,

@@ -13,6 +13,7 @@ api.interceptors.request.use(
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       if (token) {
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
         console.log(`🔑 Token adicionado à requisição: ${config.url}`);
       } else {
@@ -30,7 +31,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     console.log(`✅ Resposta: ${response.config.url} - Status: ${response.status}`);
-    
+
     // Desembrulhar response.data se necessário
     if (response.data && typeof response.data === 'object' && 'data' in response.data) {
       return {
@@ -47,7 +48,7 @@ api.interceptors.response.use(
       status: error.response?.status,
       message: error.response?.data?.message,
     });
-    
+
     // Auto-logout em 401
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {

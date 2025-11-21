@@ -42,11 +42,11 @@ export function useDashboard() {
     candidates: 0,
     applications: 0,
   });
-  
+
   const [candidatesAnalysis, setCandidatesAnalysis] = useState<CandidatesAnalysis | null>(null);
   const [companiesAnalysis, setCompaniesAnalysis] = useState<CompaniesAnalysis | null>(null);
   const [vacanciesAnalysis, setVacanciesAnalysis] = useState<VacanciesAnalysis | null>(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,8 +55,8 @@ export function useDashboard() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/dashboard/metrics');
-      const data = response.data.data || response.data;
+      const response = await api.get<DashboardMetrics>('/dashboard/metrics');
+      const data = response.data;
       setMetrics(data);
       return data;
     } catch (err: any) {
@@ -74,8 +74,8 @@ export function useDashboard() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/dashboard/candidates-analysis', { params: filters });
-      const data = response.data.data || response.data;
+      const response = await api.get<CandidatesAnalysis>('/dashboard/candidates-analysis', { params: filters });
+      const data = response.data;
       setCandidatesAnalysis(data);
       return data;
     } catch (err: any) {
@@ -93,8 +93,8 @@ export function useDashboard() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/dashboard/companies-analysis', { params: filters });
-      const data = response.data.data || response.data;
+      const response = await api.get<CompaniesAnalysis>('/dashboard/companies-analysis', { params: filters });
+      const data = response.data;
       setCompaniesAnalysis(data);
       return data;
     } catch (err: any) {
@@ -112,8 +112,8 @@ export function useDashboard() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/dashboard/vacancies-analysis', { params: filters });
-      const data = response.data.data || response.data;
+      const response = await api.get<VacanciesAnalysis>('/dashboard/vacancies-analysis', { params: filters });
+      const data = response.data;
       setVacanciesAnalysis(data);
       return data;
     } catch (err: any) {

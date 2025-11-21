@@ -4,8 +4,15 @@ import { useState, useCallback } from 'react';
 import api from '../lib/api';
 import { Vacancy, CreateVacancyDto, UpdateVacancyDto } from '../types/vacancy';
 
+export interface VacancyStats {
+  total: number;
+  active: number;
+  filled: number;
+}
+
 export function useVacancies() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [stats, setStats] = useState<VacancyStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,8 +20,8 @@ export function useVacancies() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/vacancies');
-      const data = response.data.data || response.data;
+      const response = await api.get<Vacancy[]>('/vacancies');
+      const data = response.data;
       setVacancies(data);
       return data;
     } catch (err: any) {
@@ -26,12 +33,29 @@ export function useVacancies() {
     }
   }, []);
 
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get<VacancyStats>('/vacancies/stats');
+      const data = response.data;
+      setStats(data);
+      return data;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao buscar estatísticas';
+      setError(message);
+      console.error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const createVacancy = useCallback(async (data: CreateVacancyDto) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.post('/vacancies', data);
-      const newVacancy = response.data.data || response.data;
+      const response = await api.post<Vacancy>('/vacancies', data);
+      const newVacancy = response.data;
       setVacancies((prev) => [...prev, newVacancy]);
       return newVacancy;
     } catch (err: any) {
@@ -47,8 +71,8 @@ export function useVacancies() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.patch(`/vacancies/${id}`, data);
-      const updatedVacancy = response.data.data || response.data;
+      const response = await api.patch<Vacancy>(`/vacancies/${id}`, data);
+      const updatedVacancy = response.data;
       setVacancies((prev) =>
         prev.map((vacancy) => (vacancy.id === id ? updatedVacancy : vacancy))
       );
@@ -80,9 +104,11 @@ export function useVacancies() {
 
   return {
     vacancies,
+    stats,
     loading,
     error,
     fetchVacancies,
+    fetchStats,
     createVacancy,
     updateVacancy,
     deleteVacancy,

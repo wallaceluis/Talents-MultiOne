@@ -4,8 +4,16 @@ import { useState, useCallback } from 'react';
 import api from '../lib/api';
 import { Candidate, CreateCandidateDto, UpdateCandidateDto } from '../types/candidate';
 
+export interface CandidateStats {
+  total: number;
+  active: number;
+  inProcess: number;
+  hired: number;
+}
+
 export function useCandidates() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [stats, setStats] = useState<CandidateStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,8 +21,8 @@ export function useCandidates() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/candidates');
-      const data = response.data.data || response.data;
+      const response = await api.get<Candidate[]>('/candidates');
+      const data = response.data;
       setCandidates(data);
       return data;
     } catch (err: any) {
@@ -26,12 +34,30 @@ export function useCandidates() {
     }
   }, []);
 
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get<CandidateStats>('/candidates/stats');
+      const data = response.data;
+      setStats(data);
+      return data;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Erro ao buscar estatísticas';
+      setError(message);
+      console.error(message);
+      // Not throwing here to avoid breaking the page if stats fail
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const fetchCandidateById = useCallback(async (id: string) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get(`/candidates/${id}`);
-      return response.data.data || response.data;
+      const response = await api.get<Candidate>(`/candidates/${id}`);
+      return response.data;
     } catch (err: any) {
       const message = err.response?.data?.message || 'Erro ao buscar candidato';
       setError(message);
@@ -45,8 +71,8 @@ export function useCandidates() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.post('/candidates', data);
-      const newCandidate = response.data.data || response.data;
+      const response = await api.post<Candidate>('/candidates', data);
+      const newCandidate = response.data;
       setCandidates((prev) => [...prev, newCandidate]);
       return newCandidate;
     } catch (err: any) {
@@ -62,8 +88,8 @@ export function useCandidates() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.patch(`/candidates/${id}`, data);
-      const updatedCandidate = response.data.data || response.data;
+      const response = await api.patch<Candidate>(`/candidates/${id}`, data);
+      const updatedCandidate = response.data;
       setCandidates((prev) =>
         prev.map((candidate) => (candidate.id === id ? updatedCandidate : candidate))
       );
@@ -95,9 +121,11 @@ export function useCandidates() {
 
   return {
     candidates,
+    stats,
     loading,
     error,
     fetchCandidates,
+    fetchStats,
     fetchCandidateById,
     createCandidate,
     updateCandidate,

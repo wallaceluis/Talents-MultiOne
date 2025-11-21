@@ -18,12 +18,12 @@ export const useReports = () => {
   const fetchReport = async (reportId: string) => {
     try {
       console.log(`🔍 Buscando relatório: ${reportId}...`);
-      
+
       setLoading(prev => ({ ...prev, [reportId]: true }));
-      
-      const response = await api.get(`/dashboard/reports/${reportId}`);
+
+      const response = await api.get<any>(`/dashboard/reports/${reportId}`);
       console.log(`✅ Relatório ${reportId} carregado:`, response.data);
-      
+
       setReports(prev => ({
         ...prev,
         [reportId]: {
@@ -34,21 +34,21 @@ export const useReports = () => {
           charts: response.data.charts,
         },
       }));
-      
+
       setError(null);
       setLoading(prev => ({ ...prev, [reportId]: false }));
       return response.data;
     } catch (err: any) {
       console.error(`❌ Erro ao buscar relatório ${reportId}:`, err);
       console.error('Detalhes:', err.response?.data);
-      
+
       setError(err.response?.data?.message || 'Erro ao buscar relatório');
       setLoading(prev => ({ ...prev, [reportId]: false }));
-      
+
       // Mostrar erro ao usuário
       const errorMsg = err.response?.data?.message || err.message;
       alert(`❌ Erro ao carregar ${reportId}: ${errorMsg}`);
-      
+
       throw err;
     }
   };
@@ -57,7 +57,7 @@ export const useReports = () => {
   const exportReport = async (reportId: string, format: 'pdf' | 'excel' | 'csv') => {
     try {
       console.log(`📥 Exportando ${reportId} como ${format}...`);
-      
+
       // Buscar dados do relatório se não existir
       let reportData = reports[reportId];
       if (!reportData) {
@@ -78,9 +78,9 @@ export const useReports = () => {
       return { success: true };
     } catch (err: any) {
       console.error(`❌ Erro ao exportar:`, err);
-      return { 
-        success: false, 
-        error: err.response?.data?.message || 'Erro ao exportar relatório' 
+      return {
+        success: false,
+        error: err.response?.data?.message || 'Erro ao exportar relatório'
       };
     }
   };
