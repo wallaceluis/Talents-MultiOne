@@ -7,10 +7,12 @@ import { CompaniesTable } from '../../components/tables/companies-table';
 import { CompanyModal } from '../../components/modals/CompanyModal';
 import { DeleteModal } from '../../components/modals/DeleteModal';
 import { useCompanies } from '../../hooks/useCompanies';
+import { useAuth } from '../../hooks/useAuth';
 import { Search, ListChecks, Users, Briefcase, X } from 'lucide-react';
 
 export default function CompaniesPage() {
     const { currentTheme } = useTheme();
+    const { user } = useAuth();
     const { stats, fetchStats, createCompany, updateCompany, deleteCompany } = useCompanies();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -76,12 +78,14 @@ export default function CompaniesPage() {
                         Empresas cadastradas na plataforma
                     </p>
                 </div>
-                <button
-                    onClick={handleCreate}
-                    className={`w-full md:w-auto px-5 py-3 rounded-lg ${currentTheme.buttonBg} font-medium whitespace-nowrap`}
-                >
-                    + Cadastrar Empresa
-                </button>
+                {user?.role !== 'VIEWER' && (
+                    <button
+                        onClick={handleCreate}
+                        className={`w-full md:w-auto px-5 py-3 rounded-lg ${currentTheme.buttonBg} font-medium whitespace-nowrap`}
+                    >
+                        + Cadastrar Empresa
+                    </button>
+                )}
             </div>
 
             <div className="flex flex-col lg:flex-row gap-4">
@@ -101,7 +105,7 @@ export default function CompaniesPage() {
                 ))}
             </div>
 
-            <CompaniesTable onEdit={handleEdit} onDelete={handleDeleteClick} />
+            <CompaniesTable onEdit={handleEdit} onDelete={handleDeleteClick} isReadOnly={user?.role === 'VIEWER'} />
 
             <CompanyModal
                 isOpen={isModalOpen}

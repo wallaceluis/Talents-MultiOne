@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -18,24 +18,23 @@ export class UsersService {
       throw new ConflictException('Email já cadastrado');
     }
 
-    if (!createUserDto.companyId) {
-      throw new BadRequestException('ID da empresa é obrigatório');
-    }
-
     // Hash da senha
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const { companyId, role, password, ...userData } = createUserDto;
 
+    const data: any = {
+      ...userData,
+      password: hashedPassword,
+      role: role as Role,
+      status: 'ACTIVE',
+    };
+
+    if (companyId) {
+      data.company = { connect: { id: companyId } };
+    }
+
     const { password: _, ...user } = await this.prisma.user.create({
-      data: {
-        ...userData,
-        password: hashedPassword,
-        role: role as Role,
-        status: 'ACTIVE',
-        company: {
-          connect: { id: companyId }
-        },
-      },
+      data,
     });
 
     return user;

@@ -5,11 +5,13 @@ import { useTheme } from '../../lib/theme';
 import { MetricCard } from '../../components/ui/card';
 import { CandidatesTable } from '../../components/tables/candidates-table';
 import { useCandidates } from '../../hooks/useCandidates';
+import { useAuth } from '../../hooks/useAuth';
 import { Search, Users, ListChecks, TrendingUp, Briefcase, BarChart3 } from 'lucide-react';
 
 export default function CandidatesPage() {
     const { currentTheme } = useTheme();
     const { stats, fetchStats, loading } = useCandidates();
+    const { user } = useAuth();
 
     useEffect(() => {
         if (fetchStats) fetchStats();
@@ -60,7 +62,7 @@ export default function CandidatesPage() {
                 </div>
             )}
 
-            <CandidatesTable />
+            <CandidatesTable isReadOnly={user?.role === 'VIEWER'} />
         </main>
     );
 }

@@ -17,19 +17,19 @@ export class DashboardController {
   }
 
   @Get('candidates-analysis')
-  @Roles('ADMIN', 'MANAGER', 'RECRUITER')
+  @Roles('ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER')
   async getCandidatesAnalysis() {
     return this.dashboardService.getCandidatesAnalysis();
   }
 
   @Get('companies-analysis')
-  @Roles('ADMIN', 'MANAGER')
+  @Roles('ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER')
   async getCompaniesAnalysis() {
     return this.dashboardService.getCompaniesAnalysis();
   }
 
   @Get('vacancies-analysis')
-  @Roles('ADMIN', 'MANAGER', 'RECRUITER')
+  @Roles('ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER')
   async getVacanciesAnalysis() {
     return this.dashboardService.getVacanciesAnalysis();
   }
@@ -45,25 +45,25 @@ export class DashboardController {
   }
 
   @Get('reports/companies')
-  @Roles('ADMIN', 'MANAGER')
+  @Roles('ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER')
   async getCompaniesReport() {
     return this.dashboardService.getCompaniesReportData();
   }
 
   @Get('reports/candidates')
-  @Roles('ADMIN', 'MANAGER', 'RECRUITER')
+  @Roles('ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER')
   async getCandidatesReport() {
     return this.dashboardService.getCandidatesReportData();
   }
 
   @Get('reports/vacancies')
-  @Roles('ADMIN', 'MANAGER', 'RECRUITER')
+  @Roles('ADMIN', 'MANAGER', 'RECRUITER', 'VIEWER')
   async getVacanciesReport() {
     return this.dashboardService.getVacanciesReportData();
   }
 
   @Get('reports/users')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'VIEWER')
   async getUsersReport() {
     return this.dashboardService.getUsersReportData();
   }

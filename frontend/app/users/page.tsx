@@ -2,18 +2,20 @@
 
 import React, { useEffect, useState } from 'react';
 import { useUsers } from '../../hooks/useUsers';
+import { useAuth } from '../../hooks/useAuth';
 import { User, CreateUserDto, UpdateUserDto } from '../../types/user';
 import { User as UserIcon, Plus, Trash2, Search, X, Edit2, Shield, Building2 } from 'lucide-react';
 import { useTheme } from '../../lib/theme';
 
 export default function UsersPage() {
   const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } = useUsers();
+  const { user } = useAuth();
   const { currentTheme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState<CreateUserDto>({
-    name: '', email: '', password: '', role: 'USER', status: 'ACTIVE', companyId: '',
+    name: '', email: '', password: '', role: 'VIEWER', status: 'ACTIVE', companyId: '',
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -27,20 +29,21 @@ export default function UsersPage() {
 
   const handleOpenCreate = () => {
     setEditingUser(null);
-    setFormData({ name: '', email: '', password: '', role: 'USER', status: 'ACTIVE', companyId: '' });
+    setFormData({ name: '', email: '', password: '', role: 'VIEWER', status: 'ACTIVE', companyId: '' });
     setFormError('');
     setShowModal(true);
   };
 
-  const handleOpenEdit = (user: User) => {
-    setEditingUser(user);
+  const handleOpenEdit = (userToEdit: User) => {
+    if (user?.role === 'VIEWER') return;
+    setEditingUser(userToEdit);
     setFormData({
-      name: user.name,
-      email: user.email,
+      name: userToEdit.name,
+      email: userToEdit.email,
       password: '',
-      role: user.role,
-      status: user.status,
-      companyId: user.companyId || '',
+      role: userToEdit.role,
+      status: userToEdit.status,
+      companyId: userToEdit.companyId || '',
     });
     setFormError('');
     setShowModal(true);
@@ -79,10 +82,11 @@ export default function UsersPage() {
     }
   };
 
-  const handleDelete = async (user: User) => {
-    if (!confirm(`Deseja realmente excluir o usuário "${user.name}"?`)) return;
+  const handleDelete = async (userToDelete: User) => {
+    if (user?.role === 'VIEWER') return;
+    if (!confirm(`Deseja realmente excluir o usuário "${userToDelete.name}"?`)) return;
     try {
-      await deleteUser(user.id);
+      await deleteUser(userToDelete.id);
       await fetchUsers();
     } catch (err: any) {
       alert(err.message);
@@ -109,9 +113,11 @@ export default function UsersPage() {
           <h1 className={`text-3xl font-bold ${currentTheme.titleColor}`}>Usuários</h1>
           <p className={`mt-1 ${currentTheme.cardText}`}>Gerencie os usuários do sistema</p>
         </div>
-        <button onClick={handleOpenCreate} className={`${currentTheme.buttonBg} flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-colors`}>
-          <Plus className="w-5 h-5" />Novo Usuário
-        </button>
+        {user?.role !== 'VIEWER' && (
+          <button onClick={handleOpenCreate} className={`${currentTheme.buttonBg} flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-colors`}>
+            <Plus className="w-5 h-5" />Novo Usuário
+          </button>
+        )}
       </div>
 
       <div className="mb-6">
@@ -143,7 +149,9 @@ export default function UsersPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Papel</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
+                {user?.role !== 'VIEWER' && (
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -174,10 +182,12 @@ export default function UsersPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>{user.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}</span></td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button onClick={() => handleOpenEdit(user)} className="text-blue-600 hover:text-blue-900 mr-3" title="Editar"><Edit2 className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-900" title="Deletar"><Trash2 className="w-4 h-4" /></button>
-                  </td>
+                  {user?.role !== 'VIEWER' && (
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <button onClick={() => handleOpenEdit(user)} className="text-blue-600 hover:text-blue-900 mr-3" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-900" title="Deletar"><Trash2 className="w-4 h-4" /></button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -217,7 +227,8 @@ export default function UsersPage() {
                   <select required value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
                     className={`w-full px-3 py-2 rounded-lg ${currentTheme.searchBg} ${currentTheme.mainText} focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   >
-                    <option value="USER">Usuário</option><option value="RECRUITER">Recrutador</option><option value="ADMIN">Administrador</option>
+                    <option value="VIEWER">Visualizador</option>
+                    <option value="ADMIN">Administrador</option>
                   </select>
                 </div>
                 <div>

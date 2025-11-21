@@ -18,7 +18,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @Roles('ADMIN', 'MANAGER')
@@ -27,12 +27,13 @@ export class UsersController {
   }
 
   @Get()
-  @Roles('ADMIN', 'MANAGER')
+  @Roles('ADMIN', 'MANAGER', 'VIEWER')
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
+  @Roles('ADMIN', 'MANAGER', 'VIEWER')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
