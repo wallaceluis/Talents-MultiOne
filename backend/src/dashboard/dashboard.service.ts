@@ -789,29 +789,16 @@ export class DashboardService {
   }
 
   private generateCsv(data: any): Buffer {
-    let csvContent = `${data.title}\n`;
-    csvContent += `Gerado em,${new Date().toLocaleDateString('pt-BR')}\n\n`;
+    const sep = ';';
+    let csv = '\uFEFF';
 
-    csvContent += 'Resumo\n';
-    data.summary.forEach((item: any) => {
-      csvContent += `${item.label},${item.value}\n`;
+    csv += data.columns.join(sep) + '\r\n';
+
+    data.rows.forEach((row: any[]) => {
+      csv += row
+        .map(c => `${String(c).replace(/"/g, '""')}`)
+        .join(sep) + '\r\n'
     });
-    csvContent += '\n';
-
-    csvContent += 'Detalhes\n';
-    data.detailedInfo.forEach((item: any) => {
-      csvContent += `${item.label},${item.value}\n`;
-    });
-    csvContent += '\n';
-
-    if (data.rows && data.rows.length > 0) {
-      csvContent += 'Dados Detalhados\n';
-      csvContent += data.columns.join(',') + '\n';
-      data.rows.forEach((row: any[]) => {
-        csvContent += row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',') + '\n';
-      });
-    }
-
-    return Buffer.from(csvContent, 'utf-8');
+    return Buffer.from(csv, 'utf8')
   }
 }
