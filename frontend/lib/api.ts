@@ -15,9 +15,6 @@ api.interceptors.request.use(
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
-        console.log(`🔑 Token adicionado à requisição: ${config.url}`);
-      } else {
-        console.warn('⚠️ Nenhum token encontrado!');
       }
     }
     return config;
@@ -30,8 +27,6 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ Resposta: ${response.config.url} - Status: ${response.status}`);
-
     // Desembrulhar response.data se necessário
     if (response.data && typeof response.data === 'object' && 'data' in response.data) {
       return {
@@ -43,18 +38,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('❌ Erro na requisição:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      message: error.response?.data?.message,
-    });
-
     // Auto-logout em 401
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        alert('Sua sessão expirou. Faça login novamente.');
         window.location.href = '/auth';
       }
     }

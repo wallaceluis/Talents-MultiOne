@@ -1,43 +1,36 @@
 # --- ESTÁGIO 1: BUILDER ---
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Precisamos das devDependencies para buildar o Nest
 ENV NODE_ENV=development
 
-# 1. Copia apenas o package.json
-COPY backend/package.json ./backend/
-
-# 2. Instala TODAS as dependências (incluindo dev)
+COPY backend/package.json backend/package-lock.json* ./backend/
 WORKDIR /app/backend
-RUN npm install
 
-# 3. Copia o restante do código-fonte
-COPY backend ./
+RUN npm install --legacy-peer-deps --fetch-timeout=600000 --fetch-retries=5
 
-# 4. Gera o cliente Prisma
+COPY backend .
+
 RUN npx prisma generate
-
-# 5. Roda o build do NestJS
 RUN npm run build
 
-
 # --- ESTÁGIO 2: PRODUÇÃO ---
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 WORKDIR /app/backend
 
 ENV NODE_ENV=production
 
-# 1. Copia apenas o package.json
-COPY backend/package.json ./
+# Instala openssl e bash para debug
+RUN apk add --no-cache openssl bash
 
-# 2. Instala apenas dependências de produção
-RUN npm install --omit=dev
+COPY backend/package.json backend/package-lock.json* ./
 
-# 3. Copia build e Prisma do estágio anterior
+RUN npm install --omit=dev --legacy-peer-deps --fetch-timeout=600000 --fetch-retries=5
+
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/prisma ./prisma
 
 # 4. Exposição e comando final
-EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+EXPOSE 3001
+
+CMD ["npm", "run", "start:prod"]

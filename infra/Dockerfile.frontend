@@ -1,43 +1,46 @@
 # --- ESTÁGIO 1: BUILDER ---
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-ENV NODE_ENV=production
+# !!! CORREÇÃO CRÍTICA: Removemos o NODE_ENV=production daqui.
+# Precisamos que o npm instale as devDependencies (Tailwind, TypeScript) para fazer o build.
 
-# 1. Copia apenas o package.json do frontend
-COPY frontend/package.json ./frontend/
-
-# 2. Instala dependências do frontend
+# Copia dependências
+COPY frontend/package.json frontend/package-lock.json* ./frontend/
 WORKDIR /app/frontend
-RUN npm install
 
-# 3. Copia o restante do código-fonte do frontend
-COPY frontend ./
+# Instala TODAS as dependências (incluindo Tailwind)
+RUN npm install --legacy-peer-deps
 
-# 4. Roda o build do Next.js
+# Mantemos sua correção do react-is por segurança (caso seja problema de peer deps)
+RUN npm install react-is
+
+# Copia código fonte
+COPY frontend .
+
+# Build do Next.js (Agora vai achar o Tailwind!)
 RUN npm run build
 
 
 # --- ESTÁGIO 2: PRODUÇÃO ---
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 WORKDIR /app
 
+# Aqui sim definimos produção para performance
 ENV NODE_ENV=production
 
-# 1. Copia apenas o package.json do frontend
-COPY frontend/package.json ./frontend/
-
-# 2. Instala apenas dependências de produção
+COPY frontend/package.json frontend/package-lock.json* ./frontend/
 WORKDIR /app/frontend
-RUN npm install --omit=dev
 
-# 3. Copia o build do estágio anterior
-COPY --from=builder /app/frontend/.next ./frontend/.next
-COPY --from=builder /app/frontend/public ./frontend/public
+# Instalação leve para produção (sem Tailwind, sem TypeScript)
+RUN npm install --omit=dev --legacy-peer-deps
 
-# 4. Define o diretório final e porta
-WORKDIR /app/frontend
+# Copia os artefatos gerados pelo Next.js no estágio anterior
+COPY --from=builder /app/frontend/.next ./.next
+COPY --from=builder /app/frontend/public ./public
+# Copia next.config.js se existir
+# COPY --from=builder /app/frontend/next.config.js ./next.config.js
+
 EXPOSE 3000
 
-# 5. Comando para iniciar o app
 CMD ["npm", "run", "start"]

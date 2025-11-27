@@ -36,18 +36,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error = exception.name;
     }
 
-    // Log do erro
-    this.logger.error(
-      `${request.method} ${request.url}`,
-      JSON.stringify({
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        error,
-        message,
-      }),
-    );
-
     // Resposta formatada
     response.status(status).json({
       statusCode: status,

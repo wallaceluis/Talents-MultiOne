@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-        
+
         if (token && storedUser) {
           setUser(JSON.parse(storedUser));
         }
@@ -75,32 +75,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
-      console.log('🔐 Iniciando login...', { email });
-      
+
       const response = await api.post<LoginResponse>('/auth/login', { email, password });
-      console.log('✅ Resposta da API:', response.data);
-      
+
       const { access_token, user: userData } = response.data;
-      
+
       if (!access_token) {
         throw new Error('Token não encontrado na resposta');
       }
-      
+
       // Salvar no localStorage
       localStorage.setItem('token', access_token);
       localStorage.setItem('user', JSON.stringify(userData));
-      
+
       // Atualizar estado
       setUser(userData);
-      
-      console.log('✅ Login concluído! Redirecionando...');
-      
+
       // Redirecionar para dashboard
       router.push('/dashboard');
-      
+
       return { success: true };
     } catch (error: any) {
-      console.error('❌ Erro no login:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Erro ao fazer login';
       return { success: false, error: errorMessage };
     } finally {

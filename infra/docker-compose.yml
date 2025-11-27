@@ -20,12 +20,12 @@ services:
       DATABASE_URL: "postgresql://dev:dev123@db:5432/talents?schema=public"
       JWT_SECRET: "seu-secret-super-seguro-minimo-32-caracteres-aleat0ri0s"
       JWT_EXPIRES_IN: "7d"
-      PORT: 4000
+      PORT: 3001
     depends_on:
       - db
     ports:
-      - "4000:4000"
-    command: ["npm", "run", "start"]
+      - "3001:3001"
+    command: ["npm", "run", "start:prod"]
 
   frontend:
     build:
@@ -33,7 +33,7 @@ services:
       dockerfile: ./infra/Dockerfile.frontend
     restart: always
     environment:
-      NEXT_PUBLIC_API_URL: "http://localhost:4000"
+      NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
     depends_on:
       - backend
     ports:
