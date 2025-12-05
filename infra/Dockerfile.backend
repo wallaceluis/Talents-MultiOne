@@ -1,36 +1,63 @@
 # --- ESTÁGIO 1: BUILDER ---
 FROM node:20-alpine AS builder
+
+# Argumentos de Proxy
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+
 WORKDIR /app
 
-ENV NODE_ENV=development
+# Configura Proxy no NPM
+RUN if [ -n "$HTTP_PROXY" ]; then npm config set proxy $HTTP_PROXY; fi
+RUN if [ -n "$HTTPS_PROXY" ]; then npm config set https-proxy $HTTPS_PROXY; fi
 
+# Dependências
 COPY backend/package.json backend/package-lock.json* ./backend/
 WORKDIR /app/backend
-
 RUN npm install --legacy-peer-deps --fetch-timeout=600000 --fetch-retries=5
 
+# Código Fonte
 COPY backend .
 
+# Gera o Prisma Client (Usa a versão do package.json)
 RUN npx prisma generate
+
+# Build do NestJS
 RUN npm run build
+
+# Compila o seed script
+RUN npx tsc prisma/seed.ts --outDir dist --skipLibCheck --module commonjs --target es2021 --esModuleInterop
+
 
 # --- ESTÁGIO 2: PRODUÇÃO ---
 FROM node:20-alpine AS production
-WORKDIR /app/backend
 
 ENV NODE_ENV=production
 
-# Instala openssl e bash para debug
+# Argumentos de Proxy novamente
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+
+# Instalação mínima para rodar
 RUN apk add --no-cache openssl bash
 
-COPY backend/package.json backend/package-lock.json* ./
+WORKDIR /app/backend
+COPY backend/package.json backend/package-lock.json* /app/backend/
 
+# Configura Proxy no NPM de produção
+RUN if [ -n "$HTTP_PROXY" ]; then npm config set proxy $HTTP_PROXY; fi
+RUN if [ -n "$HTTPS_PROXY" ]; then npm config set https-proxy $HTTPS_PROXY; fi
+
+# Instala apenas dependências de produção
 RUN npm install --omit=dev --legacy-peer-deps --fetch-timeout=600000 --fetch-retries=5
+RUN npm install prisma --save-exact
 
+# Copia o build
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/prisma ./prisma
 
-# 4. Exposição e comando final
+RUN npx prisma@5.22.0 generate
+
 EXPOSE 3001
 
-CMD ["npm", "run", "start:prod"]
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy && node dist/prisma/seed.js && npm run start:prod"]

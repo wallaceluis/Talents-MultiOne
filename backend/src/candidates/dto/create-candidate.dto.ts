@@ -1,5 +1,12 @@
 import { IsString, IsNotEmpty, IsEmail, IsOptional, IsEnum, IsUUID, IsDateString } from 'class-validator';
-import { CandidateStatus } from '@prisma/client';
+
+// Definir o enum localmente ao invés de importar do Prisma
+export enum CandidateStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  IN_PROCESS = 'IN_PROCESS',
+  HIRED = 'HIRED',
+}
 
 export class CreateCandidateDto {
   @IsString()

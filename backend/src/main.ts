@@ -4,13 +4,13 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Prefixo global para todas as rotas
   app.setGlobalPrefix('api');
-  
+
   // Habilitar CORS
   app.enableCors();
-  
+
   // Habilitar validação global
   app.useGlobalPipes(
     new ValidationPipe({
@@ -21,8 +21,8 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  
+  await app.listen(port, '0.0.0.0');
+
   console.log(`🚀 Application is running on: http://localhost:${port}`);
   console.log(`📚 API Prefix: /api`);
   console.log(`🔗 Auth: http://localhost:${port}/api/auth/login`);
