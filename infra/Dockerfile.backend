@@ -26,7 +26,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Compila o seed script
-RUN npx tsc prisma/seed.ts --outDir dist --skipLibCheck --module commonjs --target es2021 --esModuleInterop
+RUN npx tsc prisma/seed.ts --outDir dist --rootDir . --skipLibCheck --module commonjs --target es2021 --esModuleInterop
 
 
 # --- ESTÁGIO 2: PRODUÇÃO ---
