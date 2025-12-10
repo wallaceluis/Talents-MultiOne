@@ -103,12 +103,11 @@ export class CompaniesService {
   async remove(id: string) {
     await this.findOne(id);
 
-    await this.prisma.company.update({
+    await this.prisma.company.delete({
       where: { id },
-      data: { status: 'INACTIVE' },
     });
 
-    return { message: 'Empresa desativada com sucesso' };
+    return { message: 'Empresa removida com sucesso' };
   }
 
   async getStats() {

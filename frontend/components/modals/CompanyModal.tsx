@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Building2, Globe, Loader2, Briefcase, Users, MapPin, FileText, Search, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import { X, Building2, Globe, Loader2, Briefcase, Users, MapPin, FileText, Search, AlertCircle, CreditCard } from 'lucide-react';
+import api from '../../lib/api';
 
 interface CompanyModalProps {
   isOpen: boolean;
@@ -64,6 +64,8 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
   const [fetchingCNPJ, setFetchingCNPJ] = useState(false);
   const [fetchingCEP, setFetchingCEP] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
 
   const [formData, setFormData] = useState({
     cnpj: '',
@@ -82,6 +84,8 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
     neighborhood: '', // Bairro
     city: '',
     state: '', // UF
+    planId: '',
+    status: 'ACTIVE',
   });
 
   useEffect(() => {
@@ -103,6 +107,8 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
         neighborhood: company.neighborhood || '',
         city: company.city || '',
         state: company.state || '',
+        planId: company.planId || '',
+        status: company.status || 'ACTIVE',
       });
     } else {
       setFormData({
@@ -122,10 +128,34 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
         neighborhood: '',
         city: '',
         state: '',
+        planId: '',
+        status: 'ACTIVE',
       });
     }
     setError(null);
   }, [company, mode, isOpen]);
+
+  // Fetch plans
+  useEffect(() => {
+    if (isOpen) {
+      fetchPlans();
+    }
+  }, [isOpen]);
+
+  const fetchPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const response = await api.get('/plans?includeInactive=true');
+      const data = (response.data as any).data || response.data;
+      setPlans(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to fetch plans', err);
+      // Fallback
+      setPlans([]);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const fetchCNPJData = async () => {
     // Only fetch if CNPJ is valid (14 digits)
@@ -186,7 +216,7 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
 
     setFetchingCEP(true);
     try {
-      const response = await axios.get(`https://brasilapi.com.br/api/cep/v1/${cleanCEP}`);
+      const response = await api.get(`https://brasilapi.com.br/api/cep/v1/${cleanCEP}`);
       const data = response.data as any;
 
       setFormData(prev => ({
@@ -222,7 +252,6 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
 
     try {
       // Clean data before sending (remove masks etc if needed)
-      // Sending all fields as per implementation plan, assumes backend can handle or ignore extras.
       await onSubmit({
         ...formData,
         cnpj: formData.cnpj.replace(/\D/g, ''),
@@ -341,7 +370,7 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
                 />
               </div>
 
-              {/* Domínio (Opcional, mas usado para emails) */}
+              {/* Domínio */}
               <div className="md:col-span-6">
                 <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Domínio Corporativo</label>
                 <div className="relative">
@@ -542,6 +571,48 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
                 >
                   <option value=""></option>
                   {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                </select>
+              </div>
+
+            </div>
+          </section>
+
+          {/* Seção 3: Configurações */}
+          <section className="space-y-4 pt-4 border-t border-gray-200 dark:border-zinc-800/50">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+              <CreditCard className="w-4 h-4" />
+              Plano e Status
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Plano */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Plano</label>
+                <select
+                  value={formData.planId}
+                  onChange={(e) => setFormData({ ...formData, planId: e.target.value })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all"
+                  disabled={loading || loadingPlans}
+                >
+                  <option value="">Selecione um plano...</option>
+                  {plans.map(plan => (
+                    <option key={plan.id} value={plan.id}>{plan.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all"
+                  disabled={loading}
+                >
+                  <option value="ACTIVE">Ativo</option>
+                  <option value="INACTIVE">Inativo</option>
+                  <option value="TRIAL">Trial</option>
                 </select>
               </div>
 
