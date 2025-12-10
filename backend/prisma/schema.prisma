@@ -26,10 +26,25 @@ model Company {
   id          String        @id @default(uuid())
   name        String
   domain      String        @unique
-  industry    String?
+  cnpj        String?       @unique
+  fantasyName String?
+  industry    String?       // Retaining for backward compatibility, but we use 'sector' in frontend
+  sector      String?
+  subSector   String?
   description String?
-  location    String?
+  location    String?       // Retaining for backward compatibility
   website     String?
+  linkedin    String?
+  
+  // Address
+  zipCode       String?
+  address       String?
+  number        String?
+  complement    String?
+  neighborhood  String?
+  city          String?
+  state         String?
+
   size        CompanySize   @default(SMALL)
   status      CompanyStatus @default(TRIAL)
   planId      String?

@@ -2,10 +2,11 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { CompanyStatus } from '@prisma/client';
 
 @Injectable()
 export class CompaniesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createCompanyDto: CreateCompanyDto) {
     const existingCompany = await this.prisma.company.findUnique({
@@ -16,12 +17,12 @@ export class CompaniesService {
       throw new ConflictException('Domínio já cadastrado');
     }
 
-    const { planId, ...companyData } = createCompanyDto;
+    const { planId, status, ...companyData } = createCompanyDto;
 
     return this.prisma.company.create({
       data: {
         ...companyData,
-        status: 'ACTIVE',
+        status: status ? (status as CompanyStatus) : CompanyStatus.ACTIVE,
         ...(planId && {
           plan: {
             connect: { id: planId },
@@ -82,12 +83,13 @@ export class CompaniesService {
   async update(id: string, updateCompanyDto: UpdateCompanyDto) {
     await this.findOne(id);
 
-    const { planId, ...companyData } = updateCompanyDto;
+    const { planId, status, ...companyData } = updateCompanyDto;
 
     return this.prisma.company.update({
       where: { id },
       data: {
         ...companyData,
+        ...(status && { status: status as CompanyStatus }),
         ...(planId !== undefined && {
           plan: planId ? { connect: { id: planId } } : { disconnect: true },
         }),

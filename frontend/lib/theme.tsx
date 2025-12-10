@@ -86,6 +86,16 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<keyof Themes>('whiteblue');
 
+  // Efeito para adicionar/remover a classe 'dark' no elemento HTML
+  React.useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'original') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
+
   const toggleTheme = () => {
     setTheme(prev => (prev === 'whiteblue' ? 'original' : 'whiteblue'));
   };

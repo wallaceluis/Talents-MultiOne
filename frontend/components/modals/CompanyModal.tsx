@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Building2, Globe, Loader2, Briefcase, Users, MapPin, FileText } from 'lucide-react';
+import { X, Building2, Globe, Loader2, Briefcase, Users, MapPin, FileText, Search, AlertCircle } from 'lucide-react';
+import axios from 'axios';
 
 interface CompanyModalProps {
   isOpen: boolean;
@@ -11,58 +12,222 @@ interface CompanyModalProps {
   mode: 'create' | 'edit';
 }
 
+const SECTORS = [
+  'Tecnologia',
+  'Varejo',
+  'Serviços',
+  'Indústria',
+  'Saúde',
+  'Educação',
+  'Financeiro',
+  'Imobiliário',
+  'Outros'
+];
+
+const SEGMENTS: Record<string, string[]> = {
+  'Tecnologia': ['Desenvolvimento de Software', 'Consultoria TI', 'SaaS', 'Hardware', 'Telecomunicações'],
+  'Varejo': ['E-commerce', 'Supermercado', 'Vestuário', 'Eletrônicos', 'Móveis'],
+  'Serviços': ['Consultoria', 'Marketing', 'Recursos Humanos', 'Jurídico', 'Logística'],
+  'Indústria': ['Manufatura', 'Automotiva', 'Alimentos', 'Têxtil', 'Química'],
+  'Saúde': ['Hospitais', 'Clínicas', 'Farmacêutica', 'Laboratórios'],
+  'Educação': ['Escolas', 'Universidades', 'Cursos Online', 'Treinamento Corporativo'],
+  'Financeiro': ['Bancos', 'Seguros', 'Investimentos', ' Fintech'],
+  'Imobiliário': ['Construção', 'Vendas', 'Aluguel', 'Gestão de Propriedades'],
+  'Outros': ['Outros']
+};
+
+const BRAZIL_STATES = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+];
+
+// Utility to format CNPJ
+const formatCNPJ = (value: string) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2')
+    .slice(0, 18);
+};
+
+// Utility to format CEP
+const formatCEP = (value: string) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/^(\d{5})(\d)/, '$1-$2')
+    .slice(0, 9);
+};
+
 export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: CompanyModalProps) {
   const [loading, setLoading] = useState(false);
+  const [fetchingCNPJ, setFetchingCNPJ] = useState(false);
+  const [fetchingCEP, setFetchingCEP] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
-    name: '',
+    cnpj: '',
+    name: '', // Razão Social
+    fantasyName: '', // Nome Fantasia
     domain: '',
-    // Campos extras (para exibição, não serão enviados na criação)
-    industry: '',
-    size: 'SMALL',
+    sector: '',
+    subSector: '',
+    website: '',
+    linkedin: '',
     description: '',
-    location: '',
-    website: ''
+    zipCode: '', // CEP
+    address: '', // Logradouro
+    number: '',
+    complement: '',
+    neighborhood: '', // Bairro
+    city: '',
+    state: '', // UF
   });
 
   useEffect(() => {
     if (company && mode === 'edit') {
       setFormData({
+        cnpj: company.cnpj || '',
         name: company.name || '',
+        fantasyName: company.fantasyName || '',
         domain: company.domain || '',
-        industry: company.industry || '',
-        size: company.size || 'SMALL',
+        sector: company.sector || '',
+        subSector: company.subSector || '',
+        website: company.website || '',
+        linkedin: company.linkedin || '',
         description: company.description || '',
-        location: company.location || '',
-        website: company.website || ''
+        zipCode: company.zipCode || '',
+        address: company.address || '',
+        number: company.number || '',
+        complement: company.complement || '',
+        neighborhood: company.neighborhood || '',
+        city: company.city || '',
+        state: company.state || '',
       });
     } else {
       setFormData({
+        cnpj: '',
         name: '',
+        fantasyName: '',
         domain: '',
-        industry: '',
-        size: 'SMALL',
+        sector: '',
+        subSector: '',
+        website: '',
+        linkedin: '',
         description: '',
-        location: '',
-        website: ''
+        zipCode: '',
+        address: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+        city: '',
+        state: '',
       });
     }
     setError(null);
   }, [company, mode, isOpen]);
 
+  const fetchCNPJData = async () => {
+    // Only fetch if CNPJ is valid (14 digits)
+    const cleanCNPJ = formData.cnpj.replace(/\D/g, '');
+    if (cleanCNPJ.length !== 14) {
+      setError('CNPJ inválido ou incompleto.');
+      return;
+    }
+
+    setFetchingCNPJ(true);
+    setError(null);
+
+    try {
+      // Use our Next.js Proxy
+      const response = await fetch(`/api/proxy/cnpj?cnpj=${cleanCNPJ}`);
+
+      if (!response.ok) {
+        if (response.status === 429) throw new Error('Muitas requisições. Tente novamente mais tarde.');
+        throw new Error('Falha na consulta do CNPJ');
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'ERROR') {
+        setError(data.message);
+        return;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        name: data.nome || prev.name,
+        fantasyName: data.fantasia || prev.fantasyName,
+        zipCode: data.cep ? data.cep.replace('.', '') : prev.zipCode,
+        address: data.logradouro || prev.address,
+        number: data.numero || prev.number,
+        complement: data.complement || prev.complement,
+        neighborhood: data.bairro || prev.neighborhood,
+        city: data.municipio || prev.city,
+        state: data.uf || prev.state,
+        // Attempt to guess domain from email if available
+        domain: !prev.domain && data.email ? data.email.split('@')[1] : prev.domain
+      }));
+
+    } catch (err: any) {
+      console.error('Erro ao consultar CNPJ:', err);
+      setError(err.message || 'Erro ao consultar CNPJ');
+    } finally {
+      setFetchingCNPJ(false);
+    }
+  };
+
+  const fetchCEPData = async () => {
+    const cleanCEP = formData.zipCode.replace(/\D/g, '');
+    if (cleanCEP.length !== 8) {
+      // Don't error if empty, just ignore
+      return;
+    }
+
+    setFetchingCEP(true);
+    try {
+      const response = await axios.get(`https://brasilapi.com.br/api/cep/v1/${cleanCEP}`);
+      const data = response.data as any;
+
+      setFormData(prev => ({
+        ...prev,
+        address: data.street || prev.address,
+        neighborhood: data.neighborhood || prev.neighborhood,
+        city: data.city || prev.city,
+        state: data.state || prev.state
+      }));
+    } catch (err) {
+      console.error('Erro ao consultar CEP:', err);
+    } finally {
+      setFetchingCEP(false);
+    }
+  };
+
+  const handleCNPJBlur = () => {
+    if (formData.cnpj.replace(/\D/g, '').length === 14) {
+      fetchCNPJData();
+    }
+  };
+
+  const handleCEPBlur = () => {
+    if (formData.zipCode.replace(/\D/g, '').length === 8) {
+      fetchCEPData();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
-      // Enviar apenas os campos aceitos pelo backend
-      const dataToSend = {
-        name: formData.name,
-        domain: formData.domain
-      };
-      
-      await onSubmit(dataToSend);
+      // Clean data before sending (remove masks etc if needed)
+      // Sending all fields as per implementation plan, assumes backend can handle or ignore extras.
+      await onSubmit({
+        ...formData,
+        cnpj: formData.cnpj.replace(/\D/g, ''),
+        zipCode: formData.zipCode.replace(/\D/g, '')
+      });
       onClose();
     } catch (err: any) {
       console.error('Erro ao salvar:', err);
@@ -75,188 +240,327 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl transition-colors">
+
+        {/* Header */}
+        <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10 transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+              <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-500" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">
-              {mode === 'create' ? 'Nova Empresa' : 'Editar Empresa'}
-            </h2>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-zinc-100">
+                {mode === 'create' ? 'Nova Empresa' : 'Editar Empresa'}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">Preencha os dados da empresa</p>
+            </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             disabled={loading}
-            className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+            className="text-gray-500 hover:text-gray-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/50 p-2 rounded-full transition-all disabled:opacity-50"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              {error}
             </div>
           )}
 
-          {/* Informações Básicas */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-              Informações Básicas
+          {/* Seção 1: Dados Principais */}
+          <section className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              Dados Corporativos
             </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome da Empresa *
-                </label>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+              {/* CNPJ */}
+              <div className="md:col-span-4">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">CNPJ</label>
+                <div className="relative flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={formData.cnpj}
+                      onChange={(e) => setFormData({ ...formData, cnpj: formatCNPJ(e.target.value) })}
+                      onBlur={handleCNPJBlur}
+                      placeholder="00.000.000/0000-00"
+                      maxLength={18}
+                      className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                      disabled={loading || fetchingCNPJ}
+                    />
+                    {fetchingCNPJ && (
+                      <div className="absolute right-3 top-2.5">
+                        <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchCNPJData}
+                    disabled={fetchingCNPJ || loading}
+                    className="p-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                    title="Buscar CNPJ"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Razão Social */}
+              <div className="md:col-span-8">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Razão Social</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  placeholder="Ex: Tech Solutions"
+                  placeholder="Nome oficial da empresa"
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
                   disabled={loading}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Domínio *
-                </label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    required
-                    value={formData.domain}
-                    onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="techsolutions.com"
-                    disabled={loading}
-                  />
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Formato: empresa.com
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website
-                </label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="url"
-                    value={formData.website}
-                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="https://techsolutions.com"
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informações Complementares */}
-          <div className="space-y-4 pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-              Informações Complementares
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Briefcase className="w-4 h-4 inline mr-1" />
-                  Setor/Indústria
-                </label>
+              {/* Nome Fantasia */}
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Nome Fantasia</label>
                 <input
                   type="text"
-                  value={formData.industry}
-                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  placeholder="Ex: Tecnologia"
+                  value={formData.fantasyName}
+                  onChange={(e) => setFormData({ ...formData, fantasyName: e.target.value })}
+                  placeholder="Nome comercial"
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
                   disabled={loading}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Users className="w-4 h-4 inline mr-1" />
-                  Tamanho
-                </label>
+              {/* Domínio (Opcional, mas usado para emails) */}
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Domínio Corporativo</label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                  <input
+                    type="text"
+                    value={formData.domain}
+                    onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+                    placeholder="empresa.com"
+                    className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 pl-9 pr-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Setor */}
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Setor</label>
                 <select
-                  value={formData.size}
-                  onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  value={formData.sector}
+                  onChange={(e) => setFormData({ ...formData, sector: e.target.value, subSector: '' })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all"
                   disabled={loading}
                 >
-                  <option value="SMALL">Pequena (1-50)</option>
-                  <option value="MEDIUM">Média (51-250)</option>
-                  <option value="LARGE">Grande (251-1000)</option>
-                  <option value="ENTERPRISE">Corporação (1000+)</option>
+                  <option value="">Selecione...</option>
+                  {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-1" />
-                  Localização
-                </label>
+              {/* Segmento */}
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Segmento</label>
+                <select
+                  value={formData.subSector}
+                  onChange={(e) => setFormData({ ...formData, subSector: e.target.value })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all disabled:opacity-50"
+                  disabled={loading || !formData.sector}
+                >
+                  <option value="">Selecione...</option>
+                  {(formData.sector && SEGMENTS[formData.sector]) ? (
+                    SEGMENTS[formData.sector].map(s => <option key={s} value={s}>{s}</option>)
+                  ) : null}
+                </select>
+              </div>
+
+              {/* Website */}
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Website</label>
                 <input
                   type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  placeholder="Ex: São Paulo, SP"
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  placeholder="exemplo.com"
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
                   disabled={loading}
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FileText className="w-4 h-4 inline mr-1" />
-                  Descrição
-                </label>
+              {/* LinkedIn */}
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">LinkedIn</label>
+                <input
+                  type="text"
+                  value={formData.linkedin}
+                  onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                  placeholder="linkedin.com/company/..."
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Descrição */}
+              <div className="md:col-span-12">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Descrição</label>
                 <textarea
+                  rows={2}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                   placeholder="Breve descrição sobre a empresa..."
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600 resize-none"
                   disabled={loading}
                 />
               </div>
             </div>
-          </div>
+          </section>
 
-          {mode === 'create' && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-700">
-                ℹ️ <strong>Nota:</strong> Alguns campos complementares poderão ser editados após a criação da empresa.
-              </p>
+          {/* Seção 2: Endereço */}
+          <section className="space-y-4 pt-4 border-t border-gray-200 dark:border-zinc-800/50">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Endereço
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+              {/* CEP */}
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">CEP</label>
+                <div className="relative flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={formData.zipCode}
+                      onChange={(e) => setFormData({ ...formData, zipCode: formatCEP(e.target.value) })}
+                      onBlur={handleCEPBlur}
+                      placeholder="00000-000"
+                      maxLength={9}
+                      className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                      disabled={loading || fetchingCEP}
+                    />
+                    {fetchingCEP && (
+                      <div className="absolute right-3 top-2.5">
+                        <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchCEPData}
+                    disabled={fetchingCEP || loading}
+                    className="p-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Logradouro */}
+              <div className="md:col-span-7">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Logradouro</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Rua, Avenida..."
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Número */}
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Número</label>
+                <input
+                  type="text"
+                  value={formData.number}
+                  onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                  placeholder="123"
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Complemento */}
+              <div className="md:col-span-4">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Complemento</label>
+                <input
+                  type="text"
+                  value={formData.complement}
+                  onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
+                  placeholder="Apto, Sala..."
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Bairro */}
+              <div className="md:col-span-4">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Bairro</label>
+                <input
+                  type="text"
+                  value={formData.neighborhood}
+                  onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Cidade */}
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">Cidade</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* UF */}
+              <div className="md:col-span-1">
+                <label className="block text-xs font-medium text-gray-700 dark:text-zinc-400 mb-1.5 ml-1">UF</label>
+                <select
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  className="w-full bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-100 px-1 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all"
+                  disabled={loading}
+                >
+                  <option value=""></option>
+                  {BRAZIL_STATES.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+                </select>
+              </div>
+
             </div>
-          )}
+          </section>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-800/50">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 font-medium"
+              className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all disabled:opacity-50 font-medium"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 font-medium"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/20 transition-all disabled:opacity-50 flex items-center gap-2 font-medium"
             >
               {loading ? (
                 <>
@@ -264,7 +568,7 @@ export function CompanyModal({ isOpen, onClose, onSubmit, company, mode }: Compa
                   Salvando...
                 </>
               ) : (
-                mode === 'create' ? 'Criar Empresa' : 'Salvar Alterações'
+                mode === 'create' ? 'Cadastrar Empresa' : 'Salvar Alterações'
               )}
             </button>
           </div>
