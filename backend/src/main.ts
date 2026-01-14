@@ -8,8 +8,16 @@ async function bootstrap() {
   // Prefixo global para todas as rotas
   app.setGlobalPrefix('api');
 
-  // Habilitar CORS
-  app.enableCors();
+  // Configuração de CORS
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      process.env.FRONTEND_URL, // URL do Frontend definida nas variáveis de ambiente
+      /\.vercel\.app$/,         // Permite todos os subdomínios da Vercel (Preview e Produção)
+    ].filter((origin) => !!origin) as (string | RegExp)[],
+    methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+    credentials: true,
+  });
 
   // Habilitar validação global
   app.useGlobalPipes(
