@@ -2,7 +2,13 @@
 
 Sistema completo de recrutamento e gestão de candidatos desenvolvido com NestJS e Next.js.
 
-## 📋 Pré-requisitos
+## � Autores
+
+- **Wallace Luis** - [@wallaceluis](https://github.com/wallaceluis)
+- **Felipe Fernandes** - [@Felipe-Fernandes97](https://github.com/Felipe-Fernandes97)
+- **Wesley Costa** - [@wesleyrobot](https://github.com/wesleyrobot)
+
+## �📋 Pré-requisitos
 
 Antes de começar, certifique-se de ter instalado em sua máquina:
 
@@ -229,10 +235,7 @@ Este projeto está sob a licença MIT.
 
 ---
 
-## 👨‍💻 Autor
 
-**Wallace Luis**  
-GitHub: [@wallaceluis](https://github.com/wallaceluis)
 
 ---
 
